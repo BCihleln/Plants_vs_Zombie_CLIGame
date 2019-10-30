@@ -1,7 +1,7 @@
 #pragma once
 #include "basic.h"
 
-const char version[] = "0.0.1";
+const char version[] = "0.0.2";
 /*
 完成功能
 	輸入信號的捕獲
