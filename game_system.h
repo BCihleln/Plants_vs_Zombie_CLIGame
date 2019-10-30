@@ -2,6 +2,11 @@
 #include "basic.h"
 
 const char version[] = "0.0.1";
+/*
+完成功能
+	輸入信號的捕獲
+		鍵盤、鼠標
+*/
 
 class GAME_SYSTEM
 {

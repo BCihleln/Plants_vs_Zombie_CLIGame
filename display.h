@@ -1,8 +1,16 @@
 #pragma once
 #include "basic.h"
 
-#define STORE_HEIGHT 10
-#define MAP_HEIGHT 5*10
+/*
+完成功能
+	窗口設定
+		最大化、不捲動
+	地圖、咨詢 的讀取打印
+	在鼠標上打印
+	在特定坐標打印
+	地圖坐標與屏幕的映射
+
+*/
 
 class DISPLAY
 {
