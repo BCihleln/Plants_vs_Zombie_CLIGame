@@ -1,0 +1,220 @@
+#include "display.h"
+
+inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath)
+{
+	ScreenCursor.X = 0;
+	ifstream file;
+	file.open(filepath);
+	while (!file.eof())
+	{
+		file.getline(SCREEN_BUFFER[ScreenCursor.Y], SCREEN_LENGTH);
+		ScreenCursor.Y++;
+	}
+	file.close();
+
+	for (int i = 0; i < SCREEN_WIDTH;++i)//替換掉getline過程中添加的\0
+	{
+		for (int j = 0; j < SCREEN_LENGTH; ++j)
+			if (SCREEN_BUFFER[i][j] == '\0')
+				SCREEN_BUFFER[i][j] = ' ';
+	}
+}
+
+void DISPLAY::PrintLine()
+{
+	for(int i = 0;i<SCREEN_LENGTH;++i)
+		cout << "=";
+}
+void DISPLAY::PrintLine(const string& target)
+{
+	for (int i = 0; i < SCREEN_LENGTH; ++i)
+		cout << target;
+}
+
+coordinate DISPLAY::Map2Screen(int x,int y)
+{
+	const int store_UI_height = 11;
+	if (x > 7)
+		x = 6;
+	if (y > 5)
+		y = 4;
+	coordinate map_o = { 0,10 };//地圖原點
+	coordinate target = { x * 18,y * 10 };
+	return target+map_o;
+}
+
+
+void DISPLAY::RefreshStdOut()
+{
+	SetScreenCursor(0, 0);
+	//system("cls"); cls會導致鼠標捕獲模式退出
+	for (int i = 0; i < SCREEN_WIDTH; ++i)
+	{
+		cout << SCREEN_BUFFER[i];
+	}
+}
+
+DISPLAY::DISPLAY():
+	SCREEN_SIZE({0,0}),
+	ScreenCursor({0,0}),
+	MouseCursor({0,0})
+{
+	//創建兩個屏幕緩衝
+	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//獲得標準輸出句柄
+	//this->StdOutBuf = CreateConsoleScreenBuffer(
+	//	GENERIC_WRITE,//定义进程可以往缓冲区写数据
+	//	FILE_SHARE_WRITE,//定义缓冲区可共享写权限
+	//	NULL,
+	//	CONSOLE_TEXTMODE_BUFFER,
+	//	NULL
+	//);
+	
+	window_init();
+
+	GetConsoleCursorInfo(hStdOut, &this->default_cursor);// 保存初始光標信息，便於恢復
+	//ScreenCursor = { 0,0 };
+
+	HideCursor();
+
+	//ReadInfo();
+	//ReadMap();
+	ReadDataFileToScreenBuff("info.txt");
+
+	ReadDataFileToScreenBuff("map.txt");
+
+	RefreshStdOut();
+	WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
+	//RefreshStdOut();
+}
+
+DISPLAY::~DISPLAY()
+{
+	for (int i = 0; i < SCREEN_WIDTH; ++i)
+		delete[] SCREEN_BUFFER[i];
+	delete SCREEN_BUFFER;
+	CloseHandle(this->hStdOut);   // 关闭标准输入设备句柄
+	ShowCursor();
+}
+
+void DISPLAY::PrintOnMouse(const string& target)
+{
+	//SetConsoleActiveScreenBuffer(StdOutBuf);
+	RefreshStdOut();//清掉之前打印的鼠標打印的東西
+	int half_of_string = target.length() >> 1;//>>1 相當於/2
+	int x = MouseCursor.X - half_of_string;
+
+	//避免邊角錯誤
+	x = x > 0 ? x : 0;
+	x = MouseCursor.X + half_of_string < SCREEN_LENGTH-1 ? x : SCREEN_LENGTH- 1 - target.length();
+	
+	coordinate middle = { (SHORT)x,(SHORT)MouseCursor.Y };
+		//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
+	PrintOnXY(target, middle);
+	//SetConsoleActiveScreenBuffer(hStdOut);
+	//PrintOnXY(string("MousePostion"), 0, 61); PrintOnXY(MouseCursor, 20, 61);
+}
+void DISPLAY::PrintOnXY(const  string& target, int x, int y)
+{
+	coordinate tmp = { x,y };
+	SetConsoleCursorPosition(hStdOut, tmp);
+	cout << target;
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
+}
+void DISPLAY::PrintOnXY(const string& target, coordinate position)
+{
+	PrintOnXY(target, position.X, position.Y);
+}
+void DISPLAY::PrintOnXY(const  coordinate& target, int x, int y)
+{
+	coordinate tmp = { x,y };
+	SetConsoleCursorPosition(hStdOut, tmp);
+	cout << target;
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);
+}
+void DISPLAY::PrintOnXY(const coordinate& target, coordinate position)
+{
+	PrintOnXY(target, position.X, position.Y);
+}
+
+
+void DISPLAY::window_init()
+{
+	SetConsoleTitle(L"Plant VS Zombie"); // 設置窗口标题
+	//HWND hwnd = GetForegroundWindow();
+
+	//int cx = GetSystemMetrics(SM_CXSCREEN);//單位：像素
+	//int cy = GetSystemMetrics(SM_CYSCREEN);
+	//LONG l_WinStyle = GetWindowLong(hwnd, GWL_STYLE);   /* 获取窗口信息 */
+	///* 设置窗口信息 最大化 取消边框 */
+	//SetWindowLong(hwnd, GWL_STYLE, (l_WinStyle /*| WS_POPUP*/ | WS_MAXIMIZE) /*& ~WS_CAPTION*/ & ~WS_THICKFRAME /*& ~WS_BORDER*/);
+
+	//SetWindowPos(hwnd, HWND_TOP, 0, 0, cx, cy, 0);
+
+	ShowWindow(GetForegroundWindow(), SW_SHOWMAXIMIZED);//設置窗口最大化
+
+	CONSOLE_SCREEN_BUFFER_INFO ScreenBuffer; // 窗口缓冲区信息
+	/*
+	typedef struct _CONSOLE_SCREEN_BUFFER_INFO {
+		COORD dwSize; 緩衝區大小
+		COORD dwCursorPosition; 當前光標位置
+		WORD  wAttributes; 字符屬性
+		SMALL_RECT srWindow; 當前窗口顯示的大小與位置
+		COORD dwMaximumWindowSize; 最大窗口大小
+	} CONSOLE_SCREEN_BUFFER_INFO;
+	*/
+	GetConsoleScreenBufferInfo(this->hStdOut, &ScreenBuffer);// 获取窗口缓冲区信息
+	SCREEN_SIZE = ScreenBuffer.dwMaximumWindowSize;
+	//SCREEN_SIZE = ScreenBuffer.dwSize;
+	SetConsoleScreenBufferSize(this->hStdOut, SCREEN_SIZE);//設置屏幕緩衝區大小相同于窗口大小，防止滾動
+	SCREEN_SIZE = SCREEN_SIZE - coordinate({ 0,1 });
+
+	screen_buffer_init();
+}
+
+void DISPLAY::screen_buffer_init()
+{
+	SCREEN_BUFFER = new char* [SCREEN_WIDTH];//建立屏幕輸出緩衝
+	for (int i = 0; i < SCREEN_WIDTH; ++i)
+	{
+		SCREEN_BUFFER[i] = new char[SCREEN_LENGTH+1];
+		SCREEN_BUFFER[i][SCREEN_LENGTH] = '\0';
+		for (int j = 0; j < SCREEN_LENGTH; ++j)
+			SCREEN_BUFFER[i][j] = ' ';
+	}
+}
+
+void DISPLAY::WriteScreenBuffer(const char* target, coordinate position)
+{
+	int length = strlen(target);
+	if (position.Y > SCREEN_WIDTH)//邊界檢查
+		return;
+	for (int i = 0; i < length && i+position.X < SCREEN_LENGTH-1; ++i)//包含橫坐標邊界檢查
+		this->SCREEN_BUFFER[position.Y][i+position.X] = target[i];
+}
+
+void DISPLAY::SetScreenCursor(int x, int y)
+{
+	ScreenCursor.X = x;
+	ScreenCursor.Y = y;
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);
+}
+void DISPLAY::SetMousePosition(coordinate target)
+{
+	if (target.Y > SCREEN_WIDTH - 1)
+		target.Y -= 1;//防止在最下一行打印造成屏幕捲動閃屏
+	MouseCursor = target;
+}
+void DISPLAY::SetScreenCursor(coordinate target)
+{
+	SetScreenCursor(target.X, target.Y);
+}
+
+void DISPLAY::HideCursor()
+{
+	CONSOLE_CURSOR_INFO hide_cursor = { 1, 0 };
+	SetConsoleCursorInfo(hStdOut, &hide_cursor);
+}
+void DISPLAY::ShowCursor()
+{
+	SetConsoleCursorInfo(hStdOut, &default_cursor);
+}

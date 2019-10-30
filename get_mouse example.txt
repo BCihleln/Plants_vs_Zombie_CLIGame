@@ -1,0 +1,50 @@
+CONSOLE_SCREEN_BUFFER_INFO ScreenBuffer;//screen buff info
+INPUT_RECORD	InputRecord;
+DWORD				res;//IpNumbersOfEventsRead
+coordinate
+crPos,//光標位置
+crHome = { 0, 0 };
+
+printf("[Cursor Position] X: %2lu  Y: %2lu\n", 0, 0);	// 初始状态
+while (1)
+{
+	ReadConsoleInput(hStdin, &InputRecord, 1, &res);
+
+	if (InputRecord.EventType == MOUSE_EVENT)
+	{
+		if (InputRecord.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
+		{
+			if (InputRecord.Event.MouseEvent.dwEventFlags == DOUBLE_CLICK)
+			{
+				SetConsoleCursorPosition(this->hStdout, crHome);//初始化到左上角，爲了打印下面的語句
+				cout << "Capture mouse Mode End!                            \n";
+				ShowCursor();
+				return 0;	// 左键双击 退出循环
+			}
+		}
+
+		crPos = InputRecord.Event.MouseEvent.dwMousePosition;
+		GetConsoleScreenBufferInfo(this->hStdout, &ScreenBuffer);
+		SetConsoleCursorPosition(this->hStdout, crHome);//初始化到左上角，爲了打印下面的語句
+		printf("[Cursor Position] X: %2lu  Y: %2lu", crPos.X, crPos.Y);
+		SetConsoleCursorPosition(this->hStdout, ScreenBuffer.dwCursorPosition/*crPos*/);
+
+		switch (InputRecord.Event.MouseEvent.dwButtonState)
+		{
+		case FROM_LEFT_1ST_BUTTON_PRESSED:			// 左键 输出A
+			FillConsoleOutputCharacter(this->hStdout, '1', 1, crPos, &res);
+			break;		// 如果使用printf输出，则之前需要先设置光标的位置
+
+		case RIGHTMOST_BUTTON_PRESSED:				// 右键 输出a
+			FillConsoleOutputCharacter(this->hStdout, '0', 1, crPos, &res);
+			break;
+
+		default:
+			//FillConsoleOutputCharacter(this->hStdout, 'X', 1, crPos, &res);
+			break;
+		}
+		//Sleep(10);
+		//FillConsoleOutputCharacter(hOut, ' ', 1, crPos, &res);
+	}
+}
+return 0;
