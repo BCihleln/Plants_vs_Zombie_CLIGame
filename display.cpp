@@ -1,22 +1,27 @@
 #include "display.h"
 
-inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath)
+inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position_x, int position_y)
 {
-	ScreenCursor.X = 0;
 	ifstream file;
 	file.open(filepath);
+	char* tmp_line = new char[SCREEN_LENGTH+1];
 	while (!file.eof())
 	{
-		file.getline(SCREEN_BUFFER[ScreenCursor.Y], SCREEN_LENGTH);
-		ScreenCursor.Y++;
+		strcpy(tmp_line, SCREEN_BUFFER[position_y]);
+		file.getline(&SCREEN_BUFFER[position_y][position_x], SCREEN_LENGTH);
+
+		for (int i = 0; i < SCREEN_LENGTH; ++i)//替換掉getline過程中添加的\0
+			if (SCREEN_BUFFER[position_y][i] == '\0')
+				SCREEN_BUFFER[position_y][i] = tmp_line[i];
+
+		position_y++;//下一行
 	}
 	file.close();
+	delete[] tmp_line;
 
-	for (int i = 0; i < SCREEN_WIDTH;++i)//替換掉getline過程中添加的\0
+	for (int i = 0; i < SCREEN_WIDTH;++i)
 	{
-		for (int j = 0; j < SCREEN_LENGTH; ++j)
-			if (SCREEN_BUFFER[i][j] == '\0')
-				SCREEN_BUFFER[i][j] = ' ';
+		
 	}
 }
 
@@ -38,7 +43,7 @@ coordinate DISPLAY::Map2Screen(int x,int y)
 		x = 6;
 	if (y > 5)
 		y = 4;
-	coordinate map_o = { 0,10 };//地圖原點
+	coordinate map_o = { 0,10-1 };//地圖原點
 	coordinate target = { x * 18,y * 10 };
 	return target+map_o;
 }
@@ -52,6 +57,12 @@ void DISPLAY::RefreshStdOut()
 	{
 		cout << SCREEN_BUFFER[i];
 	}
+}
+
+void DISPLAY::CleanMapCell(int x, int y)
+{
+	coordinate tmp = Map2Screen(x, y);
+	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);
 }
 
 DISPLAY::DISPLAY():
@@ -78,12 +89,13 @@ DISPLAY::DISPLAY():
 
 	//ReadInfo();
 	//ReadMap();
-	ReadDataFileToScreenBuff("info.txt");
+	ReadDataFileToScreenBuff("info.txt",0,0);
 
-	ReadDataFileToScreenBuff("map.txt");
+	ReadDataFileToScreenBuff("map.txt",0,10);
 
 	RefreshStdOut();
 	WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
+	CleanMapCell(5, 6);
 	//RefreshStdOut();
 }
 
@@ -104,8 +116,8 @@ void DISPLAY::PrintOnMouse(const string& target)
 	int x = MouseCursor.X - half_of_string;
 
 	//避免邊角錯誤
-	x = x > 0 ? x : 0;
-	x = MouseCursor.X + half_of_string < SCREEN_LENGTH-1 ? x : SCREEN_LENGTH- 1 - target.length();
+	x = x > 0 ? x : 0;//左邊界
+	x = MouseCursor.X + half_of_string < SCREEN_LENGTH ? x : SCREEN_LENGTH - target.length();//右邊界
 	
 	coordinate middle = { (SHORT)x,(SHORT)MouseCursor.Y };
 		//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置

@@ -38,8 +38,11 @@ class DISPLAY
 #define SCREEN_LENGTH SCREEN_SIZE.X
 #define SCREEN_WIDTH SCREEN_SIZE.Y
 	char** SCREEN_BUFFER;//屏幕緩衝，打印時可以保存之前屏幕的信息
+	inline void ReadDataFileToScreenBuff(const char* filepath,int position_x,int position_y);
 	void screen_buffer_init();
 	void WriteScreenBuffer(const char* target, coordinate position);
+	void CleanMapCell(int x, int y);
+	void RefreshStdOut();
 
 
 	void HideCursor();//隐藏控制台的光标 
@@ -53,13 +56,15 @@ class DISPLAY
 
 	//void ReadMap();
 	//void ReadInfo();
-	inline void ReadDataFileToScreenBuff(const char* filepath);
 	void PrintLine();
 	void PrintLine(const string& target);
+	void PrintOnXY(const string& target, int x, int y);
+	void PrintOnXY(const string& target, coordinate position);
+	void PrintOnXY(const coordinate& target, int x, int y);
+	void PrintOnXY(const coordinate& target, coordinate position);
 
 	coordinate Map2Screen(int x, int y);
 
-	void RefreshStdOut();
 
 public:
 	//friend class GAME_SYSTEM;
@@ -70,10 +75,6 @@ public:
 	void ShowCursor();
 
 	void PrintOnMouse(const string& target);
-	void PrintOnXY(const string& target, int x, int y);
-	void PrintOnXY(const string& target, coordinate position);
-	void PrintOnXY(const coordinate& target, int x, int y);
-	void PrintOnXY(const coordinate& target, coordinate position);
 	
 	void Info();
 

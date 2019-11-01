@@ -58,9 +58,6 @@ int GAME_SYSTEM::get_input()
 			{
 			case 0:
 			{
-				//coordinate crHome = { 0,0 };
-				//SetConsoleCursorPosition(this->hStdout, crHome);//初始化到左上角，爲了打印下面的語句
-				//cout << "Capture mouse Mode End!\n";
 				display.PrintOnMouse("Capture mouse Mode End!");
 				display.ShowCursor();
 				return 0;
@@ -80,24 +77,24 @@ int GAME_SYSTEM::interpret_key(DWORD target)
 	switch (target)
 	{
 	case 0x11/*w*/:case 0x48://方向鍵上 (int)72
-		display.PrintOnXY("↑", 0, 1);
+		display.PrintOnMouse("↑");
 		break;
 	case 0x1e/*a*/:case 0x4b://方向鍵左 (int)75 
-		display.PrintOnXY("←", 0, 1);
+		display.PrintOnMouse("←");
 		break;
 	case 0x1f/*s*/:case 0x50://方向鍵下
-		display.PrintOnXY("↓", 0, 1);
+		display.PrintOnMouse("↓");
 		break;
 	case 0x20/*d*/:case 0x4d://方向鍵右
-		display.PrintOnXY("→", 0, 1);
+		display.PrintOnMouse("→");
 		break;
 	case 0x01: //Esc
-		display.PrintOnXY("Esc", 0, 1);
+		display.PrintOnMouse("Esc");
 		return 0;
 	case 0x12: //e
-		display.PrintOnXY("e", 0, 1);
+		display.PrintOnMouse("e");
 	default:
-		display.PrintOnXY("Undefine key", 0, 1);
+		display.PrintOnMouse("Undefine key");
 		break;
 	}
 	return 1;
