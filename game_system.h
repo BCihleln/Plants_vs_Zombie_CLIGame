@@ -15,7 +15,7 @@ class GAME_SYSTEM
 	INPUT_RECORD	InputRecord;//Input Buffer
 	DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
 
-	coordinate mouse_position;
+	//coordinate mouse_position;
 
 	DISPLAY display;
 	//MAP map;

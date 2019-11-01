@@ -140,17 +140,18 @@ void DISPLAY::PrintOnXY(const coordinate& target, coordinate position)
 void DISPLAY::window_init()
 {
 	SetConsoleTitle(L"Plant VS Zombie"); // 設置窗口标题
-	//HWND hwnd = GetForegroundWindow();
+	HWND hwnd = GetForegroundWindow();
 
 	//int cx = GetSystemMetrics(SM_CXSCREEN);//單位：像素
 	//int cy = GetSystemMetrics(SM_CYSCREEN);
 	//LONG l_WinStyle = GetWindowLong(hwnd, GWL_STYLE);   /* 获取窗口信息 */
-	///* 设置窗口信息 最大化 取消边框 */
+	/////* 设置窗口信息 最大化 取消边框 */
 	//SetWindowLong(hwnd, GWL_STYLE, (l_WinStyle /*| WS_POPUP*/ | WS_MAXIMIZE) /*& ~WS_CAPTION*/ & ~WS_THICKFRAME /*& ~WS_BORDER*/);
 
 	//SetWindowPos(hwnd, HWND_TOP, 0, 0, cx, cy, 0);
 
-	ShowWindow(GetForegroundWindow(), SW_SHOWMAXIMIZED);//設置窗口最大化
+	ShowWindow(hwnd, SW_SHOWMAXIMIZED);//設置窗口最大化
+	ShowScrollBar(hwnd, SB_BOTH, FALSE);//去除可能出現的滾動條
 
 	CONSOLE_SCREEN_BUFFER_INFO ScreenBuffer; // 窗口缓冲区信息
 	/*
@@ -164,7 +165,6 @@ void DISPLAY::window_init()
 	*/
 	GetConsoleScreenBufferInfo(this->hStdOut, &ScreenBuffer);// 获取窗口缓冲区信息
 	SCREEN_SIZE = ScreenBuffer.dwMaximumWindowSize;
-	//SCREEN_SIZE = ScreenBuffer.dwSize;
 	SetConsoleScreenBufferSize(this->hStdOut, SCREEN_SIZE);//設置屏幕緩衝區大小相同于窗口大小，防止滾動
 	SCREEN_SIZE = SCREEN_SIZE - coordinate({ 0,1 });
 
@@ -186,9 +186,9 @@ void DISPLAY::screen_buffer_init()
 void DISPLAY::WriteScreenBuffer(const char* target, coordinate position)
 {
 	int length = strlen(target);
-	if (position.Y > SCREEN_WIDTH)//邊界檢查
+	if (position.Y > SCREEN_WIDTH)//縱坐標邊界檢查
 		return;
-	for (int i = 0; i < length && i+position.X < SCREEN_LENGTH-1; ++i)//包含橫坐標邊界檢查
+	for (int i = 0; i < length && i+position.X < SCREEN_LENGTH-1; ++i)//終止條件包含橫坐標邊界檢查
 		this->SCREEN_BUFFER[position.Y][i+position.X] = target[i];
 }
 

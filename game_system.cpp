@@ -3,28 +3,31 @@
 GAME_SYSTEM::GAME_SYSTEM()
 {
 	this->score = 0;
-	mouse_position = { 0,0 };
+	//mouse_position = { 0,0 };
 
 	// 获取标准输入输出设备句柄
 	this->hStdin = GetStdHandle(STD_INPUT_HANDLE);
 
-	DWORD console_mode;
-	GetConsoleMode(this->hStdin, &console_mode);
-	console_mode &= ~ENABLE_QUICK_EDIT_MODE;  //移除快速编辑模式
-	console_mode &= ~ENABLE_INSERT_MODE;      //移除插入模式
-	console_mode &= ENABLE_MOUSE_INPUT;
-	SetConsoleMode(this->hStdin, console_mode);
+
+	//HWND hwnd = GetForegroundWindow();
+	//DWORD console_mode;
+	//GetConsoleMode(hwnd, &console_mode);
+	//console_mode &= ~ENABLE_QUICK_EDIT_MODE;  //移除快速编辑模式
+	//console_mode &= ~ENABLE_INSERT_MODE;      //移除插入模式
+	//console_mode &= ENABLE_MOUSE_INPUT;
+	//SetConsoleMode(hwnd, console_mode);
 
 }
 
 GAME_SYSTEM::~GAME_SYSTEM()
 {
-	DWORD console_mode;
-	GetConsoleMode(this->hStdin, &console_mode);
-	console_mode &= ENABLE_QUICK_EDIT_MODE;  //復原快速编辑模式
-	console_mode &= ENABLE_INSERT_MODE;      //復原插入模式
-	console_mode &= ~ENABLE_MOUSE_INPUT;
-	SetConsoleMode(this->hStdin, console_mode);
+	//HWND hwnd = GetForegroundWindow();
+	//DWORD console_mode;
+	//GetConsoleMode(hwnd, &console_mode);
+	//console_mode &= ENABLE_QUICK_EDIT_MODE;  //復原快速编辑模式
+	//console_mode &= ENABLE_INSERT_MODE;      //復原插入模式
+	//console_mode &= ~ENABLE_MOUSE_INPUT;
+	//SetConsoleMode(hwnd, console_mode);
 
 	CloseHandle(this->hStdin);  // 关闭标准输出设备句柄
 }
@@ -44,7 +47,8 @@ int GAME_SYSTEM::get_input()
 			//		return 0;	// 左键双击 退出循环
 			//	}
 			//}
-			this->mouse_position = InputRecord.Event.MouseEvent.dwMousePosition;
+			//this->mouse_position = InputRecord.Event.MouseEvent.dwMousePosition;
+			coordinate mouse_position = InputRecord.Event.MouseEvent.dwMousePosition;
 			display.SetMousePosition(mouse_position);
 			interpret_mouse(InputRecord.Event.MouseEvent.dwButtonState);
 		}
