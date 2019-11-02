@@ -1,6 +1,8 @@
 #pragma once
 
 #include "basic.h"
+#include "plants.h"
+#include "zombie.h"
 
 const int width = 5;
 const int length = 7;

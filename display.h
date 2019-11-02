@@ -9,7 +9,6 @@
 	在鼠標上打印
 	在特定坐標打印
 	地圖坐標與屏幕的映射
-
 */
 
 class DISPLAY
@@ -30,7 +29,6 @@ class DISPLAY
 
 	CONSOLE_CURSOR_INFO default_cursor;
 	HANDLE hStdOut;//標準輸出句柄
-	//HANDLE StdOutBuf;//輸出緩衝，使得刷新stdout時不會閃屏
 
 	void window_init();//初始化窗口為最大化，并獲取屏幕大小（單位：字符）
 
@@ -58,12 +56,12 @@ class DISPLAY
 	//void ReadInfo();
 	void PrintLine();
 	void PrintLine(const string& target);
-	void PrintOnXY(const string& target, int x, int y);
+	void PrintOnXY(const string& target, SHORT x, SHORT y);
 	void PrintOnXY(const string& target, coordinate position);
-	void PrintOnXY(const coordinate& target, int x, int y);
+	void PrintOnXY(const coordinate& target, SHORT x, SHORT y);
 	void PrintOnXY(const coordinate& target, coordinate position);
 
-	coordinate Map2Screen(int x, int y);
+	coordinate Map2Screen(int x, int y);//地圖坐標轉屏幕坐標
 
 
 public:

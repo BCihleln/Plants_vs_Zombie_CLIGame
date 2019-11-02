@@ -1,9 +1,11 @@
 #pragma once
+#include "basic.h"
+#include "creature.h"
 
-class ZOMBIE
+class ZOMBIE:public Creature
 {
-	int HP;
-	int ATK;
-	int DEF;
-	int SPD;
+
+public:
+	ZOMBIE(string name);
+	~ZOMBIE();
 };

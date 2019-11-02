@@ -1,5 +1,10 @@
 #pragma once
 #include "basic.h"
+#include "plants.h"
+#include "map.h"
+#include "store.h"
+#include "zombie.h"
+#include "display.h"
 
 const char version[] = "0.0.2";
 /*
@@ -14,23 +19,21 @@ class GAME_SYSTEM
 
 	INPUT_RECORD	InputRecord;//Input Buffer
 	DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
-
-	//coordinate mouse_position;
-
+	
 	DISPLAY display;
-	//MAP map;
-	//ZOMBIE zombies
-	//PLANTS plants
-	//STORE store
+	MAP map;
+	ZOMBIE zombies;
+	PLANT plants[5][7];
+	STORE store;
 
 	int score;
+	int clock;
 	
 
 	//返回值0 代表退出
 	int interpret_key(DWORD target);
 	void interpret_mouse(DWORD target);
 public:
-	MAP map;
 	GAME_SYSTEM();
 	~GAME_SYSTEM();
 

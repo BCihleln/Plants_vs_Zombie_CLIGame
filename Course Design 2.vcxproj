@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="basic.h" />
+    <ClInclude Include="creature.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="game_system.h" />
     <ClInclude Include="map.h" />
@@ -161,10 +162,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basic.cpp" />
+    <ClCompile Include="creature.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="game_system.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
+    <ClCompile Include="plants.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="info.txt" />
+    <Text Include="map.txt" />
+    <Text Include="mapcell.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

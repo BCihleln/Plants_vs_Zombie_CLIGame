@@ -10,6 +10,17 @@ int main(void)
 {
 	GAME_SYSTEM game_system;
 	game_system.get_input();
-	//Sleep(2500);
+
 	return 0;
 }
+
+
+//int main() //�ٶȜyԇ
+//{
+//	for (int i = 0; i < 100; ++i)
+//	{
+//		cout << i << endl;
+//		Sleep(15);
+//		system("cls");
+//	}
+//}

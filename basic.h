@@ -16,9 +16,3 @@ coordinate operator+(const coordinate& A, const coordinate& B);
 ostream& operator<<(ostream& out, const coordinate& target);
 bool operator==(const coordinate& A, const coordinate& B);
 bool operator!=(const coordinate& A, const coordinate& B);
-
-#include "plants.h"
-#include "store.h"
-#include "zombie.h"
-#include "map.h"
-#include "display.h"

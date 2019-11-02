@@ -1,14 +1,12 @@
 #include "game_system.h"
 
-GAME_SYSTEM::GAME_SYSTEM()
+GAME_SYSTEM::GAME_SYSTEM():
+	score(0),clock(0)
 {
-	this->score = 0;
-	//mouse_position = { 0,0 };
-
 	// 获取标准输入输出设备句柄
 	this->hStdin = GetStdHandle(STD_INPUT_HANDLE);
 
-
+	//貌似沒什麽用處……
 	//HWND hwnd = GetForegroundWindow();
 	//DWORD console_mode;
 	//GetConsoleMode(hwnd, &console_mode);
@@ -47,7 +45,6 @@ int GAME_SYSTEM::get_input()
 			//		return 0;	// 左键双击 退出循环
 			//	}
 			//}
-			//this->mouse_position = InputRecord.Event.MouseEvent.dwMousePosition;
 			coordinate mouse_position = InputRecord.Event.MouseEvent.dwMousePosition;
 			display.SetMousePosition(mouse_position);
 			interpret_mouse(InputRecord.Event.MouseEvent.dwButtonState);

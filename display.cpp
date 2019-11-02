@@ -17,12 +17,7 @@ inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position
 		position_y++;//下一行
 	}
 	file.close();
-	delete[] tmp_line;
-
-	for (int i = 0; i < SCREEN_WIDTH;++i)
-	{
-		
-	}
+	delete[] tmp_line;//釋放暫時申請的内存
 }
 
 void DISPLAY::PrintLine()
@@ -43,8 +38,8 @@ coordinate DISPLAY::Map2Screen(int x,int y)
 		x = 6;
 	if (y > 5)
 		y = 4;
-	coordinate map_o = { 0,10-1 };//地圖原點
-	coordinate target = { x * 18,y * 10 };
+	coordinate map_o = { 0,10-1 };//地圖左上角原點
+	coordinate target = { (SHORT)x * 18,(SHORT)y * 10 };
 	return target+map_o;
 }
 
@@ -62,7 +57,7 @@ void DISPLAY::RefreshStdOut()
 void DISPLAY::CleanMapCell(int x, int y)
 {
 	coordinate tmp = Map2Screen(x, y);
-	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);
+	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);//TODO 不需要每次刷新時都讀文件
 }
 
 DISPLAY::DISPLAY():
@@ -70,15 +65,7 @@ DISPLAY::DISPLAY():
 	ScreenCursor({0,0}),
 	MouseCursor({0,0})
 {
-	//創建兩個屏幕緩衝
 	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//獲得標準輸出句柄
-	//this->StdOutBuf = CreateConsoleScreenBuffer(
-	//	GENERIC_WRITE,//定义进程可以往缓冲区写数据
-	//	FILE_SHARE_WRITE,//定义缓冲区可共享写权限
-	//	NULL,
-	//	CONSOLE_TEXTMODE_BUFFER,
-	//	NULL
-	//);
 	
 	window_init();
 
@@ -125,7 +112,7 @@ void DISPLAY::PrintOnMouse(const string& target)
 	//SetConsoleActiveScreenBuffer(hStdOut);
 	//PrintOnXY(string("MousePostion"), 0, 61); PrintOnXY(MouseCursor, 20, 61);
 }
-void DISPLAY::PrintOnXY(const  string& target, int x, int y)
+void DISPLAY::PrintOnXY(const  string& target, SHORT x, SHORT y)
 {
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
@@ -136,7 +123,7 @@ void DISPLAY::PrintOnXY(const string& target, coordinate position)
 {
 	PrintOnXY(target, position.X, position.Y);
 }
-void DISPLAY::PrintOnXY(const  coordinate& target, int x, int y)
+void DISPLAY::PrintOnXY(const  coordinate& target, SHORT x, SHORT y)
 {
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
