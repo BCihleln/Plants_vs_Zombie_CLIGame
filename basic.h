@@ -1,6 +1,7 @@
 #pragma once
 #define _CRT_SECURE_NO_WARNINGS
 
+#define DEBUG
 
 #include<windows.h>  
 	//控制終端輸出指針之位置、顔色
@@ -16,3 +17,6 @@ coordinate operator+(const coordinate& A, const coordinate& B);
 ostream& operator<<(ostream& out, const coordinate& target);
 bool operator==(const coordinate& A, const coordinate& B);
 bool operator!=(const coordinate& A, const coordinate& B);
+
+#define map_width 5
+#define map_length 7

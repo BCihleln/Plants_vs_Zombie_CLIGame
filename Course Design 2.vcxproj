@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="basic.h" />
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="creature.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="game_system.h" />
@@ -162,12 +163,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="basic.cpp" />
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="creature.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="game_system.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="plants.cpp" />
+    <ClCompile Include="zombie.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="info.txt" />

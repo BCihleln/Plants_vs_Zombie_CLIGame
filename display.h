@@ -56,12 +56,12 @@ class DISPLAY
 	//void ReadInfo();
 	void PrintLine();
 	void PrintLine(const string& target);
-	void PrintOnXY(const string& target, SHORT x, SHORT y);
+	void PrintOnXY(const string& target, short x, short y);
 	void PrintOnXY(const string& target, coordinate position);
-	void PrintOnXY(const coordinate& target, SHORT x, SHORT y);
+	void PrintOnXY(const coordinate& target, short x, short y);
 	void PrintOnXY(const coordinate& target, coordinate position);
 
-	coordinate Map2Screen(int x, int y);//µØˆD×ø˜ËÞDÆÁÄ»×ø˜Ë
+	coordinate Map2Screen(short x, short y);//µØˆD×ø˜ËÞDÆÁÄ»×ø˜Ë
 
 
 public:

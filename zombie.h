@@ -6,6 +6,8 @@ class ZOMBIE:public Creature
 {
 
 public:
-	ZOMBIE(string name);
+	ZOMBIE();
 	~ZOMBIE();
+
+	int attack();
 };

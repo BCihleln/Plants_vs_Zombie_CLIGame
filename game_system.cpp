@@ -5,7 +5,7 @@ GAME_SYSTEM::GAME_SYSTEM():
 {
 	// 获取标准输入输出设备句柄
 	this->hStdin = GetStdHandle(STD_INPUT_HANDLE);
-
+	
 	//貌似沒什麽用處……
 	//HWND hwnd = GetForegroundWindow();
 	//DWORD console_mode;
@@ -19,6 +19,11 @@ GAME_SYSTEM::GAME_SYSTEM():
 
 GAME_SYSTEM::~GAME_SYSTEM()
 {
+#ifdef DEBUG
+	Sleep(1000);
+	system("cls");
+#endif
+	//cout << "destructing GAME SYSTEM\n";
 	//HWND hwnd = GetForegroundWindow();
 	//DWORD console_mode;
 	//GetConsoleMode(hwnd, &console_mode);

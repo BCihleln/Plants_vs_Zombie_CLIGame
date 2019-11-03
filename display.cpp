@@ -31,7 +31,7 @@ void DISPLAY::PrintLine(const string& target)
 		cout << target;
 }
 
-coordinate DISPLAY::Map2Screen(int x,int y)
+coordinate DISPLAY::Map2Screen(short x,short y)
 {
 	const int store_UI_height = 11;
 	if (x > 7)
@@ -39,7 +39,7 @@ coordinate DISPLAY::Map2Screen(int x,int y)
 	if (y > 5)
 		y = 4;
 	coordinate map_o = { 0,10-1 };//地圖左上角原點
-	coordinate target = { (SHORT)x * 18,(SHORT)y * 10 };
+	coordinate target = { (short)x * 18,(short)y * 10 };
 	return target+map_o;
 }
 
@@ -81,8 +81,8 @@ DISPLAY::DISPLAY():
 	ReadDataFileToScreenBuff("map.txt",0,10);
 
 	RefreshStdOut();
-	WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
-	CleanMapCell(5, 6);
+	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
+	//CleanMapCell(5, 6);
 	//RefreshStdOut();
 }
 
@@ -106,13 +106,13 @@ void DISPLAY::PrintOnMouse(const string& target)
 	x = x > 0 ? x : 0;//左邊界
 	x = MouseCursor.X + half_of_string < SCREEN_LENGTH ? x : SCREEN_LENGTH - target.length();//右邊界
 	
-	coordinate middle = { (SHORT)x,(SHORT)MouseCursor.Y };
+	coordinate middle = { (short)x,(short)MouseCursor.Y };
 		//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
 	PrintOnXY(target, middle);
 	//SetConsoleActiveScreenBuffer(hStdOut);
 	//PrintOnXY(string("MousePostion"), 0, 61); PrintOnXY(MouseCursor, 20, 61);
 }
-void DISPLAY::PrintOnXY(const  string& target, SHORT x, SHORT y)
+void DISPLAY::PrintOnXY(const  string& target, short x, short y)
 {
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
@@ -123,7 +123,7 @@ void DISPLAY::PrintOnXY(const string& target, coordinate position)
 {
 	PrintOnXY(target, position.X, position.Y);
 }
-void DISPLAY::PrintOnXY(const  coordinate& target, SHORT x, SHORT y)
+void DISPLAY::PrintOnXY(const  coordinate& target, short x, short y)
 {
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
