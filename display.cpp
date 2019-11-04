@@ -42,6 +42,10 @@ coordinate DISPLAY::Map2Screen(short x,short y)
 	coordinate target = { (short)x * 18,(short)y * 10 };
 	return target+map_o;
 }
+coordinate DISPLAY::Map2Screen(coordinate position)
+{
+	return Map2Screen(position.X, position.Y);
+}
 
 
 void DISPLAY::RefreshStdOut()
@@ -76,9 +80,9 @@ DISPLAY::DISPLAY():
 
 	//ReadInfo();
 	//ReadMap();
-	ReadDataFileToScreenBuff("info.txt",0,0);
+	ReadDataFileToScreenBuff(info_file,0,0);
 
-	ReadDataFileToScreenBuff("map.txt",0,10);
+	ReadDataFileToScreenBuff(map_file,0,10);
 
 	RefreshStdOut();
 	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
@@ -107,10 +111,8 @@ void DISPLAY::PrintOnMouse(const string& target)
 	x = MouseCursor.X + half_of_string < SCREEN_LENGTH ? x : SCREEN_LENGTH - target.length();//右邊界
 	
 	coordinate middle = { (short)x,(short)MouseCursor.Y };
-		//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
+	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
 	PrintOnXY(target, middle);
-	//SetConsoleActiveScreenBuffer(hStdOut);
-	//PrintOnXY(string("MousePostion"), 0, 61); PrintOnXY(MouseCursor, 20, 61);
 }
 void DISPLAY::PrintOnXY(const  string& target, short x, short y)
 {
@@ -216,4 +218,13 @@ void DISPLAY::HideCursor()
 void DISPLAY::ShowCursor()
 {
 	SetConsoleCursorInfo(hStdOut, &default_cursor);
+}
+
+
+//ID : Plant's ID, position : screen coordinate
+void DISPLAY::NewPlant(int ID, coordinate position)
+{
+	//TODO : Switch plant ID
+	//TODO : 打印居中
+	WriteScreenBuffer("Sun Flower", position);
 }

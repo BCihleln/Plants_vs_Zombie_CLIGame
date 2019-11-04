@@ -1,23 +1,40 @@
 #include "map.h"
 
-MAP::MAP()
+coordinate Map::Screen2Map(coordinate target)
+{
+	target.X /= cell_length;
+	target.Y -= 10;
+	target.Y /= cell_width;
+	return target;
+}
+
+Map::Map()
 {
 	init();
 }
 
-MAP::~MAP()
+Map::~Map()
 {
 	init();
 }
 
-void MAP::init()
+void Map::init()
 {
-	for (int i = 0; i < map_width; ++i)
-		for (int j = 0; j < map_length; ++j)
-			map[i][j] = { &plants[i][j],NULL,false };//把創建的空植物都種到地裏
+	for (int i = 0; i < map_row; ++i)
+		for (int j = 0; j < map_column; ++j)
+		{
+			map[i][j] = { NULL,NULL };
+		}
 }
 
-void MAP::PlantOnXY(PLANT& target, int x, int y)
+void Map::PlantOnXY(int target_ID, coordinate position)
 {
-	map[y][x].plant = &target;
+	position = Screen2Map(position);
+	plants[position.Y][position.X].set_type(target_ID);
+}
+
+Plant* Map::select(coordinate position)
+{
+	position = Screen2Map(position);
+	return &plants[position.Y][position.X];
 }

@@ -52,8 +52,6 @@ class DISPLAY
 		SetConsoleTextAttribute(hStdOut, a | BACKGROUND_GREEN);//TODO：顔色什麽的後面再來處理吧
 	}
 
-	//void ReadMap();
-	//void ReadInfo();
 	void PrintLine();
 	void PrintLine(const string& target);
 	void PrintOnXY(const string& target, short x, short y);
@@ -62,6 +60,8 @@ class DISPLAY
 	void PrintOnXY(const coordinate& target, coordinate position);
 
 	coordinate Map2Screen(short x, short y);//地圖坐標轉屏幕坐標
+	coordinate Map2Screen(coordinate position);
+	coordinate Store2Screen(short x, short y);
 
 
 public:
@@ -73,6 +73,8 @@ public:
 	void ShowCursor();
 
 	void PrintOnMouse(const string& target);
+
+	void NewPlant(int ID,coordinate position);
 	
 	void Info();
 

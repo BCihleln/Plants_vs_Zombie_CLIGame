@@ -159,6 +159,7 @@
     <ClInclude Include="map.h" />
     <ClInclude Include="plants.h" />
     <ClInclude Include="store.h" />
+    <ClInclude Include="table.h" />
     <ClInclude Include="zombie.h" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +171,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="plants.cpp" />
+    <ClCompile Include="store.cpp" />
+    <ClCompile Include="table.cpp" />
     <ClCompile Include="zombie.cpp" />
   </ItemGroup>
   <ItemGroup>

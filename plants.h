@@ -4,13 +4,24 @@
 #include "creature.h"
 #include "bullet.h"
 
-class PLANT:public Creature
+class Plant:protected Creature //先只實現射擊型植物
 {
+	int ID;
+protected:
 	int cost; // 消耗陽光數
 	queue<BULLET> bullets;//由植物生產的子彈隊列
 public:
-	PLANT();
-	~PLANT();
+	Plant();
+	~Plant();
+
+	void set_type(const int ID);
 
 	void attack();
 };
+
+/*TODO：
+實現方式：繼承？
+	BUFF型植物（eg 向日葵、大蒜
+	一次性植物（eg 櫻桃、倭瓜）
+	持續傷害（eg 地刺
+*/

@@ -1,10 +1,9 @@
 O-----------------------------------------------------------------------------------------------------------------------------O
-|                                                          [ Store ]                                                          | [  Sun  ] :
+| Test                                                     [ Store ]                                                          | [  Sun  ] :
 |                                                                                                                             |
+|    AAAAAAAAAAAAAA   Sun Flower 25    AAAAAAAAAAAAAA    AAAAAAAAAAAAAA   AAAAAAAAAAAAAA   AAAAAAAAAAAAAA   AAAAAAAAAAAAAA    |
 |                                                                                                                             |-----------------------
 |                                                                                                                             | [ SCORE ] :
-|                                                                                                                             |
-|                                                                                                                             |
-|                                                                                                                             |
+|    AAAAAAAAAAAAAA   Sun Flower 25    AAAAAAAAAAAAAA    AAAAAAAAAAAAAA   AAAAAAAAAAAAAA   AAAAAAAAAAAAAA   AAAAAAAAAAAAAA    |
 |                                                                                                                             |
 O-----------------------------------------------------------------------------------------------------------------------------O

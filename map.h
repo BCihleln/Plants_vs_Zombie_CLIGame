@@ -2,41 +2,48 @@
 
 #include "basic.h"
 #include "plants.h"
+#include "bullet.h"
 #include "zombie.h"
 
-class MAP
+#define cell_length 18
+#define cell_width 10
+
+class Map
 {
 	struct mapCell
 	{
-		PLANT* plant;
-		ZOMBIE** zombie;//Ò²ÔS•şÓĞºÜ¶à‚€zombie£¬¿ÉÄÜÒªÓÃvector½Y˜‹´æƒ¦Ò»‚€†ÎÔª¸ñÑYÃæµÄËùÓĞzombie
-		bool bullet;//®”Ç°†ÎÔª¸ñÊÇ·ñÓĞ×Ó—
-	} map[map_width][map_length];
+		ZOMBIE* zombie;//ä¹Ÿè¨±æœƒæœ‰å¾ˆå¤šå€‹zombieï¼Œå¯èƒ½è¦ç”¨vectorçµæ§‹å­˜å„²ä¸€å€‹å–®å…ƒæ ¼è£é¢çš„æ‰€æœ‰zombie
+		BULLET* bullet;//ç•¶å‰å–®å…ƒæ ¼æ˜¯å¦æœ‰å­å½ˆ
+	} map[map_row][map_column];
 
-	PLANT plants[map_width][map_length];
-	vector<ZOMBIE> zombies[map_width];
+	Plant plants[map_row][map_column];
+	vector<ZOMBIE> zombies[map_row];
+
+	coordinate Screen2Map(coordinate target);
 
 public:
 	friend class GAME_SYSTEM;
-	MAP();
-	~MAP();
+	Map();
+	~Map();
 
 	void init();
 
 	
-	mapCell* operator[](int target)
-	{
-		if (target > map_length)
-		{
-			cout << "Reading map out of Range!\n";
-			exit(0);
-		}
-		return map[target];
-	}//ÖØİd[]íÖ±½ÓÈ¡µÃ†ÎÔª¸ñ”µ“ş
+	//mapCell* operator[](int target)
+	//{
+	//	if (target > map_column)
+	//	{
+	//		cout << "Reading map out of Range!\n";
+	//		exit(0);
+	//	}
+	//	return map[target];
+	//}//é‡è¼‰[]ä¾†ç›´æ¥å–å¾—å–®å…ƒæ ¼æ•¸æ“š
 
-	void PlantOnXY(PLANT& target, int x, int y);
+	void PlantOnXY(int target_ID,coordinate position);
 
-	//TODO ĞèÒª¾S×o×Ó—¡¢½©Ê¬µÄ×ø˜Ë£¨³ÖÀmÒÆ„Ó£©
+	Plant* select(coordinate position);
 
-	//½©Ê¬µÄ¹ÜÀí Ñ­­hê ÁĞ£¬ËÀµôµÄ½©Ê¬¸ÄÃû“QĞÕºóÖØĞÂ¼ÓÈëê Î²
+	//TODO éœ€è¦ç¶­è­·å­å½ˆã€åƒµå°¸çš„åæ¨™ï¼ˆæŒçºŒç§»å‹•ï¼‰
+
+	//åƒµå°¸çš„ç®¡ç† å¾ªç’°éšŠåˆ—ï¼Œæ­»æ‰çš„åƒµå°¸æ”¹åæ›å§“åé‡æ–°åŠ å…¥éšŠå°¾
 };

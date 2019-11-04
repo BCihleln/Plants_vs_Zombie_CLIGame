@@ -2,7 +2,7 @@
 #include "basic.h"
 #include "creature.h"
 
-class ZOMBIE:public Creature
+class ZOMBIE:private Creature //先實現普通僵尸
 {
 
 public:
@@ -11,3 +11,8 @@ public:
 
 	int attack();
 };
+
+/*
+TODO
+不同種類的僵尸
+*/
