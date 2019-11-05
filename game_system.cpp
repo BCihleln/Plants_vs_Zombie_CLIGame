@@ -138,6 +138,8 @@ int GAME_SYSTEM::interpret_mouse(DWORD target,coordinate position)
 	//}
 	//return 1;
 
+
+	//TODO ÅÐ”àÊó˜ËËùÌŽ¹ ‡ú
 	switch (target)
 	{
 	case FROM_LEFT_1ST_BUTTON_PRESSED:			// ×ó¼ü
@@ -173,7 +175,7 @@ void GAME_SYSTEM::interpret_position_set_mode(coordinate position)//‚÷Èëposition
 	else if(position.X <127 && position.Y <60)
 	{
 		mode = normal_play;
-		map.select(position);
+		//map.select(position);
 		//display.PrintOnMouse("normal_play mode");
 	}
 }

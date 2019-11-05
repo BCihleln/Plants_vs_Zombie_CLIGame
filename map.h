@@ -1,23 +1,33 @@
 #pragma once
 
 #include "basic.h"
+#include "table.h"
 #include "plants.h"
 #include "bullet.h"
 #include "zombie.h"
 
-class Map
+struct mapCell
 {
-	struct mapCell
-	{
-		ZOMBIE* zombie;//也許會有很多個zombie，可能要用vector結構存儲一個單元格裏面的所有zombie
-		BULLET* bullet;//當前單元格是否有子彈
-	} map[map_row][map_column];
+	ZOMBIE* zombie;//也許會有很多個zombie，可能要用vector結構存儲一個單元格裏面的所有zombie
+	BULLET* bullet;//當前單元格是否有子彈
+};
+
+class Map:public Table<mapCell>
+{
+ //map[map_row][map_column];
 
 	Plant plants[map_row][map_column];
-	vector<ZOMBIE> zombies[map_row];
+	vector<ZOMBIE> zombies[map_row];	
 
 	coordinate Screen2Map(coordinate target);
 
+	//TODO 處理植物、僵尸雙方攻擊
+	void compute_attack();
+	//TODO 維護僵尸、子彈移動坐標
+	void comput_move();
+	
+	//僵尸的管理 循環隊列，死掉的僵尸改名換姓后重新加入隊尾
+	void generate_zombie();
 
 public:
 	friend class GAME_SYSTEM;
@@ -38,9 +48,6 @@ public:
 
 	void PlantOnXY(const plant_list target_ID,coordinate position);
 
-	Plant* select(coordinate position);
+	//Plant* select(coordinate position);
 
-	//TODO 需要維護子彈、僵尸的坐標（持續移動）
-
-	//僵尸的管理 循環隊列，死掉的僵尸改名換姓后重新加入隊尾
 };

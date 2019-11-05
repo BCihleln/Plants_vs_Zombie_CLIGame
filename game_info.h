@@ -20,8 +20,8 @@ enum plant_list
 
 #define map_row 5
 #define map_column 7
-#define cell_length 18
-#define cell_width 10
+#define map_cell_length 18
+#define map_cell_width 10
 
 
 #define store_row 2

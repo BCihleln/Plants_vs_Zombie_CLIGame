@@ -8,7 +8,7 @@ coordinate Map::Screen2Map(coordinate target)
 	return target;
 }
 
-Map::Map()
+Map::Map() :Table(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width })
 {
 	init();
 }
@@ -33,8 +33,8 @@ void Map::PlantOnXY(const plant_list target_ID, coordinate position)
 	plants[position.Y][position.X].set_type(target_ID);
 }
 
-Plant* Map::select(coordinate position)
-{
-	position = Screen2Map(position);
-	return &plants[position.Y][position.X];
-}
+//Plant* Map::select(coordinate position)
+//{
+//	position = Screen2Map(position);
+//	return &plants[position.Y][position.X];
+//}
