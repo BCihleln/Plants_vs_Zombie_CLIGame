@@ -17,6 +17,7 @@ class Table
 
 protected:
 	type** table;
+	type* the_chosen_one;//映射光標所在單元格
 	const int table_length, table_width;
 
 	//virtual void init();
