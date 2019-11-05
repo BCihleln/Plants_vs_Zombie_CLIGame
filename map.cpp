@@ -2,13 +2,17 @@
 
 coordinate Map::Screen2Map(coordinate target)
 {//TODO µØˆDß…½ç™z²é
-	target.X /= cell_length;
+	target.X /= map_cell_length;
 	target.Y -= 10;
-	target.Y /= cell_width;
+	target.Y /= map_cell_width;
 	return target;
 }
 
-Map::Map() :Table(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width })
+//Map::Map() :Table(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width })
+//{
+//	init();
+//}
+Map::Map()
 {
 	init();
 }

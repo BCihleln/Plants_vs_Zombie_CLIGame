@@ -12,9 +12,13 @@ struct mapCell
 	BULLET* bullet;//當前單元格是否有子彈
 };
 
-class Map:public Table<mapCell>
+class Map/*:public Table<mapCell>*/
 {
- //map[map_row][map_column];
+	struct mapCell
+	{
+		ZOMBIE* zombie;//也許會有很多個zombie，可能要用vector結構存儲一個單元格裏面的所有zombie
+		BULLET* bullet;//當前單元格是否有子彈
+	} map[map_row][map_column];
 
 	Plant plants[map_row][map_column];
 	vector<ZOMBIE> zombies[map_row];	
