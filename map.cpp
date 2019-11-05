@@ -1,18 +1,14 @@
 #include "map.h"
 
-coordinate Map::Screen2Map(coordinate target)
-{//TODO 地圖邊界檢查
-	target.X /= map_cell_length;
-	target.Y -= 10;
-	target.Y /= map_cell_width;
-	return target;
-}
-
-//Map::Map() :Table(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width })
-//{
-//	init();
+//coordinate Map::Screen2Map(coordinate target)
+//{//TODO 地圖邊界檢查
+//	target.X /= map_cell_length;
+//	target.Y -= 10;
+//	target.Y /= map_cell_width;
+//	return target;
 //}
-Map::Map()
+
+Map::Map() :Table(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width })
 {
 	init();
 }
@@ -25,15 +21,17 @@ Map::~Map()
 void Map::init()
 {
 	for (int i = 0; i < map_row; ++i)
+	{
 		for (int j = 0; j < map_column; ++j)
 		{
-			map[i][j] = { NULL,NULL };
+			table[i][j] = { NULL,NULL };
 		}
+	}
 }
 
 void Map::PlantOnXY(const plant_list target_ID, coordinate position)
 {
-	position = Screen2Map(position);
+	position = Screen2Table(position);
 	plants[position.Y][position.X].set_type(target_ID);
 }
 
