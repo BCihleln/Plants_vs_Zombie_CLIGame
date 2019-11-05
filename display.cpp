@@ -39,7 +39,7 @@ coordinate DISPLAY::Map2Screen(short x,short y)
 	if (y > 5)
 		y = 4;
 	coordinate map_o = { 0,10-1 };//地圖左上角原點
-	coordinate target = { (short)x * cell_length,(short)y * cell_length };
+	coordinate target = { (short)x * map_cell_length,(short)y * map_cell_width };
 	return target+map_o;
 }
 coordinate DISPLAY::Map2Screen(coordinate position)
@@ -115,10 +115,10 @@ coordinate DISPLAY::middle(const string& target, coordinate left_side)
 coordinate DISPLAY::map_cell_middle(coordinate position)
 {
 	//設定到地圖單元格的中心點
-	position.X = position.X - (position.X % cell_length);
-	position.X += (cell_length >> 1);
-	position.Y = position.Y - (position.Y % cell_width);
-	position.Y += (cell_width >> 1);
+	position.X = position.X - (position.X % map_cell_length);
+	position.X += (map_cell_length >> 1);
+	position.Y = position.Y - (position.Y % map_cell_width);
+	position.Y += (map_cell_width >> 1);
 	if (position.Y > SCREEN_WIDTH)//邊界檢查，避免SCREEN_BUFFER内存訪問朝見
 		position.Y = SCREEN_WIDTH;
 	//cout << position;
