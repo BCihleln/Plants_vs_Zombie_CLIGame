@@ -155,6 +155,7 @@
     <ClInclude Include="bullet.h" />
     <ClInclude Include="creature.h" />
     <ClInclude Include="display.h" />
+    <ClInclude Include="game_info.h" />
     <ClInclude Include="game_system.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="plants.h" />

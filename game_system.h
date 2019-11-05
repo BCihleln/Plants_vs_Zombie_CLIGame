@@ -7,7 +7,6 @@
 #include "zombie.h"
 #include "display.h"
 
-const char version[] = "0.0.3";
 /*
 完成功能
 	輸入信號的捕獲

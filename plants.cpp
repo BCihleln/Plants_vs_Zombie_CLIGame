@@ -1,7 +1,8 @@
 #include "plants.h"
 
-Plant::Plant():Creature("None"),ID(0)
+Plant::Plant():Creature("None"),ID(None)
 {
+	this->cost = 0;
 }
 
 Plant::~Plant()
@@ -13,24 +14,24 @@ Plant::~Plant()
 //#endif
 }
 
-void Plant::set_type(const int ID)
+void Plant::set_type(const plant_list ID)
 {
 	this->ID = ID;
 	switch (ID)
 	{
-	case	1://向日葵
+	case	Sun_Flower:
 		this->name = "Sun Flower";
 		this->HP = 25;
 		this->ATK = 0;
 		this->ATK_SPD = 10;
 		break;
-	case 2://豌豆射手
+	case Bean_Shooter://豌豆射手
 		this->name = "Bean Shooter";
 		this->HP = 40;
 		this->ATK = 25;
 		this->ATK_SPD = 50;
 		break;
-	case 3://堅果墻
+	case Nut_Wall://堅果墻
 		this->name = "Nut Wall";
 		this->HP = 100;
 		this->DEF = 25;
@@ -40,7 +41,7 @@ void Plant::set_type(const int ID)
 	case 5:
 		break;
 	default:
-		this->ID = 0;
+		this->ID = None;
 		break;
 	}
 }

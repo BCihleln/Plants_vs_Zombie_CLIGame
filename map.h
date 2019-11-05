@@ -5,15 +5,12 @@
 #include "bullet.h"
 #include "zombie.h"
 
-#define cell_length 18
-#define cell_width 10
-
 class Map
 {
 	struct mapCell
 	{
-		ZOMBIE* zombie;//ä¹Ÿè¨±æœƒæœ‰å¾ˆå¤šå€‹zombieï¼Œå¯èƒ½è¦ç”¨vectorçµæ§‹å­˜å„²ä¸€å€‹å–®å…ƒæ ¼è£é¢çš„æ‰€æœ‰zombie
-		BULLET* bullet;//ç•¶å‰å–®å…ƒæ ¼æ˜¯å¦æœ‰å­å½ˆ
+		ZOMBIE* zombie;//Ò²ÔS•şÓĞºÜ¶à‚€zombie£¬¿ÉÄÜÒªÓÃvector½Y˜‹´æƒ¦Ò»‚€†ÎÔª¸ñÑYÃæµÄËùÓĞzombie
+		BULLET* bullet;//®”Ç°†ÎÔª¸ñÊÇ·ñÓĞ×Ó—
 	} map[map_row][map_column];
 
 	Plant plants[map_row][map_column];
@@ -21,14 +18,14 @@ class Map
 
 	coordinate Screen2Map(coordinate target);
 
+
 public:
 	friend class GAME_SYSTEM;
 	Map();
 	~Map();
 
 	void init();
-
-	
+		
 	//mapCell* operator[](int target)
 	//{
 	//	if (target > map_column)
@@ -37,13 +34,13 @@ public:
 	//		exit(0);
 	//	}
 	//	return map[target];
-	//}//é‡è¼‰[]ä¾†ç›´æ¥å–å¾—å–®å…ƒæ ¼æ•¸æ“š
+	//}//ÖØİd[]íÖ±½ÓÈ¡µÃ†ÎÔª¸ñ”µ“ş
 
-	void PlantOnXY(int target_ID,coordinate position);
+	void PlantOnXY(const plant_list target_ID,coordinate position);
 
 	Plant* select(coordinate position);
 
-	//TODO éœ€è¦ç¶­è­·å­å½ˆã€åƒµå°¸çš„åæ¨™ï¼ˆæŒçºŒç§»å‹•ï¼‰
+	//TODO ĞèÒª¾S×o×Ó—¡¢½©Ê¬µÄ×ø˜Ë£¨³ÖÀmÒÆ„Ó£©
 
-	//åƒµå°¸çš„ç®¡ç† å¾ªç’°éšŠåˆ—ï¼Œæ­»æ‰çš„åƒµå°¸æ”¹åæ›å§“åé‡æ–°åŠ å…¥éšŠå°¾
+	//½©Ê¬µÄ¹ÜÀí Ñ­­hê ÁĞ£¬ËÀµôµÄ½©Ê¬¸ÄÃû“QĞÕºóÖØĞÂ¼ÓÈëê Î²
 };

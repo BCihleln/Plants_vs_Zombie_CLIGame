@@ -6,7 +6,7 @@
 
 class Plant:protected Creature //先只實現射擊型植物
 {
-	int ID;
+	plant_list ID;
 protected:
 	int cost; // 消耗陽光數
 	queue<BULLET> bullets;//由植物生產的子彈隊列
@@ -14,7 +14,7 @@ public:
 	Plant();
 	~Plant();
 
-	void set_type(const int ID);
+	void set_type(const plant_list ID);
 
 	void attack();
 };

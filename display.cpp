@@ -20,16 +20,16 @@ inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position
 	delete[] tmp_line;//釋放暫時申請的内存
 }
 
-void DISPLAY::PrintLine()
-{
-	for(int i = 0;i<SCREEN_LENGTH;++i)
-		cout << "=";
-}
-void DISPLAY::PrintLine(const string& target)
-{
-	for (int i = 0; i < SCREEN_LENGTH; ++i)
-		cout << target;
-}
+//void DISPLAY::PrintLine()
+//{
+//	for(int i = 0;i<SCREEN_LENGTH;++i)
+//		cout << "=";
+//}
+//void DISPLAY::PrintLine(const string& target)
+//{
+//	for (int i = 0; i < SCREEN_LENGTH; ++i)
+//		cout << target;
+//}
 
 coordinate DISPLAY::Map2Screen(short x,short y)
 {
@@ -39,7 +39,7 @@ coordinate DISPLAY::Map2Screen(short x,short y)
 	if (y > 5)
 		y = 4;
 	coordinate map_o = { 0,10-1 };//地圖左上角原點
-	coordinate target = { (short)x * 18,(short)y * 10 };
+	coordinate target = { (short)x * cell_length,(short)y * cell_length };
 	return target+map_o;
 }
 coordinate DISPLAY::Map2Screen(coordinate position)
@@ -52,10 +52,11 @@ void DISPLAY::RefreshStdOut()
 {
 	SetScreenCursor(0, 0);
 	//system("cls"); cls會導致鼠標捕獲模式退出
-	for (int i = 0; i < SCREEN_WIDTH; ++i)
+	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
-		cout << SCREEN_BUFFER[i];
+		cout << SCREEN_BUFFER[i];//因爲是直接打印整個屏幕長度，不需要手動換行
 	}
+
 }
 
 void DISPLAY::CleanMapCell(int x, int y)
@@ -99,20 +100,37 @@ DISPLAY::~DISPLAY()
 	ShowCursor();
 }
 
+//傳入最左側的起始位置，返回居中后的坐標
+coordinate DISPLAY::middle(const string& target, coordinate left_side)
+{
+	int half_of_string = target.length() >> 1;//>>1 相當於/2
+	short x = left_side.X - half_of_string;
+
+	//避免邊角錯誤
+	x = x > 0 ? x : 0;//左邊界
+	x = left_side.X + half_of_string < SCREEN_LENGTH ? x : SCREEN_LENGTH - (short)target.length();//右邊界
+
+	return { x,left_side.Y };
+}
+coordinate DISPLAY::map_cell_middle(coordinate position)
+{
+	//設定到地圖單元格的中心點
+	position.X = position.X - (position.X % cell_length);
+	position.X += (cell_length >> 1);
+	position.Y = position.Y - (position.Y % cell_width);
+	position.Y += (cell_width >> 1);
+	if (position.Y > SCREEN_WIDTH)//邊界檢查，避免SCREEN_BUFFER内存訪問朝見
+		position.Y = SCREEN_WIDTH;
+	//cout << position;
+	return position;
+}
+
 void DISPLAY::PrintOnMouse(const string& target)
 {
 	//SetConsoleActiveScreenBuffer(StdOutBuf);
 	RefreshStdOut();//清掉之前打印的鼠標打印的東西
-	int half_of_string = target.length() >> 1;//>>1 相當於/2
-	int x = MouseCursor.X - half_of_string;
-
-	//避免邊角錯誤
-	x = x > 0 ? x : 0;//左邊界
-	x = MouseCursor.X + half_of_string < SCREEN_LENGTH ? x : SCREEN_LENGTH - target.length();//右邊界
-	
-	coordinate middle = { (short)x,(short)MouseCursor.Y };
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
-	PrintOnXY(target, middle);
+	PrintOnXY(target, middle(target,MouseCursor));
 }
 void DISPLAY::PrintOnXY(const  string& target, short x, short y)
 {
@@ -174,40 +192,45 @@ void DISPLAY::window_init()
 
 void DISPLAY::screen_buffer_init()
 {
-	SCREEN_BUFFER = new char* [SCREEN_WIDTH];//建立屏幕輸出緩衝
-	for (int i = 0; i < SCREEN_WIDTH; ++i)
+	SCREEN_BUFFER = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
+	for (int i = 0; i < SCREEN_WIDTH+1; ++i)
 	{
 		SCREEN_BUFFER[i] = new char[SCREEN_LENGTH+1];
 		SCREEN_BUFFER[i][SCREEN_LENGTH] = '\0';
 		for (int j = 0; j < SCREEN_LENGTH; ++j)
 			SCREEN_BUFFER[i][j] = ' ';
 	}
+	SCREEN_BUFFER[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';
 }
-
 void DISPLAY::WriteScreenBuffer(const char* target, coordinate position)
 {
 	int length = strlen(target);
 	if (position.Y > SCREEN_WIDTH)//縱坐標邊界檢查
-		return;
+	{
+		color(red);
+		cout << __FUNCTION__ << "Out of range" << endl;
+		cout << position;
+		exit(0);
+	}
 	for (int i = 0; i < length && i+position.X < SCREEN_LENGTH-1; ++i)//終止條件包含橫坐標邊界檢查
 		this->SCREEN_BUFFER[position.Y][i+position.X] = target[i];
 }
 
-void DISPLAY::SetScreenCursor(int x, int y)
+void DISPLAY::SetScreenCursor(short x, short y)
 {
 	ScreenCursor.X = x;
 	ScreenCursor.Y = y;
 	SetConsoleCursorPosition(hStdOut, ScreenCursor);
 }
-void DISPLAY::SetMousePosition(coordinate target)
-{
-	if (target.Y > SCREEN_WIDTH - 1)
-		target.Y -= 1;//防止在最下一行打印造成屏幕捲動閃屏
-	MouseCursor = target;
-}
 void DISPLAY::SetScreenCursor(coordinate target)
 {
 	SetScreenCursor(target.X, target.Y);
+}
+void DISPLAY::SetMousePosition(coordinate target)
+{
+	if (target == coordinate{ SCREEN_LENGTH-1, SCREEN_WIDTH })
+		target = target - coordinate{1, 0};//防止最右下角打印時卷屏造成閃爍
+	MouseCursor = target;
 }
 
 void DISPLAY::HideCursor()
@@ -222,9 +245,25 @@ void DISPLAY::ShowCursor()
 
 
 //ID : Plant's ID, position : screen coordinate
-void DISPLAY::NewPlant(int ID, coordinate position)
+void DISPLAY::NewPlant(plant_list ID, coordinate position)
 {
 	//TODO : Switch plant ID
-	//TODO : 打印居中
-	WriteScreenBuffer("Sun Flower", position);
+
+	position = map_cell_middle(position);
+	string tmp;
+	switch (ID)
+	{
+	case Sun_Flower:
+		tmp = "Sun Flower";
+		break;
+	case Bean_Shooter:
+		tmp = "Bean Shooter";
+		break;
+	case Nut_Wall:
+		tmp = "Nut Wall";
+		break;
+	default:break;
+	}
+
+	WriteScreenBuffer(tmp.c_str(), middle(tmp,position));
 }

@@ -45,24 +45,26 @@ class DISPLAY
 
 	void HideCursor();//隐藏控制台的光标 
 	void SetScreenCursor(coordinate target);
-	void SetScreenCursor(int x, int y);
+	void SetScreenCursor(short x, short y);
 
 	inline void color(int a)//颜色函数  
 	{
 		SetConsoleTextAttribute(hStdOut, a | BACKGROUND_GREEN);//TODO：顔色什麽的後面再來處理吧
 	}
 
-	void PrintLine();
-	void PrintLine(const string& target);
+	//void PrintLine();
+	//void PrintLine(const string& target);
 	void PrintOnXY(const string& target, short x, short y);
 	void PrintOnXY(const string& target, coordinate position);
 	void PrintOnXY(const coordinate& target, short x, short y);
 	void PrintOnXY(const coordinate& target, coordinate position);
+	//傳入最左側的起始位置，返回居中后的坐標
+	coordinate middle(const string& target, coordinate left_side);
+	coordinate map_cell_middle(coordinate position);
 
 	coordinate Map2Screen(short x, short y);//地圖坐標轉屏幕坐標
 	coordinate Map2Screen(coordinate position);
 	coordinate Store2Screen(short x, short y);
-
 
 public:
 	//friend class GAME_SYSTEM;
@@ -74,7 +76,7 @@ public:
 
 	void PrintOnMouse(const string& target);
 
-	void NewPlant(int ID,coordinate position);
+	void NewPlant(plant_list ID,coordinate position);
 	
 	void Info();
 

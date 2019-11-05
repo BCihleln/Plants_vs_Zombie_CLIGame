@@ -1,8 +1,8 @@
 #include "game_system.h"
 
 /**
-è¡Œæœ‰é¤˜åŠ›ï¼š
-æ ¹æ“šå±å¹•å¤§å°å‹•æ…‹ç”Ÿæˆåœ°åœ–ï¼ŒæŒ‰æ¯”ä¾‹ç¸®æ”¾
+ÐÐÓÐðNÁ¦£º
+¸ù“þÆÁÄ»´óÐ¡„Ó‘BÉú³ÉµØˆD£¬°´±ÈÀý¿s·Å
 
 **/
 #ifdef DEBUG
@@ -22,28 +22,28 @@ int main(void)
 	//game_system.~GAME_SYSTEM();
 	//exit(0);
 		/*
-		2019 11 02 return 0éŒ¯èª¤
-		æš«æ™‚å…ˆé€™æ¨£é ‚è‘—
-		emmm ç”¨return 0 çš„è©±
-			åœ¨return ä¹‹å‰æžæ§‹game_systemï¼Œ~game_systemä¸­
-				èª¿ç”¨35æ¬¡plant[5][7]çš„æžæ§‹å‡½æ•¸ï¼Œ
-				ä¹‹å¾Œå†ä¾æ¬¡æžæ§‹å…¶ä»–æˆå“¡
-			æ­£å¸¸è¿”å›žåˆ°main ä¸¦return 0
-			ä½†æœ€å¾Œç¨‹åºè¦é€€å‡ºæ™‚ä¼¼ä¹Žæª¢æŸ¥äº†game_systemçš„æ£§æ˜¯å¦è¶…ç•Œï¼Œ
-			ç„¶å¾Œå°±å ±éŒ¯è¶…ç•Œâ€¦â€¦
-				ç›®å‰è§€å¯Ÿåˆ°åœ¨game_systemä¸­æ·»åŠ äº†plants[5][7]é€™å€‹é¡žæˆå“¡åŽæ‰ç™¼ç”Ÿé€™æ¨£çš„éŒ¯èª¤
-					åŽŸæœ¬ä»¥çˆ²æ˜¯å› çˆ²é‡‹æ”¾é€™å€‹æˆå“¡æ™‚ï¼Œèª¿ç”¨æžæ§‹å‡½æ•¸è¶…éŽäº†35æ¬¡
-					é€æ­¥èª¿è©¦åŽç™¼ç¾èª¿ç”¨æ¬¡æ•¸æ­£å¸¸
-					ä¸çŸ¥é“å•é¡Œå‡ºåœ¨å“ª
-			å¯èƒ½çš„è©±è¦çœ‹åŒ¯ç·¨èªžè¨€äº†
+		2019 11 02 return 0åeÕ`
+		•º•rÏÈß@˜Óí”Öø
+		emmm ÓÃreturn 0 µÄÔ’
+			ÔÚreturn Ö®Ç°Îö˜‹game_system£¬~game_systemÖÐ
+				Õ{ÓÃ35´Îplant[5][7]µÄÎö˜‹º¯”µ£¬
+				Ö®ááÔÙÒÀ´ÎÎö˜‹ÆäËû³É†T
+			Õý³£·µ»Øµ½main Kreturn 0
+			µ«×îáá³ÌÐòÒªÍË³ö•rËÆºõ™z²éÁËgame_systemµÄ—£ÊÇ·ñ³¬½ç£¬
+			È»áá¾Íˆóåe³¬½ç¡­¡­
+				Ä¿Ç°Ó^²ìµ½ÔÚgame_systemÖÐÌí¼ÓÁËplants[5][7]ß@‚€î³É†Tºó²Å°lÉúß@˜ÓµÄåeÕ`
+					Ô­±¾ÒÔ ‘ÊÇÒò ‘áŒ·Åß@‚€³É†T•r£¬Õ{ÓÃÎö˜‹º¯”µ³¬ß^ÁË35´Î
+					Öð²½Õ{Ô‡ºó°l¬FÕ{ÓÃ´Î”µÕý³£
+					²»ÖªµÀ†–î}³öÔÚÄÄ
+			¿ÉÄÜµÄÔ’Òª¿´…R¾ŽÕZÑÔÁË
 
 		2019 11 03
-		return 0 åˆæ²’æœ‰éŒ¯èª¤äº†â€¦â€¦çœŸæ˜¯èŽ«åå…¶å¦™å‘¢
+		return 0 ÓÖ›]ÓÐåeÕ`ÁË¡­¡­ÕæÊÇÄªÃûÆäÃîÄØ
 		*/
 }
 
 #else
-int main() //é€Ÿåº¦æ¸¬è©¦
+int main() //ËÙ¶ÈœyÔ‡
 {
 }
 #endif // !DEBUG

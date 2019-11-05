@@ -1,7 +1,7 @@
 #include "map.h"
 
 coordinate Map::Screen2Map(coordinate target)
-{
+{//TODO µØˆDß…½ç™z²é
 	target.X /= cell_length;
 	target.Y -= 10;
 	target.Y /= cell_width;
@@ -27,7 +27,7 @@ void Map::init()
 		}
 }
 
-void Map::PlantOnXY(int target_ID, coordinate position)
+void Map::PlantOnXY(const plant_list target_ID, coordinate position)
 {
 	position = Screen2Map(position);
 	plants[position.Y][position.X].set_type(target_ID);

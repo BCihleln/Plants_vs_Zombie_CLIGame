@@ -143,8 +143,9 @@ int GAME_SYSTEM::interpret_mouse(DWORD target,coordinate position)
 	case FROM_LEFT_1ST_BUTTON_PRESSED:			// ×ó¼ü
 	{
 		//display.PrintOnMouse("Left Click");
-		map.PlantOnXY(0,position);
-		display.NewPlant(0, position);
+		map.PlantOnXY(Sun_Flower,position);
+		
+		display.NewPlant(Sun_Flower,position );
 		break;
 	}
 

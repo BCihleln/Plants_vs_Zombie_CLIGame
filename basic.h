@@ -18,12 +18,4 @@ ostream& operator<<(ostream& out, const coordinate& target);
 bool operator==(const coordinate& A, const coordinate& B);
 bool operator!=(const coordinate& A, const coordinate& B);
 
-#define map_row 5
-#define map_column 7
-
-
-#define store_row 2
-#define store_column map_column
-
-#define map_file "map.txt"
-#define info_file "info_test.txt"
+#include "game_info.h"
