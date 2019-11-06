@@ -4,17 +4,20 @@
 #include "creature.h"
 #include "bullet.h"
 
-class Plant:protected Creature //先只實現射擊型植物
+class Plant:private Creature //先只實現射擊型植物
 {
-	plant_list ID;
-protected:
 	int cost; // 消耗陽光數
+	int cool_time;// 能再次購買的冷卻時間 單位：秒
 	queue<BULLET> bullets;//由植物生產的子彈隊列
 public:
+	plant_list ID;
+
 	Plant();
 	~Plant();
 
 	void set_type(const plant_list ID);
+	int get_cost()const;
+	int get_cool_time()const;
 
 	void attack();
 };
