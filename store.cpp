@@ -33,7 +33,7 @@ coordinate STORE::select(coordinate position)
 	if (products[position.Y][position.X].plant.get_cost() < sun)
 		return position;
 	else
-		return { store_row,store_column };//費用不足，不能選擇
+		return coordinate_out_of_border;//費用不足，不能選擇
 }
 
 Plant* STORE::buy(coordinate target)

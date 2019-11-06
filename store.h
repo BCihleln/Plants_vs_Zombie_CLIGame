@@ -2,7 +2,7 @@
 #include "basic.h"
 #include "plants.h"
 
-
+//TODO А^іР±нођ
 class STORE
 {
 	struct product
