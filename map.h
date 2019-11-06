@@ -14,7 +14,7 @@ struct mapCell
 	BULLET* bullet;//當前單元格是否有子彈
 };
 
-class Map:/*public Table<mapCell>*/public Table <mapCell>
+class Map:public Table <mapCell>
 {
 	Plant plants[map_row][map_column];
 	vector<ZOMBIE> zombies[map_row];
