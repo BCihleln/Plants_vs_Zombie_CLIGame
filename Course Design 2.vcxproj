@@ -158,6 +158,7 @@
     <ClInclude Include="game_info.h" />
     <ClInclude Include="game_system.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="plants.h" />
     <ClInclude Include="store.h" />
     <ClInclude Include="table.h" />

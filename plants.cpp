@@ -16,34 +16,43 @@ Plant::~Plant()
 
 void Plant::set_type(const plant_list ID)
 {
-	this->ID = ID;
-	switch (ID)
+	if(this->ID==None)//只能被設置一次
 	{
-	case	Sun_Flower:
-		this->name = "Sun Flower";
-		this->HP = 25;
-		this->ATK = 0;
-		this->ATK_SPD = 10;
-		break;
-	case Bean_Shooter://豌豆射手
-		this->name = "Bean Shooter";
-		this->HP = 40;
-		this->ATK = 25;
-		this->ATK_SPD = 50;
-		break;
-	case Nut_Wall://堅果墻
-		this->name = "Nut Wall";
-		this->HP = 100;
-		this->DEF = 25;
-		break;
-	case 4:
-		break;
-	case 5:
-		break;
-	default:
-		this->ID = None;
-		break;
+		this->ID = ID;
+		switch (ID)
+		{
+		case	Sun_Flower:
+			this->name = "Sun Flower";
+			this->HP = 25;
+			this->ATK = 0;
+			this->ATK_SPD = 10;
+			return;
+		case Bean_Shooter://豌豆射手
+			this->name = "Bean Shooter";
+			this->HP = 40;
+			this->ATK = 25;
+			this->ATK_SPD = 50;
+			return;
+		case Nut_Wall://堅果墻
+			this->name = "Nut Wall";
+			this->HP = 100;
+			this->DEF = 25;
+			return;
+		case 4:
+			return;
+		case 5:
+			return;
+		default:
+			this->ID = None;
+			return;
+		}
 	}
+}
+
+void Plant::clean()
+{
+	ID = None;
+
 }
 
 int Plant::get_cost() const

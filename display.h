@@ -1,5 +1,8 @@
 #pragma once
 #include "basic.h"
+#include "menu.h"
+#include "map.h"
+#include "store.h"
 
 /*
 完成功能
@@ -76,7 +79,7 @@ public:
 
 	void PrintOnMouse(const string& target);
 
-	void NewPlant(plant_list ID,coordinate position);
+	void NewPlant(Map& target,coordinate screen_position,coordinate map_position);
 	
 	void Info();
 

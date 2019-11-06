@@ -144,10 +144,11 @@ int GAME_SYSTEM::interpret_mouse(DWORD target,coordinate position)
 	{
 	case FROM_LEFT_1ST_BUTTON_PRESSED:			// 左键
 	{
-		//display.PrintOnMouse("Left Click");
-		map.PlantOnXY(Sun_Flower,position);
+		//TODO 按下與放鬆皆會出發一次，導致調用兩次函數，故應直接傳回對應位置，再調用即可
+
+		coordinate tmp = map.PlantOnXY(Sun_Flower,position);
 		
-		display.NewPlant(Sun_Flower,position );
+		display.NewPlant(map,position,tmp );
 		break;
 	}
 

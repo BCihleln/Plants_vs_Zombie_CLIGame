@@ -8,36 +8,93 @@ void Table<type>::generate_table()
 		table[i] = new type[column];
 }
 
-template <typename type>
-coordinate Table<type>::Screen2Table(coordinate screen_coordinate)
+//傳回是否處於界内
+template<typename type>
+bool Table<type>::check_border(coordinate& screen, bool strong_check) const
 {
-	//橫坐標邊界檢查
-	screen_coordinate.X = screen_coordinate.X > start_position.X ? screen_coordinate.X : start_position.X;
-	screen_coordinate.X = screen_coordinate.X > table_length ? table_length + start_position.X : screen_coordinate.X;
-	//縱坐標邊界檢查
-	screen_coordinate.Y = screen_coordinate.Y > start_position.Y ? screen_coordinate.Y : start_position.Y;
-	screen_coordinate.Y = screen_coordinate.Y > table_width ? table_width + start_position.Y : screen_coordinate.Y;
+	if (!strong_check)//弱檢查：超界的話移動到界内
+	{
+		//橫坐標邊界檢查
+		screen.X = max(start_point.X + 1, screen.X);//左邊界檢查
+		screen.X = min(start_point.X + table_length - cell_length, screen.X);//右邊界檢查
+		
+		//縱坐標邊界檢查
+		screen.Y = max(start_point.Y + 1, screen.Y);//上邊界檢查
+		screen.Y = min(start_point.Y + table_width - 1, screen.Y);//下邊界檢查
+		return true;//界内
+	}
+	else
+	{
+		if (screen.X <start_point.X+1 || screen.X > start_point.X + table_length-1 ||
+			screen.Y < start_point.Y+1 || screen.Y > start_point.Y + table_width-1)
+		{
+			return false;
+		}
+		else return true;
+	}
+	return false;//非界内，界外
+}
 
-	coordinate target = screen_coordinate - start_position;
+template <typename type>
+coordinate Table<type>::Screen2Table(coordinate screen_coordinate, bool strong_check)const
+{
+	//cout << __FUNCTION__ << endl;
+	//cout << table_length << "," << table_width << endl;
+	//cout << screen_coordinate << endl;
 
-	target.X /= cell_length;
-	target.Y /= cell_width;
-	return target;
+	if (check_border(screen_coordinate, strong_check))//未超界的話
+	{
+		coordinate target = screen_coordinate - start_point;
+		//cout << target << endl;
+
+		target.X /= cell_length;
+		target.Y /= cell_width;
+		//cout << "Table coordinate: " << target << endl;
+		return target;
+	}
+	else
+	{
+		return coordinate_out_of_border;
+	}
+}
+
+template<typename type>
+coordinate Table<type>::Table2Screen(coordinate table_coordinate)const
+{
+	coordinate target =
+	{
+		table_coordinate.X * cell_length + (cell_length >> 1),
+		table_coordinate.Y * cell_width + (cell_width >> 1)
+	};
+
+	target = this->start_point+target;
+	return target;//返回單元格的中心點
+}
+
+template<typename type>
+type Table<type>::Cell(short x, short y)
+{
+	return table[y][x];
+}
+template<typename type>
+type Table<type>::Cell(coordinate target)
+{
+	return Cell(target.X, target.Y);
 }
 
 template<typename type>
 Table<type>::Table() :
 	row(1), column(1),
-	start_position({ 0,0 }), cell_size({ 1,1 }),
+	start_point({ 0,0 }), cell_size({ 1,1 }),
 	table_length(column* cell_size.X), table_width(row* cell_size.Y)
 {
 	generate_table();
 }
 
 template <typename type>
-Table<type>::Table(int row_, int column_, coordinate start_position, coordinate cell_size) :
+Table<type>::Table(int row_, int column_, coordinate start_point, coordinate cell_size) :
 	row(row_), column(column_),
-	start_position(start_position), cell_size(cell_size),
+	start_point(start_point), cell_size(cell_size),
 	table_length(column_* cell_size.X), table_width(row_* cell_size.Y)
 {
 	generate_table();

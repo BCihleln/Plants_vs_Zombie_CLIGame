@@ -63,6 +63,8 @@ void DISPLAY::CleanMapCell(int x, int y)
 {
 	coordinate tmp = Map2Screen(x, y);
 	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);//TODO 不需要每次刷新時都讀文件
+
+
 }
 
 DISPLAY::DISPLAY():
@@ -100,7 +102,7 @@ DISPLAY::~DISPLAY()
 	ShowCursor();
 }
 
-//傳入最左側的起始位置，返回居中后的坐標
+//傳入最左側的起始位置(屏幕)，返回居中后的坐標
 coordinate DISPLAY::middle(const string& target, coordinate left_side)
 {
 	int half_of_string = target.length() >> 1;//>>1 相當於/2
@@ -158,7 +160,7 @@ void DISPLAY::PrintOnXY(const coordinate& target, coordinate position)
 
 void DISPLAY::window_init()
 {
-	SetConsoleTitle(L"Plant VS Zombie"); // 設置窗口标题
+	SetConsoleTitle(L"Plant VS Zombie"); // 設置窗口标题 前面的L代表寬字符
 	HWND hwnd = GetForegroundWindow();
 
 	//int cx = GetSystemMetrics(SM_CXSCREEN);//單位：像素
@@ -200,7 +202,7 @@ void DISPLAY::screen_buffer_init()
 		for (int j = 0; j < SCREEN_LENGTH; ++j)
 			SCREEN_BUFFER[i][j] = ' ';
 	}
-	SCREEN_BUFFER[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';
+	SCREEN_BUFFER[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
 }
 void DISPLAY::WriteScreenBuffer(const char* target, coordinate position)
 {
@@ -244,26 +246,14 @@ void DISPLAY::ShowCursor()
 }
 
 
-//ID : Plant's ID, position : screen coordinate
-void DISPLAY::NewPlant(plant_list ID, coordinate position)
+void DISPLAY::NewPlant(Map& target, coordinate screen_position, coordinate map_position)
 {
-	//TODO : Switch plant ID
-
-	position = map_cell_middle(position);
-	string tmp;
-	switch (ID)
+	if (map_position != coordinate_out_of_border)
 	{
-	case Sun_Flower:
-		tmp = "Sun Flower";
-		break;
-	case Bean_Shooter:
-		tmp = "Bean Shooter";
-		break;
-	case Nut_Wall:
-		tmp = "Nut Wall";
-		break;
-	default:break;
+		string tmp = target.Cell(map_position).plant.get_name();
+		screen_position = target.Table2Screen(map_position);//轉爲屏幕坐標正中央
+		WriteScreenBuffer(tmp.c_str(), middle(tmp, screen_position));
 	}
-
-	WriteScreenBuffer(tmp.c_str(), middle(tmp,position));
+	else
+		PrintOnMouse("Out of Boarder!!!");
 }

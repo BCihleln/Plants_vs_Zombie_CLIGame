@@ -10,13 +10,13 @@
 
 struct mapCell
 {
+	Plant plant;
 	ZOMBIE* zombie;//也許會有很多個zombie，可能要用vector結構存儲一個單元格裏面的所有zombie
 	BULLET* bullet;//當前單元格是否有子彈
 };
 
 class Map:public Table <mapCell>
 {
-	Plant plants[map_row][map_column];
 	vector<ZOMBIE> zombies[map_row];
 
 	//coordinate Screen2Map(coordinate target);
@@ -35,7 +35,6 @@ public:
 	Map();
 	~Map();
 
-		
 	//mapCell* operator[](int target)
 	//{
 	//	if (target > map_column)
@@ -46,7 +45,8 @@ public:
 	//	return map[target];
 	//}//重載[]來直接取得單元格數據
 
-	void PlantOnXY(const plant_list target_ID,coordinate position);
+	//種植成功的話返回種植單元格坐標
+	coordinate PlantOnXY(const plant_list target_ID,coordinate position);
 
 	//Plant* select(coordinate position);
 

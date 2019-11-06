@@ -17,5 +17,6 @@ coordinate operator+(const coordinate& A, const coordinate& B);
 ostream& operator<<(ostream& out, const coordinate& target);
 bool operator==(const coordinate& A, const coordinate& B);
 bool operator!=(const coordinate& A, const coordinate& B);
+#define coordinate_out_of_border coordinate{MAXSHORT,MAXSHORT}
 
 #include "game_info.h"

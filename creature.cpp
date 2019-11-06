@@ -10,6 +10,11 @@ Creature::Creature(string name):
 {
 }
 
+string Creature::get_name()
+{
+	return name;
+}
+
 void Creature::injure(int damage)
 {
 	HP -= (damage * (DEF-1) / 100);
