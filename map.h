@@ -30,6 +30,9 @@ class Map:public Table<mapCell>
 	void init();
 public:
 	friend class GAME_SYSTEM;
+	
+	using Table<mapCell>::Table;
+	using Table::Screen2Table;
 	Map();
 	~Map();
 

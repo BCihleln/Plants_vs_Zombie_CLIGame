@@ -4,7 +4,7 @@
 #include "creature.h"
 #include "bullet.h"
 
-class Plant:protected Creature //先只實現射擊型植物
+class Plant:private Creature //先只實現射擊型植物
 {
 	plant_list ID;
 protected:
