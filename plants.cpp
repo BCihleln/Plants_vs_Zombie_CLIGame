@@ -46,6 +46,16 @@ void Plant::set_type(const plant_list ID)
 	}
 }
 
+int Plant::get_cost() const
+{
+	return this->cost;
+}
+
+int Plant::get_cool_time() const
+{
+	return this->cool_time;
+}
+
 void Plant::attack()
 {
 	//射擊型植物的攻擊方式是生產一顆子彈

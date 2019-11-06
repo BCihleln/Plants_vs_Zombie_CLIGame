@@ -1,10 +1,12 @@
 #pragma once
 
 #include "basic.h"
-#include "table.h"
+//#include "table.h"
+#include "table.cpp"
 #include "plants.h"
 #include "bullet.h"
 #include "zombie.h"
+
 
 struct mapCell
 {
@@ -12,13 +14,12 @@ struct mapCell
 	BULLET* bullet;//當前單元格是否有子彈
 };
 
-class Map:public Table<mapCell>
+class Map:/*public Table<mapCell>*/public Table <mapCell>
 {
 	Plant plants[map_row][map_column];
 	vector<ZOMBIE> zombies[map_row];
 
 	//coordinate Screen2Map(coordinate target);
-
 	//TODO 處理植物、僵尸雙方攻擊
 	void compute_attack();
 	//TODO 維護僵尸、子彈移動坐標
@@ -31,8 +32,6 @@ class Map:public Table<mapCell>
 public:
 	friend class GAME_SYSTEM;
 	
-	using Table<mapCell>::Table;
-	using Table::Screen2Table;
 	Map();
 	~Map();
 
