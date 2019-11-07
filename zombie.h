@@ -2,14 +2,18 @@
 #include "basic.h"
 #include "creature.h"
 
+//行走攻擊分開執行，每時隙只能執行其中一個
 class ZOMBIE:private Creature //先實現普通僵尸
 {
-
+	bool attack_flag;
 public:
 	ZOMBIE();
 	~ZOMBIE();
 
-	int attack();
+	void attack();
+	void move(coordinate& position);
+
+	void next(int clock,coordinate& position);
 };
 
 /*

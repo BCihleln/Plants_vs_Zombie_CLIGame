@@ -25,9 +25,10 @@ class GAME_SYSTEM
 	INPUT_RECORD	InputRecord;//Input Buffer
 	DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
 	
-	DISPLAY display;
 	Map map;//map中包含了所有植物、與僵尸vector
-	STORE store;
+	Store store;
+
+	DISPLAY display;
 
 	int score;
 	int clock;
@@ -56,4 +57,5 @@ public:
 
 	//獲取輸入信號 鼠標+鍵盤
 	int get_input();
+	void next();
 };

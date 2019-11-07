@@ -21,6 +21,8 @@ public:
 	int get_cool_time()const;
 
 	void attack();
+
+	virtual void next(int clock,coordinate& position);
 };
 
 /*TODO£º

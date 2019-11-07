@@ -31,25 +31,26 @@ inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position
 //		cout << target;
 //}
 
-coordinate DISPLAY::Map2Screen(short x,short y)
-{
-	const int store_UI_height = 11;
-	if (x > 7)
-		x = 6;
-	if (y > 5)
-		y = 4;
-	coordinate map_o = { 0,10-1 };//地圖左上角原點
-	coordinate target = { (short)x * map_cell_length,(short)y * map_cell_width };
-	return target+map_o;
-}
-coordinate DISPLAY::Map2Screen(coordinate position)
-{
-	return Map2Screen(position.X, position.Y);
-}
+//coordinate DISPLAY::Map2Screen(short x,short y)
+//{
+//	const int store_UI_height = 11;
+//	if (x > 7)
+//		x = 6;
+//	if (y > 5)
+//		y = 4;
+//	coordinate map_o = { 0,10-1 };//地圖左上角原點
+//	coordinate target = { (short)x * map_cell_length,(short)y * map_cell_width };
+//	return target+map_o;
+//}
+//coordinate DISPLAY::Map2Screen(coordinate position)
+//{
+//	return Map2Screen(position.X, position.Y);
+//}
 
 
 void DISPLAY::RefreshStdOut()
 {
+	//color(green);//TODO Know Why and Debug在這裏改顔色的話會導致無法打印
 	SetScreenCursor(0, 0);
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
@@ -59,18 +60,18 @@ void DISPLAY::RefreshStdOut()
 
 }
 
-void DISPLAY::CleanMapCell(int x, int y)
+void DISPLAY::CleanMapCell(coordinate target_Cell)
 {
-	coordinate tmp = Map2Screen(x, y);
+	coordinate tmp = map->Table2Screen(target_Cell);
 	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);//TODO 不需要每次刷新時都讀文件
-
 
 }
 
-DISPLAY::DISPLAY():
+DISPLAY::DISPLAY(const Map&target_map,const Store& target_store):
 	SCREEN_SIZE({0,0}),
 	ScreenCursor({0,0}),
-	MouseCursor({0,0})
+	MouseCursor({0,0}),
+	map(&target_map),store(&target_store)
 {
 	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//獲得標準輸出句柄
 	
@@ -114,18 +115,7 @@ coordinate DISPLAY::middle(const string& target, coordinate left_side)
 
 	return { x,left_side.Y };
 }
-coordinate DISPLAY::map_cell_middle(coordinate position)
-{
-	//設定到地圖單元格的中心點
-	position.X = position.X - (position.X % map_cell_length);
-	position.X += (map_cell_length >> 1);
-	position.Y = position.Y - (position.Y % map_cell_width);
-	position.Y += (map_cell_width >> 1);
-	if (position.Y > SCREEN_WIDTH)//邊界檢查，避免SCREEN_BUFFER内存訪問朝見
-		position.Y = SCREEN_WIDTH;
-	//cout << position;
-	return position;
-}
+
 
 void DISPLAY::PrintOnMouse(const string& target)
 {
@@ -246,14 +236,11 @@ void DISPLAY::ShowCursor()
 }
 
 
-void DISPLAY::NewPlant(Map& target, coordinate screen_position, coordinate map_position)
+//只有植物種植成功才調用
+void DISPLAY::NewPlant(coordinate screen_position, const string& name)
 {
-	if (map_position != coordinate_out_of_border)
-	{
-		string tmp = target.Cell(map_position).plant.get_name();
-		screen_position = target.Table2Screen(map_position);//轉爲屏幕坐標正中央
-		WriteScreenBuffer(tmp.c_str(), middle(tmp, screen_position));
-	}
-	else
-		PrintOnMouse("Out of Boarder!!!");
+	WriteScreenBuffer(name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
+
+	//else
+	//	PrintOnMouse("Out of Boarder!!!");
 }

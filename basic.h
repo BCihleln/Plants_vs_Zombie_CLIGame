@@ -17,6 +17,10 @@ coordinate operator+(const coordinate& A, const coordinate& B);
 ostream& operator<<(ostream& out, const coordinate& target);
 bool operator==(const coordinate& A, const coordinate& B);
 bool operator!=(const coordinate& A, const coordinate& B);
+bool operator<(const coordinate& A, const coordinate& B);//A處於B的左上角
+bool operator<=(const coordinate& A, const coordinate& B);//A處於B的左上角或B點
+bool operator>(const coordinate& A, const coordinate& B);//A處於B的右下角
+bool operator>=(const coordinate& A, const coordinate& B);//A處於B的右下角或B點
 #define coordinate_out_of_border coordinate{MAXSHORT,MAXSHORT}
 
 #include "game_info.h"

@@ -2,7 +2,8 @@
 
 Plant::Plant():Creature("None"),ID(None)
 {
-	this->cost = 0;
+	cost = 0;
+	SPD = 0;
 }
 
 Plant::~Plant()
@@ -67,7 +68,17 @@ int Plant::get_cool_time() const
 
 void Plant::attack()
 {
-	//射擊型植物的攻擊方式是生產一顆子彈
-	BULLET tmp(name,this->ATK,0);
-	bullets.push(tmp);//TODO 在函數時會析構掉tmp，不知道是否會影響到queue裏的元素，待逐步調試時查證
+	////射擊型植物的攻擊方式是生產一顆子彈
+	//BULLET tmp(name,this->ATK,0);
+	//bullets.push(tmp);//TODO 在函數時會析構掉tmp，不知道是否會影響到queue裏的元素，待逐步調試時查證
+	//TODO 生產子彈
+}
+
+void Plant::next(int clock, coordinate& position)
+{
+	if (HP > 0)//還活著的話
+	{
+		if (clock % ATK_SPD == 0)
+			attack();
+	}
 }

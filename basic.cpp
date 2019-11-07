@@ -25,3 +25,32 @@ bool operator!=(const coordinate& A, const coordinate& B)
 {
 	return !(A == B);
 }
+
+bool operator<(const coordinate& A, const coordinate& B)
+{
+	if (A.X < B.X && A.Y < B.Y)
+		return true;
+	else
+		return false;
+}
+
+bool operator<=(const coordinate& A, const coordinate& B)
+{
+	if (A.X <= B.X && A.Y >= B.Y)
+		return true;
+	else
+		return false;
+}
+
+bool operator>(const coordinate& A, const coordinate& B)
+{
+	if (A.X > B.X && A.Y > B.Y)
+		return true;
+	else
+		return false;
+}
+
+bool operator>=(const coordinate& A, const coordinate& B)
+{
+	return !(A <= B);
+}

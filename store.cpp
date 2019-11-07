@@ -1,53 +1,55 @@
 #include "store.h"
 
-coordinate STORE::Screen2Store(short x, short y)
-{
-	x /= store_column;
-	y /= store_row;
-	return coordinate({ x,y });
-}
+//coordinate Store::Screen2Store(short x, short y)
+//{
+//	x /= store_column;
+//	y /= store_row;
+//	return coordinate({ x,y });
+//}
 
-STORE::STORE()
+Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size)
 {
 	init();
 }
 
-void STORE::init()
+void Store::init()
 {
 	sun = 0;
-	for (int i = 0; i < 2; ++i)
-		for (int j = 0; j < 6; ++j)
+	for (int i = 0; i < store_row; ++i)
+		for (int j = 0; j < store_column; ++j)
 		{
-			products[i][j].left_time = 0;
+			table[i][j].left_time = 0;
 		}
 
-	products[0][0].plant.set_type(Sun_Flower);
-	products[0][1].plant.set_type(Bean_Shooter);
-	products[0][2].plant.set_type(Nut_Wall);
+	table[0][0].plant.set_type(Sun_Flower);
+	table[1][0].plant.set_type(Bean_Shooter);
+	table[2][0].plant.set_type(Nut_Wall);
 }
 
-coordinate STORE::select(coordinate position)
+string Store::SelectProducts(coordinate screen)
 {
-	position = Screen2Store(position.X,position.Y);
+	product* target = this->select(screen, false);
 	//cout << position;
-	if (products[position.Y][position.X].plant.get_cost() < sun)
-		return position;
+	if (target == NULL)
+		return string("Out of border");// 超界，不能選擇
+	else if (target->plant.get_cost() < sun)
+		return string("Not enough sun");//費用不足
 	else
-		return coordinate_out_of_border;//費用不足，不能選擇
+		return target->plant.name;
 }
 
-Plant* STORE::buy(coordinate target)
+Plant* Store::buy(coordinate target)
 {
-	sun -= products[target.Y][target.X].plant.get_cost();
-	return &products[target.Y][target.X].plant;
+	sun -= table[target.Y][target.X].plant.get_cost();
+	return &table[target.Y][target.X].plant;
 }
 
-void STORE::next()
+void Store::next()
 {
 	for (int i = 0; i < store_row; ++i)
 		for (int j = 0; j < store_column; ++j)
-			if (products[i][j].left_time > 0)
-				products[i][j].left_time--;
+			if (table[i][j].left_time > 0)
+				table[i][j].left_time--;
 
 	sun++;
 	//TODO sun += amount_of_sun_flower * 10 考慮用變量存 每時隙增加的陽光數

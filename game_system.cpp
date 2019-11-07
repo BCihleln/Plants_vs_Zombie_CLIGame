@@ -2,7 +2,8 @@
 
 GAME_SYSTEM::GAME_SYSTEM() :
 	score(0), clock(0),
-	mode(normal_play)//TODO 暫時先初始化為普通游玩
+	mode(normal_play),//TODO 暫時先初始化為普通游玩
+	display(map,store)
 {
 	// 获取标准输入输出设备句柄
 	this->hStdin = GetStdHandle(STD_INPUT_HANDLE);
@@ -146,9 +147,21 @@ int GAME_SYSTEM::interpret_mouse(DWORD target,coordinate position)
 	{
 		//TODO 按下與放鬆皆會出發一次，導致調用兩次函數，故應直接傳回對應位置，再調用即可
 
-		coordinate tmp = map.PlantOnXY(Sun_Flower,position);
-		
-		display.NewPlant(map,position,tmp );
+		//種植物模塊
+		//TODO 根據商店所選擇種下相應植物
+		string Plant_State = map.PlantOnXY(Sun_Flower, position);//種植成功的話會返回所種植物的名字
+		if (Plant_State != "Out of Border" && 
+			Plant_State != "Place already plant")
+			display.NewPlant(position, Plant_State);
+		else
+		{
+			
+			display.PrintOnMouse(Plant_State); 
+		}
+
+		//商店選擇模塊
+		//string tmp = store.SelectProducts(position);
+		//display.PrintOnMouse(tmp);
 		break;
 	}
 
@@ -158,9 +171,16 @@ int GAME_SYSTEM::interpret_mouse(DWORD target,coordinate position)
 		break;
 	}
 
-	default:
+	default://其他鼠標事件（滾輪相關、移動、其他案件）
 	{
-		display.PrintOnMouse("O");
+		display.PrintOnMouse("+");
+		/*TODO 根據模式切換鼠標移動時所顯示的東西
+		menu、normal_play：顯示“+”
+		selecting：顯示指標植物的cost -> 信息菜單：植物簡介、cost
+		selected：在種下植物前
+							地圖範圍内始終顯示選中的植物名，
+							地圖範圍外顯示out border
+		*/
 		break;
 	}
 	}	
@@ -168,15 +188,17 @@ int GAME_SYSTEM::interpret_mouse(DWORD target,coordinate position)
 }
 void GAME_SYSTEM::interpret_position_set_mode(coordinate position)//傳入position 用以判斷鼠標所在區域（商店區、地圖區、其他）
 {
-	if (position.X < 127 && position.Y < 10)//TODO 待用變量形式更替
+	if ( store.in_table(position))
 	{
 		mode = selecting;
-		store.select(position);
+		//store.SelectProducts(position);
 	}
-	else if(position.X <127 && position.Y <60)
+	else if (map.in_table(position))
 	{
-		mode = normal_play;
+		//mode = normal_play;
 		//map.select(position);
 		//display.PrintOnMouse("normal_play mode");
 	}
+	else
+		mode = normal_play;
 }

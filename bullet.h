@@ -17,4 +17,6 @@ class BULLET :private Creature//子彈作爲一種特殊的生物（突然想到的騷操作）
 public:
 	BULLET(string name, int attack,short effect);
 	~BULLET();
+
+	void next(int clock, coordinate& position);
 };

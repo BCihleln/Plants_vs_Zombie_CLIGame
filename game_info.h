@@ -23,9 +23,5 @@ enum plant_list
 #define map_cell_length 18
 #define map_cell_width 10
 
-
-#define store_row 2
-#define store_column map_column
-
 #define map_file "map.txt"
 #define info_file "info_test.txt"

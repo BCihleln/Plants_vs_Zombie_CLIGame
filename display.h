@@ -33,6 +33,9 @@ class DISPLAY
 	CONSOLE_CURSOR_INFO default_cursor;
 	HANDLE hStdOut;//標準輸出句柄
 
+	const Map* map;
+	const Store* store;
+
 	void window_init();//初始化窗口為最大化，并獲取屏幕大小（單位：字符）
 
 	coordinate SCREEN_SIZE;//單位：字符單元格
@@ -42,7 +45,7 @@ class DISPLAY
 	inline void ReadDataFileToScreenBuff(const char* filepath,int position_x,int position_y);
 	void screen_buffer_init();
 	void WriteScreenBuffer(const char* target, coordinate position);
-	void CleanMapCell(int x, int y);
+	void CleanMapCell(coordinate target_Cell);
 	void RefreshStdOut();
 
 
@@ -52,7 +55,7 @@ class DISPLAY
 
 	inline void color(int a)//颜色函数  
 	{
-		SetConsoleTextAttribute(hStdOut, a | BACKGROUND_GREEN);//TODO：顔色什麽的後面再來處理吧
+		SetConsoleTextAttribute(hStdOut, a );//TODO：顔色什麽的後面再來處理吧
 	}
 
 	//void PrintLine();
@@ -63,15 +66,14 @@ class DISPLAY
 	void PrintOnXY(const coordinate& target, coordinate position);
 	//傳入最左側的起始位置，返回居中后的坐標
 	coordinate middle(const string& target, coordinate left_side);
-	coordinate map_cell_middle(coordinate position);
 
-	coordinate Map2Screen(short x, short y);//地圖坐標轉屏幕坐標
-	coordinate Map2Screen(coordinate position);
-	coordinate Store2Screen(short x, short y);
+	//coordinate Map2Screen(short x, short y);//地圖坐標轉屏幕坐標
+	//coordinate Map2Screen(coordinate position);
+	//coordinate Store2Screen(short x, short y);
 
 public:
 	//friend class GAME_SYSTEM;
-	DISPLAY();
+	DISPLAY(const Map& target_map, const Store& target_store);
 	~DISPLAY();
 
 	void SetMousePosition(coordinate target);
@@ -79,7 +81,7 @@ public:
 
 	void PrintOnMouse(const string& target);
 
-	void NewPlant(Map& target,coordinate screen_position,coordinate map_position);
+	void NewPlant(coordinate screen_position,const string& name);
 	
 	void Info();
 

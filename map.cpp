@@ -21,16 +21,21 @@ void Map::init()
 }
 
 
-coordinate Map::PlantOnXY(const plant_list target_ID, coordinate position)
+string Map::PlantOnXY(const plant_list target_ID, coordinate position)
 {
-	if (this->Table::Screen2Table(position, true) != coordinate_out_of_border)
+	mapCell* target = select(position,true);
+	if (target != NULL)//³É¹¦ßx“ñ
 	{
-		position = this->Table::Screen2Table(position, true);
-		table[position.Y][position.X].plant.set_type(target_ID);
-		return position;
+		if (target->plant.name == "None")
+		{
+			target->plant.set_type(target_ID);
+			return target->plant.name;
+		}
+		else
+			return string("Place already plant");
 	}
 	else
-		return coordinate_out_of_border;
+		return string("Out of Border");
 }
 
 //Plant* Map::select(coordinate position)

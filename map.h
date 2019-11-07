@@ -45,9 +45,7 @@ public:
 	//	return map[target];
 	//}//重載[]來直接取得單元格數據
 
-	//種植成功的話返回種植單元格坐標
-	coordinate PlantOnXY(const plant_list target_ID,coordinate position);
-
-	//Plant* select(coordinate position);
+	//種植成功的話返回true，反之false
+	string PlantOnXY(const plant_list target_ID,coordinate position);
 
 };
