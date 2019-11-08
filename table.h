@@ -44,6 +44,7 @@ protected:
 	friend bool operator>(const coordinate& A, const coordinate& B);//A處於B的右下角
 	friend bool operator>=(const coordinate& A, const coordinate& B);//A處於B的右下角或B點
 
+
 public:
 
 	Table();
@@ -66,4 +67,8 @@ public:
 	//獲得單元格内數據
 	type Cell(short x,short y);
 	type Cell(coordinate target);
+
+	//column 行 row 列
+	type& at(short column, short row);
+	type& at(coordinate target);
 };

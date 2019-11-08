@@ -121,6 +121,24 @@ type Table<type>::Cell(coordinate target)
 }
 
 template<typename type>
+type& Table<type>::at(short column, short row)
+{
+	if(column>table_column || row > table_row ||
+		column <0 || row<0)
+	{
+		cout << "table visit out of range!" << endl;
+		exit(0);
+	}
+	return table[row][column];
+}
+
+template<typename type>
+type& Table<type>::at(coordinate target)
+{
+	return at(target.X, target.Y);
+}
+
+template<typename type>
 Table<type>::Table() :
 	row(1), column(1),
 	start_point({ 0,0 }), 

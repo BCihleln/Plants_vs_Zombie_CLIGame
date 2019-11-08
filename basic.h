@@ -11,7 +11,7 @@
 #include <fstream>
 using namespace std;
 
-#define coordinate COORD
+typedef COORD coordinate;
 coordinate operator-(const coordinate& A, const coordinate& B);
 coordinate operator+(const coordinate& A, const coordinate& B);
 ostream& operator<<(ostream& out, const coordinate& target);
