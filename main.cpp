@@ -16,6 +16,8 @@ int main(void)
 
 		if (code == 0)
 			break;
+
+		game_system.next();
 	}
 
 	return 0;

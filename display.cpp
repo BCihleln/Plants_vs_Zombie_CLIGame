@@ -50,7 +50,7 @@ inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position
 
 void DISPLAY::RefreshStdOut()
 {
-	//color(green);//TODO Know Why and Debug在這裏改顔色的話會導致無法打印
+	//color(white);
 	SetScreenCursor(0, 0);
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
@@ -147,6 +147,11 @@ void DISPLAY::PrintOnXY(const coordinate& target, coordinate position)
 	PrintOnXY(target, position.X, position.Y);
 }
 
+
+void DISPLAY::PrintStore() const
+{
+	
+}
 
 void DISPLAY::window_init()
 {

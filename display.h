@@ -55,7 +55,15 @@ class DISPLAY
 
 	inline void color(int a)//颜色函数  
 	{
-		SetConsoleTextAttribute(hStdOut, a );//TODO：顔色什麽的後面再來處理吧
+		SetConsoleTextAttribute(hStdOut, 
+			a/* | //Forground
+			 BACKGROUND_INTENSITY | /* | BACKGROUND_GREEN /*|  BACKGROUND_RED |BACKGROUND_BLUE /*| BACKGROUND_INTENSITY*//*0*/);
+		
+		//TODO：顔色什麽的後面再來處理吧
+		/*
+		Background : 0 黑色
+
+		*/
 	}
 
 	//void PrintLine();
@@ -80,6 +88,7 @@ public:
 	void ShowCursor();
 
 	void PrintOnMouse(const string& target);
+	void PrintStore()const;
 
 	void NewPlant(coordinate screen_position,const string& name);
 	

@@ -1,6 +1,6 @@
 #include "plants.h"
 
-Plant::Plant():Creature("None"),ID(None)
+Plant::Plant():Creature("plant_ID::None"),ID(plant_ID::None)
 {
 	cost = 0;
 	SPD = 0;
@@ -15,36 +15,32 @@ Plant::~Plant()
 //#endif
 }
 
-void Plant::set_type(const plant_list ID)
+void Plant::set_type(const plant_ID ID)
 {
-	if(this->ID==None)//只能被設置一次
+	if(this->ID==plant_ID::None)//只能被設置一次
 	{
 		this->ID = ID;
 		switch (ID)
 		{
-		case	Sun_Flower:
+		case	plant_ID::Sun_Flower:
 			this->name = "Sun Flower";
 			this->HP = 25;
 			this->ATK = 0;
 			this->ATK_SPD = 10;
 			return;
-		case Bean_Shooter://豌豆射手
+		case plant_ID::Bean_Shooter://豌豆射手
 			this->name = "Bean Shooter";
 			this->HP = 40;
 			this->ATK = 25;
 			this->ATK_SPD = 50;
 			return;
-		case Nut_Wall://堅果墻
+		case plant_ID::Nut_Wall://堅果墻
 			this->name = "Nut Wall";
 			this->HP = 100;
 			this->DEF = 25;
 			return;
-		case 4:
-			return;
-		case 5:
-			return;
 		default:
-			this->ID = None;
+			this->ID = plant_ID::None;
 			return;
 		}
 	}
@@ -52,7 +48,7 @@ void Plant::set_type(const plant_list ID)
 
 void Plant::clean()
 {
-	ID = None;
+	ID = plant_ID::None;
 
 }
 
@@ -64,6 +60,11 @@ int Plant::get_cost() const
 int Plant::get_cool_time() const
 {
 	return this->cool_time;
+}
+
+plant_ID Plant::get_ID() const
+{
+	return ID;
 }
 
 void Plant::attack()

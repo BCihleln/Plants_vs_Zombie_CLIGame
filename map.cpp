@@ -21,12 +21,12 @@ void Map::init()
 }
 
 
-string Map::PlantOnXY(const plant_list target_ID, coordinate position)
+string Map::PlantOnXY(const plant_ID target_ID, coordinate position)
 {
 	mapCell* target = select(position,true);
 	if (target != NULL)//³É¹¦ßx“ñ
 	{
-		if (target->plant.name == "None")
+		if (target->plant.name == "plant_ID::None")
 		{
 			target->plant.set_type(target_ID);
 			return target->plant.name;
@@ -36,6 +36,10 @@ string Map::PlantOnXY(const plant_list target_ID, coordinate position)
 	}
 	else
 		return string("Out of Border");
+}
+
+void Map::next()
+{
 }
 
 //Plant* Map::select(coordinate position)

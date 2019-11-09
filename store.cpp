@@ -14,28 +14,40 @@ Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size
 
 void Store::init()
 {
-	sun = 0;
+	//sun = 0;
+	sun = 10000;
 	for (int i = 0; i < store_row; ++i)
 		for (int j = 0; j < store_column; ++j)
 		{
 			table[i][j].left_time = 0;
 		}
 
-	table[0][0].plant.set_type(Sun_Flower);
-	table[1][0].plant.set_type(Bean_Shooter);
-	table[2][0].plant.set_type(Nut_Wall);
+	table[0][0].plant.set_type(plant_ID::Sun_Flower);
+	table[1][0].plant.set_type(plant_ID::Bean_Shooter);
+	table[2][0].plant.set_type(plant_ID::Nut_Wall);
 }
 
-string Store::SelectProducts(coordinate screen)
+plant_ID Store::SelectProducts(coordinate screen)
 {
 	product* target = this->select(screen, false);
 	//cout << position;
-	if (target == NULL)
-		return string("Out of border");// 超界，不能選擇
-	else if (target->plant.get_cost() < sun)
-		return string("Not enough sun");//費用不足
+	if (target == NULL || //超界
+		target->left_time >0 || //緩衝未到
+		target->plant.get_cost() > sun //費用不足
+		)
+	{
+		//return string("Out of border");
+		return plant_ID::None;//不能選擇
+	}
 	else
-		return target->plant.name;
+		return target->plant.get_ID();
+}
+
+string Store::get_name_by_ID(plant_ID target)
+{
+	Plant tmp;
+	tmp.set_type(target);
+	return tmp.name;
 }
 
 Plant* Store::buy(coordinate target)

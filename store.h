@@ -31,7 +31,8 @@ public:
 	Store();
 
 	//返回選擇到的植物名
-	string SelectProducts(coordinate screen);
+	plant_ID SelectProducts(coordinate screen);
+	string get_name_by_ID(plant_ID target);
 
 	//返回植物指針，用於拷貝這個對象到地圖中
 	Plant* buy(coordinate target);

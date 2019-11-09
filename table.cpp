@@ -123,7 +123,7 @@ type Table<type>::Cell(coordinate target)
 template<typename type>
 type& Table<type>::at(short column, short row)
 {
-	if(column>table_column || row > table_row ||
+	if(column>this->column || row > this->table_row ||
 		column <0 || row<0)
 	{
 		cout << "table visit out of range!" << endl;

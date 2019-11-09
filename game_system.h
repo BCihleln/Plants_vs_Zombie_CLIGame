@@ -33,24 +33,22 @@ class GAME_SYSTEM
 	int score;
 	int clock;
 
-//根據玩家所處的模式，決定按鍵調用的功能
-	enum player_mode{menu,normal_play,selecting,selected} mode;
-	/*
-	menu : 上下左右wasd、左鍵選擇選項，Enter確認進入選項，esc退出程序
-	normal_play ：特定字母、鼠標移動到商店區域 -> selecting mode
-	selecting ：
-		商店範圍内左鍵且滿足選中條件 -> selected mode
-		esc鍵 -> normal_play mode
-	selected ：鼠標上打印選中物
-		地圖範圍内 左鍵（放置選中物） -> normal_play mode
-		右鍵 取消選中 -> normal_play mode
-	*/
-	
-
 	//返回值0 代表退出
 	int interpret_key(DWORD target);
-	int interpret_mouse(DWORD target, coordinate position);
-	void interpret_position_set_mode(coordinate position);
+	int interpret_mouse(DWORD target);
+	void mode_change();
+
+
+//根據玩家所處的模式 
+	enum class player_mode { normal, store_selecting,map_selecting } mode;
+	enum class signal {move,left_click,right_click} mouse;
+	int key_stroke;
+	coordinate mouse_position;
+	bool selected;
+	plant_ID selected_plant;//拿起的植物ID
+
+	//根據這個時隙發生的輸入事件與系統狀態，做出相應動作
+	void action();
 public:
 	GAME_SYSTEM();
 	~GAME_SYSTEM();

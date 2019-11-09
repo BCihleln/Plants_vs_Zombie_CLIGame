@@ -2,7 +2,7 @@
 
 const char version[] = "0.0.3";
 
-enum plant_list
+enum class plant_ID
 {
 	None,
 	Sun_Flower,
@@ -12,7 +12,7 @@ enum plant_list
 
 //enum zombie_list
 //{
-//	None,
+//	plant_ID::None,
 //	zombie,
 //	Bucket_zombie,
 //	Dancer
