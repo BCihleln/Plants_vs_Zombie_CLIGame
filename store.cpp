@@ -27,20 +27,25 @@ void Store::init()
 	table[2][0].plant.set_type(plant_ID::Nut_Wall);
 }
 
-plant_ID Store::SelectProducts(coordinate screen)
+Plant* Store::SelectProducts(coordinate screen)
 {
 	product* target = this->select(screen, false);
 	//cout << position;
-	if (target == NULL || //超界
+	if (target == nullptr || //超界
 		target->left_time >0 || //緩衝未到
 		target->plant.get_cost() > sun //費用不足
 		)
 	{
 		//return string("Out of border");
-		return plant_ID::None;//不能選擇
+		this->the_chosen_one = nullptr;
+		//return plant_ID::None;//不能選擇
+		return nullptr;
 	}
 	else
-		return target->plant.get_ID();
+	{
+		this->the_chosen_one = target;
+		return &the_chosen_one->plant;
+	}
 }
 
 string Store::get_name_by_ID(plant_ID target)
@@ -50,10 +55,11 @@ string Store::get_name_by_ID(plant_ID target)
 	return tmp.name;
 }
 
-Plant* Store::buy(coordinate target)
+void Store::buy()
 {
-	sun -= table[target.Y][target.X].plant.get_cost();
-	return &table[target.Y][target.X].plant;
+	sun -= the_chosen_one->plant.get_cost();
+	the_chosen_one->left_time = the_chosen_one->plant.get_cool_time();//設置緩衝時間
+	//return &table[target.Y][target.X].plant;
 }
 
 void Store::next()

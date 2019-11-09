@@ -1,6 +1,6 @@
 #include "plants.h"
 
-Plant::Plant():Creature("plant_ID::None"),ID(plant_ID::None)
+Plant::Plant():Creature("None"),ID(plant_ID::None)
 {
 	cost = 0;
 	SPD = 0;
@@ -27,17 +27,23 @@ void Plant::set_type(const plant_ID ID)
 			this->HP = 25;
 			this->ATK = 0;
 			this->ATK_SPD = 10;
+			this->cost = 25;
+			this->cool_time = 20;
 			return;
 		case plant_ID::Bean_Shooter://Íã¶¹ÉäÊÖ
 			this->name = "Bean Shooter";
 			this->HP = 40;
 			this->ATK = 25;
 			this->ATK_SPD = 50;
+			this->cost = 50;
+			this->cool_time = 30;
 			return;
 		case plant_ID::Nut_Wall://ˆÔ¹û‰¦
 			this->name = "Nut Wall";
 			this->HP = 100;
 			this->DEF = 25;
+			this->cost = 50;
+			this->cool_time = 50;
 			return;
 		default:
 			this->ID = plant_ID::None;

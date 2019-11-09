@@ -21,15 +21,16 @@ void Map::init()
 }
 
 
-string Map::PlantOnXY(const plant_ID target_ID, coordinate position)
+string Map::PlantOnXY(const Plant* target, coordinate position)
 {
-	mapCell* target = select(position,true);
-	if (target != NULL)//成功選擇
+	the_chosen_one = select(position,true);
+	if (the_chosen_one != NULL)//成功選擇
 	{
-		if (target->plant.name == "plant_ID::None")
+		if (the_chosen_one->plant.get_ID() == plant_ID::None)
 		{
-			target->plant.set_type(target_ID);
-			return target->plant.name;
+			the_chosen_one->plant = *target;//複製到地圖中
+			//target->plant.set_type(target_ID);
+			return the_chosen_one->plant.name;
 		}
 		else
 			return string("Place already plant");

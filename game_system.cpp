@@ -21,7 +21,7 @@ void GAME_SYSTEM::action()
 		{
 			//cout << "mode : player_mode::selected" << endl;
 			
-			display.PrintOnMouse(store.get_name_by_ID(selected_plant));
+			display.PrintOnMouse(selected_plant->name);
 		}
 		else//menu
 		{
@@ -40,43 +40,85 @@ void GAME_SYSTEM::action()
 	}
 	case signal::left_click:
 	{
-		if (store.in_table(mouse_position))//在商店範圍
+		if (mode == player_mode::normal)
 		{
-			if (mode == player_mode::store_selecting)
+			//do nothing
+		}
+		else if (mode == player_mode::store_selecting)
+		{
+			if (store.in_table(mouse_position))//在商店範圍内左鍵選擇植物
 			{
 				selected_plant = store.SelectProducts(mouse_position);
-				if (selected_plant != plant_ID::None)//有選到商品
+				if (selected_plant->name != "None")//有選到商品
 				{
-					mode = player_mode::map_selecting;
-					selected = true;
+					//mode = player_mode::map_selecting;
+					selected = true;//-> 在下個時隙的mode_change函數中會更改模式
 				}
 			}
 		}
-		else if (map.in_table(mouse_position))//在地圖範圍
+		else//map_selecting
 		{
-			if (mode == player_mode::map_selecting)
-			{
-				string Plant_State = map.PlantOnXY(selected_plant, mouse_position);//種植成功的話會返回所種植物的名字
+			string Plant_State = map.PlantOnXY(selected_plant, mouse_position);//種植成功的話會返回所種植物的名字
 				//TODO 修改植物冷卻時間
-				if (Plant_State != "Out of Border" &&
-					Plant_State != "Place already plant")
-				{
-					display.NewPlant(mouse_position, Plant_State);
-					mode = player_mode::normal;
-					selected_plant = plant_ID::None;
-				}
-				else
-				{
-					display.PrintOnMouse(Plant_State);
-				}
+			if (Plant_State != "Out of Border" &&
+				Plant_State != "Place already plant")
+			{
+				store.buy();
+				display.NewPlant(mouse_position, Plant_State);
+				selected = false;
+				mode = player_mode::normal;
+				selected_plant = nullptr;
+			}
+			else
+			{
+				display.PrintOnMouse(Plant_State);
 			}
 		}
+
+
+		//if (store.in_table(mouse_position))//在商店範圍
+		//{
+		//	if (mode == player_mode::store_selecting)
+		//	{
+		//		selected_plant = store.SelectProducts(mouse_position);
+		//		if (selected_plant != plant_ID::None)//有選到商品
+		//		{
+		//			mode = player_mode::map_selecting;
+		//			selected = true;
+		//		}
+		//	}
+		//}
+		//else if (map.in_table(mouse_position))//在地圖範圍
+		//{
+		//	if (mode == player_mode::map_selecting)
+		//	{
+		//		string Plant_State = map.PlantOnXY(selected_pllant, mouse_position);//種植成功的話會返回所種植物的名字
+		//		//TODO 修改植物冷卻時間
+		//		if (Plant_State != "Out of Border" &&
+		//			Plant_State != "Place already plant")
+		//		{
+		//			display.NewPlant(mouse_position, Plant_State);
+		//			selected = false;
+		//			mode = player_mode::normal;
+		//			selected_plant = plant_ID::None;
+		//		}
+		//		else
+		//		{
+		//			display.PrintOnMouse(Plant_State);
+		//		}
+		//	}
+		//}
 		break;
 	}
 	case signal::right_click:
 	{
+		//右鍵取消種植
+		if (mode == player_mode::map_selecting)
+		{
+			selected = false;
+			selected_plant = nullptr;
+		}
 		break;
-		//TODO 取消種植
 	}
 	}
 }
@@ -250,7 +292,6 @@ int GAME_SYSTEM::interpret_mouse(DWORD target)
 	{
 	case FROM_LEFT_1ST_BUTTON_PRESSED:			// 左键
 	{
-		//TODO 按下與放鬆皆會出發一次，導致調用兩次函數，故應直接傳回對應位置，再調用即可
 
 		mouse = signal::left_click;
 
@@ -288,46 +329,79 @@ int GAME_SYSTEM::interpret_mouse(DWORD target)
 
 //傳入position 用以判斷鼠標所在區域（商店區、地圖區、其他）
 void GAME_SYSTEM::mode_change()
-{//TODO 優化，可能改用先狀態再位置判斷，而非先位置再狀態
+{
+	//TODO 鍵盤狀況加入
 	//cout << "Last mode : " << (int)mode<<endl;
-	if (store.in_table(mouse_position))
-	{
-		if (mode == player_mode::normal)
-			mode = player_mode::store_selecting;
-		//normal_selecting --> store_selecting
-		//store_selecting --> store_selecting
-		//map_selecting --> map_selecting (Out of Border)
-		//cout << "mode : player_mode::selecting" << endl;
-		//store.SelectProducts(position);
-	}
-	else if (map.in_table(mouse_position))
-	{
-		if (mode == player_mode::store_selecting )//store_selecting or map_selecting
-		{
-			if (selected)//==true
-				mode = player_mode::map_selecting;
-			else//從商店移開，取消選擇
-				mode = player_mode::normal;
-		}
-		
-		//map_selecting --> map_selecting
-		//normal --> normal
-		//store_selecting+ selected(false) --> normal
-		//store_selecting+ selected(true) --> map_selecting
 
-		//display.PrintOnMouse("player_mode::normal_play mode");
-	}
-	else//其他地區
+	bool in_store = store.in_table(mouse_position);
+	//bool in_map = map.in_table(mouse_position);
+	switch (mode)
 	{
-		//normal --> normal
-		//store_selecting+selected(false) --> normal
-		//store_selecting+selected(true) --> map_selecting(Out of Border)
-		//map_selecting --> map_selecting
-		if (mode == player_mode::store_selecting && selected==false)
-			mode = player_mode::normal;
+	case player_mode::normal:
+	{
+		if (in_store)
+			mode = player_mode::store_selecting;
+		return;
+		//break;
 	}
+	case player_mode::store_selecting:
+	{
+		if (selected)
+			mode = player_mode::map_selecting;
+		else if (!in_store)//沒有選中並移開商店區
+		{
+			mode = player_mode::normal;
+		}
+		return;
+		//break;
+	}
+	case player_mode::map_selecting:
+	{
+		if (!selected)//取消選擇
+			mode = player_mode::normal;
+		return;
+		//break;
+	}
+	}
+
+	//if (store.in_table(mouse_position))
+	//{
+	//	if (mode == player_mode::normal)
+	//		mode = player_mode::store_selecting;
+	//	//normal_selecting --> store_selecting
+	//	//store_selecting --> store_selecting
+	//	//map_selecting --> map_selecting (Out of Border)
+	//	//cout << "mode : player_mode::selecting" << endl;
+	//	//store.SelectProducts(position);
+	//}
+	//else if (map.in_table(mouse_position))
+	//{
+	//	if (mode == player_mode::store_selecting )//store_selecting or map_selecting
+	//	{
+	//		if (selected)//==true
+	//			mode = player_mode::map_selecting;
+	//		else//從商店移開，取消選擇
+	//			mode = player_mode::normal;
+	//	}
+	//	
+	//	//map_selecting --> map_selecting
+	//	//normal --> normal
+	//	//store_selecting+ selected(false) --> normal
+	//	//store_selecting+ selected(true) --> map_selecting
+	//
+	//	//display.PrintOnMouse("player_mode::normal_play mode");
+	//}
+	//else//其他地區
+	//{
+	//	//normal --> normal
+	//	//store_selecting+selected(false) --> normal
+	//	//store_selecting+selected(true) --> map_selecting(Out of Border)
+	//	//map_selecting --> map_selecting
+	//	if (mode == player_mode::store_selecting && selected==false)
+	//		mode = player_mode::normal;
+	//}
 	//cout << "Change to : " << (int)mode<<endl;
 	//cout << "selected : " << selected << endl;
 	//cout << "selected Plant : " << (int)selected_plant;
-	//Sleep(200);
+	//Sleep(500);
 }

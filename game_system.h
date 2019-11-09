@@ -45,7 +45,7 @@ class GAME_SYSTEM
 	int key_stroke;
 	coordinate mouse_position;
 	bool selected;
-	plant_ID selected_plant;//拿起的植物ID
+	Plant* selected_plant;//拿起的植物
 
 	//根據這個時隙發生的輸入事件與系統狀態，做出相應動作
 	void action();

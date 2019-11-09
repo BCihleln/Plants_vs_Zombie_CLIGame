@@ -45,7 +45,7 @@ public:
 	//	return map[target];
 	//}//重載[]來直接取得單元格數據
 
-	string PlantOnXY(const plant_ID target_ID,coordinate position);
+	string PlantOnXY(const Plant* target,coordinate position);
 
 	void next();
 };
