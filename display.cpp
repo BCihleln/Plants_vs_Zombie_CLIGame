@@ -1,6 +1,6 @@
 #include "display.h"
 
-inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position_x, int position_y)
+inline void Display::ReadDataFileToScreenBuff(const char* filepath, int position_x, int position_y)
 {
 	ifstream file;
 	file.open(filepath);
@@ -28,27 +28,16 @@ inline void DISPLAY::ReadDataFileToScreenBuff(const char* filepath, int position
 			if (SCREEN_BUFFER[position_y][i] == '\0')
 				SCREEN_BUFFER[position_y][i] = tmp_line[i];
 
-		cout << SCREEN_BUFFER[position_y];
+		//cout << SCREEN_BUFFER[position_y];
 		position_y++;//下一行
 	}
 	file.close();
 	delete[] tmp_line;//釋放暫時申請的内存
 }
 
-//void DISPLAY::PrintLine()
-//{
-//	for(int i = 0;i<SCREEN_LENGTH;++i)
-//		cout << "=";
-//}
-//void DISPLAY::PrintLine(const string& target)
-//{
-//	for (int i = 0; i < SCREEN_LENGTH; ++i)
-//		cout << target;
-//}
-
-void DISPLAY::RefreshStdOut()
+void Display::RefreshStdOut()const
 {
-	SetScreenCursor(0, 0);
+	 SetConsoleCursorPosition(hStdOut, { 0,0 });
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
@@ -56,14 +45,14 @@ void DISPLAY::RefreshStdOut()
 	}
 }
 
-void DISPLAY::CleanMapCell(coordinate target_Cell)
+void Display::CleanMapCell(coordinate target_Cell)
 {
 	coordinate tmp = map->Table2Screen(target_Cell);
 	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);//TODO 不需要每次刷新時都讀文件
 
 }
 
-DISPLAY::DISPLAY(const Map&target_map,const Store& target_store):
+Display::Display(const Map&target_map,const Store& target_store):
 	SCREEN_SIZE({0,0}),
 	ScreenCursor({0,0}),
 	MouseCursor({0,0}),
@@ -83,14 +72,14 @@ DISPLAY::DISPLAY(const Map&target_map,const Store& target_store):
 	ReadDataFileToScreenBuff(info_file,0,0);
 
 	ReadDataFileToScreenBuff(map_file,0,10);
-
+	PrintStore();
 	RefreshStdOut();
 	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
 	//CleanMapCell(5, 6);
 	//RefreshStdOut();
 }
 
-DISPLAY::~DISPLAY()
+Display::~Display()
 {
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
 		delete[] SCREEN_BUFFER[i];
@@ -100,7 +89,7 @@ DISPLAY::~DISPLAY()
 }
 
 //傳入最左側的起始位置(屏幕)，返回居中后的坐標
-coordinate DISPLAY::middle(const string& target, coordinate left_side)
+coordinate Display::middle(const string& target, coordinate left_side)
 {
 	int half_of_string = target.length() >> 1;//>>1 相當於/2
 	short x = left_side.X - half_of_string;
@@ -108,16 +97,13 @@ coordinate DISPLAY::middle(const string& target, coordinate left_side)
 	//避免邊角錯誤
 	x = x > 0 ? x : 0;//左邊界
 	x = left_side.X + half_of_string < SCREEN_LENGTH ? x : SCREEN_LENGTH - (short)target.length();//右邊界
-	if (left_side.Y == SCREEN_WIDTH - 1 && left_side.X + half_of_string == SCREEN_LENGTH - 1)
-		x -= 1;
 
 	return { x,left_side.Y };
 }
 
 
-void DISPLAY::PrintOnMouse(const string& target)
+void Display::PrintOnMouse(const string& target)
 {
-	//SetConsoleActiveScreenBuffer(StdOutBuf);
 	RefreshStdOut();//清掉之前打印的鼠標打印的東西
 	//TODO 優化鼠標打印效率
 	//SetScreenCursor(0, last_MouseCursor_Y);
@@ -127,48 +113,49 @@ void DISPLAY::PrintOnMouse(const string& target)
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
 	PrintOnXY(target, middle(target,MouseCursor));
 }
-void DISPLAY::PrintOnXY(const  string& target, short x, short y)
+void Display::PrintOnXY(const  string& target, short x, short y)
 {
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
 	cout << target;
 	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
 }
-void DISPLAY::PrintOnXY(const string& target, coordinate position)
+void Display::PrintOnXY(const string& target, coordinate position)
 {
 	PrintOnXY(target, position.X, position.Y);
 }
-void DISPLAY::PrintOnXY(const  coordinate& target, short x, short y)
+void Display::PrintOnXY(const  coordinate& target, short x, short y)
 {
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
 	cout << target;
 	SetConsoleCursorPosition(hStdOut, ScreenCursor);
 }
-void DISPLAY::PrintOnXY(const coordinate& target, coordinate position)
+void Display::PrintOnXY(const coordinate& target, coordinate position)
 {
 	PrintOnXY(target, position.X, position.Y);
 }
 
 
-void DISPLAY::PrintStore() const
+void Display::PrintStore()
 {
-	
+	for (short i = 0; i < store_row; ++i)
+		for (short j = 0; j < store_column; ++j)
+		{
+			string product_name = store->table[i][j].plant.name();
+			if(product_name != "None")
+			{
+				coordinate position = middle(product_name, store->Table2Screen({ j,i })) - coordinate{ 0,2 };
+				WriteScreenBuffer(product_name.c_str(), position);
+			}
+		}
 }
 
-void DISPLAY::window_init()
+void Display::window_init()
 {
 	SetConsoleTitle(L"Plant VS Zombie"); // 設置窗口标题 前面的L代表寬字符
 	HWND hwnd = GetForegroundWindow();
-
-	//int cx = GetSystemMetrics(SM_CXSCREEN);//單位：像素
-	//int cy = GetSystemMetrics(SM_CYSCREEN);
-	//LONG l_WinStyle = GetWindowLong(hwnd, GWL_STYLE);   /* 获取窗口信息 */
-	/////* 设置窗口信息 最大化 取消边框 */
-	//SetWindowLong(hwnd, GWL_STYLE, (l_WinStyle /*| WS_POPUP*/ | WS_MAXIMIZE) /*& ~WS_CAPTION*/ & ~WS_THICKFRAME /*& ~WS_BORDER*/);
-
-	//SetWindowPos(hwnd, HWND_TOP, 0, 0, cx, cy, 0);
-
+	
 	ShowWindow(hwnd, SW_SHOWMAXIMIZED);//設置窗口最大化
 	ShowScrollBar(hwnd, SB_BOTH, FALSE);//去除可能出現的滾動條
 
@@ -190,7 +177,7 @@ void DISPLAY::window_init()
 	screen_buffer_init();
 }
 
-void DISPLAY::screen_buffer_init()
+void Display::screen_buffer_init()
 {
 	SCREEN_BUFFER = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
 	for (int i = 0; i < SCREEN_WIDTH+1; ++i)
@@ -202,7 +189,7 @@ void DISPLAY::screen_buffer_init()
 	}
 	SCREEN_BUFFER[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
 }
-void DISPLAY::WriteScreenBuffer(const char* target, coordinate position)
+void Display::WriteScreenBuffer(const char* target, coordinate position)
 {
 	int length = strlen(target);
 	if (position.Y > SCREEN_WIDTH)//縱坐標邊界檢查
@@ -216,17 +203,17 @@ void DISPLAY::WriteScreenBuffer(const char* target, coordinate position)
 		this->SCREEN_BUFFER[position.Y][i+position.X] = target[i];
 }
 
-void DISPLAY::SetScreenCursor(short x, short y)
+void Display::SetScreenCursor(short x, short y)
 {
 	ScreenCursor.X = x;
 	ScreenCursor.Y = y;
 	SetConsoleCursorPosition(hStdOut, ScreenCursor);
 }
-void DISPLAY::SetScreenCursor(coordinate target)
+void Display::SetScreenCursor(coordinate target)
 {
 	SetScreenCursor(target.X, target.Y);
 }
-void DISPLAY::SetMousePosition(coordinate target)
+void Display::SetMousePosition(coordinate target)
 {
 	if (target.Y != last_MouseCursor_Y)
 		last_MouseCursor_Y = MouseCursor.Y;
@@ -235,22 +222,19 @@ void DISPLAY::SetMousePosition(coordinate target)
 	MouseCursor = target;
 }
 
-void DISPLAY::HideCursor()
+void Display::HideCursor()
 {
 	CONSOLE_CURSOR_INFO hide_cursor = { 1, 0 };
 	SetConsoleCursorInfo(hStdOut, &hide_cursor);
 }
-void DISPLAY::ShowCursor()
+void Display::ShowCursor()
 {
 	SetConsoleCursorInfo(hStdOut, &default_cursor);
 }
 
 
 //只有植物種植成功才調用
-void DISPLAY::NewPlant(coordinate screen_position, const string& name)
+void Display::NewPlant(coordinate screen_position, const string& name)
 {
 	WriteScreenBuffer(name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
-
-	//else
-	//	PrintOnMouse("Out of Boarder!!!");
 }

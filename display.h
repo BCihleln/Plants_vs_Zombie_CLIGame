@@ -14,7 +14,7 @@
 	地圖坐標與屏幕的映射
 */
 
-class DISPLAY
+class Display
 {
 	enum color_type {//foreground color
 		black, blue,
@@ -47,7 +47,7 @@ class DISPLAY
 	void screen_buffer_init();
 	void WriteScreenBuffer(const char* target, coordinate position);
 	void CleanMapCell(coordinate target_Cell);
-	void RefreshStdOut();
+	void RefreshStdOut()const;
 
 	void HideCursor();//隐藏控制台的光标 
 	void SetScreenCursor(coordinate target);
@@ -68,7 +68,7 @@ class DISPLAY
 
 	//void PrintLine();
 	//void PrintLine(const string& target);
-	void PrintOnXY(const string& target, short x, short y);
+	void PrintOnXY(const string& target, short x, short y) ;
 	void PrintOnXY(const string& target, coordinate position);
 	void PrintOnXY(const coordinate& target, short x, short y);
 	void PrintOnXY(const coordinate& target, coordinate position);
@@ -81,14 +81,14 @@ class DISPLAY
 
 public:
 	//friend class GAME_SYSTEM;
-	DISPLAY(const Map& target_map, const Store& target_store);
-	~DISPLAY();
+	Display(const Map& target_map, const Store& target_store);
+	~Display();
 
 	void SetMousePosition(coordinate target);
 	void ShowCursor();
 
 	void PrintOnMouse(const string& target);
-	void PrintStore()const;
+	void PrintStore();
 
 	void NewPlant(coordinate screen_position,const string& name);
 	

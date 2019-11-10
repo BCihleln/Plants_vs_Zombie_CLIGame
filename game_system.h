@@ -27,7 +27,7 @@ class GAME_SYSTEM
 	Map map;//map中包含了所有植物、與僵尸vector
 	Store store;
 
-	DISPLAY display;
+	Display display;
 
 	int score;
 	clock_t clock_start;//游戲開始時間

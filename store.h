@@ -5,8 +5,8 @@
 
 #define store_row 1
 #define store_column 6
-#define store_cell_size {18,5}
-#define store_start_point {22,4}
+#define store_cell_size {18,6}
+#define store_start_point {18,3}
 
 struct product
 {
@@ -26,6 +26,7 @@ class Store:public Table<product>
 
 	void init();
 public:
+	friend class Display;
 	Store();
 
 	//返回選擇到的植物指針
