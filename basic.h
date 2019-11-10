@@ -23,6 +23,8 @@ bool operator<(const coordinate& A, const coordinate& B);//A處於B的左上角
 bool operator<=(const coordinate& A, const coordinate& B);//A處於B的左上角或B點
 bool operator>(const coordinate& A, const coordinate& B);//A處於B的右下角
 bool operator>=(const coordinate& A, const coordinate& B);//A處於B的右下角或B點
+void operator-=(coordinate& A, const coordinate& target);
+void operator+=(coordinate& A, const coordinate& target);
 #define coordinate_out_of_border coordinate{MAXSHORT,MAXSHORT}
 
 #include "game_info.h"

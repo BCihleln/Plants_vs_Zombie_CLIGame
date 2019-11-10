@@ -44,6 +44,7 @@ class Display
 #define SCREEN_WIDTH SCREEN_SIZE.Y
 	char** SCREEN_BUFFER;//屏幕緩衝，打印時可以保存之前屏幕的信息
 	inline void ReadDataFileToScreenBuff(const char* filepath,int position_x,int position_y);
+	void ReadStoreInfo();
 	void screen_buffer_init();
 	void WriteScreenBuffer(const char* target, coordinate position);
 	void CleanMapCell(coordinate target_Cell);
@@ -80,7 +81,6 @@ class Display
 	//coordinate Store2Screen(short x, short y);
 
 public:
-	//friend class GAME_SYSTEM;
 	Display(const Map& target_map, const Store& target_store);
 	~Display();
 
@@ -88,7 +88,6 @@ public:
 	void ShowCursor();
 
 	void PrintOnMouse(const string& target);
-	void PrintStore();
 
 	void NewPlant(coordinate screen_position,const string& name);
 	
@@ -107,4 +106,9 @@ public:
 
 	void GameOver();
 
+
+	void UpdateStore();
+	void UpdateSun();
+	void UpdateScore(int score);
+	void next(int);
 };

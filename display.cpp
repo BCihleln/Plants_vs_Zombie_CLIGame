@@ -70,9 +70,9 @@ Display::Display(const Map&target_map,const Store& target_store):
 	//ReadInfo();
 	//ReadMap();
 	ReadDataFileToScreenBuff(info_file,0,0);
-
 	ReadDataFileToScreenBuff(map_file,0,10);
-	PrintStore();
+	ReadStoreInfo();
+
 	RefreshStdOut();
 	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
 	//CleanMapCell(5, 6);
@@ -137,7 +137,7 @@ void Display::PrintOnXY(const coordinate& target, coordinate position)
 }
 
 
-void Display::PrintStore()
+void Display::ReadStoreInfo()
 {
 	for (short i = 0; i < store_row; ++i)
 		for (short j = 0; j < store_column; ++j)
@@ -172,7 +172,8 @@ void Display::window_init()
 	GetConsoleScreenBufferInfo(this->hStdOut, &ScreenBuffer);// 获取窗口缓冲区信息
 	SCREEN_SIZE = ScreenBuffer.dwMaximumWindowSize;
 	SetConsoleScreenBufferSize(this->hStdOut, SCREEN_SIZE);//設置屏幕緩衝區大小相同于窗口大小，防止滾動
-	SCREEN_SIZE = SCREEN_SIZE - coordinate({ 0,1 });
+	//SCREEN_SIZE = SCREEN_SIZE - coordinate({ 0,1 });
+	SCREEN_SIZE -= coordinate{0, 1};
 
 	screen_buffer_init();
 }
@@ -237,4 +238,41 @@ void Display::ShowCursor()
 void Display::NewPlant(coordinate screen_position, const string& name)
 {
 	WriteScreenBuffer(name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
+}
+
+void Display::UpdateStore()
+{
+	for (short i = 0; i < store_row; ++i)
+		for (short j = 0; j < store_column; ++j)
+		{
+			int product_lefttime = store->table[i][j].left_time;
+			if (product_lefttime > 0)
+			{
+				char tmp[10];
+				sprintf(tmp, "%d", product_lefttime);
+				coordinate position = middle(tmp, store->Table2Screen({ j,i })) + coordinate{ 0,1 };
+				WriteScreenBuffer(tmp, position);
+			}
+		}
+}
+
+void Display::UpdateSun()
+{
+	char tmp[10];
+	sprintf(tmp, "%d", store->sun);
+	WriteScreenBuffer(tmp, middle(tmp, { 9,4 }));
+}
+
+void Display::UpdateScore(int score)
+{
+	char tmp[10];
+	sprintf(tmp, "%d", score);
+	WriteScreenBuffer(tmp, middle(tmp, { 139,4 }));
+}
+
+void Display::next(int score)
+{
+	UpdateStore();
+	UpdateSun();
+	UpdateScore(score);
 }

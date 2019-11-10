@@ -69,17 +69,26 @@ void Store::next(clock_t game_clock, int sun_flower_amount)
 {
 	static clock_t last_game_clock = 0;
 
- 	clock_t duration = game_clock - last_game_clock;
-	while(duration>1000)//同步於1秒
+ //	clock_t duration = game_clock - last_game_clock;
+	//while(duration>1000)//同步於1秒
+	//{
+	//	for (int i = 0; i < store_row; ++i)
+	//		for (int j = 0; j < store_column; ++j)
+	//			if (table[i][j].left_time > 0)
+	//				table[i][j].left_time--;
+	//	sun += sun_flower_amount*10 + 5; 
+
+	//	duration -= 1000;
+	//}
+	if(game_clock % 10==0)
 	{
 		for (int i = 0; i < store_row; ++i)
 			for (int j = 0; j < store_column; ++j)
 				if (table[i][j].left_time > 0)
 					table[i][j].left_time--;
-		sun += sun_flower_amount*10 + 5; 
-
-		duration -= 1000;
+		sun += sun_flower_amount * 10 + 5;
 	}
+
 	last_game_clock = game_clock;
 }
 

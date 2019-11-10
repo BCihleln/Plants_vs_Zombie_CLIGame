@@ -2,14 +2,16 @@
 
 int main(void)
 {
+	//TODO ¶à¾Q³Ì
 	GAME_SYSTEM game_system;
 	while (true)
 	{
 		int code = game_system.get_input();
 
+		game_system.next();
+
 		if (code == 0)
 			break;
-		game_system.next();
 	}
 
 

@@ -5,9 +5,19 @@ coordinate operator-(const coordinate& A, const coordinate& B)
 {
 	return { A.X - B.X,A.Y - B.Y };
 }
+void operator-=(coordinate& A, const coordinate& target)
+{
+	A.X -= target.X;
+	A.Y -= target.Y;
+}
 coordinate operator+(const coordinate& A, const coordinate& B)
 {
 	return { A.X + B.X,A.Y + B.Y };
+}
+void operator+=(coordinate& A, const coordinate& target)
+{
+	A.X += target.X;
+	A.Y += target.Y;
 }
 ostream& operator<<(ostream& out, const coordinate& target)
 {

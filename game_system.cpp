@@ -109,21 +109,21 @@ GAME_SYSTEM::~GAME_SYSTEM()
 	//	system("cls");
 	//#endif
 		//cout << "destructing GAME SYSTEM\n";
-		//HWND hwnd = GetForegroundWindow();
-		//DWORD console_mode;
-		//GetConsoleMode(hwnd, &console_mode);
-		//console_mode &= ENABLE_QUICK_EDIT_MODE;  //復原快速编辑模式
-		//console_mode &= ENABLE_INSERT_MODE;      //復原插入模式
-		//console_mode &= ~ENABLE_MOUSE_INPUT;
-		//SetConsoleMode(hwnd, console_mode);
+		HWND hwnd = GetForegroundWindow();
+		DWORD console_mode;
+		GetConsoleMode(hwnd, &console_mode);
+		console_mode &= ENABLE_QUICK_EDIT_MODE;  //復原快速编辑模式
+		console_mode &= ENABLE_INSERT_MODE;      //復原插入模式
+		console_mode &= ~ENABLE_MOUSE_INPUT;
+		SetConsoleMode(hwnd, console_mode);
 
 	CloseHandle(this->hStdin);  // 关闭标准输出设备句柄
 }
 
 int GAME_SYSTEM::get_input()
 {//TODO 返回值設定
-	ReadConsoleInput(hStdin, &InputRecord, 1, &res);
-
+	ReadConsoleInput(hStdin, &InputRecord, 1, &res);//阻塞捕獲信號
+	//PeekConsoleInput(hStdin, &InputRecord, 1, &res);
 	if (InputRecord.EventType == MOUSE_EVENT)
 	{
 		//if (InputRecord.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -164,6 +164,7 @@ void GAME_SYSTEM::next()
 	game_clock = clock() - clock_start;
 	int SunFlower_amount = map.next(game_clock);
 	store.next(game_clock, SunFlower_amount);
+	display.next(score);
 }
 
 
