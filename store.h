@@ -1,13 +1,12 @@
 #pragma once
 #include "basic.h"
-//#include "table.h"
 #include "table.cpp"
 #include "plants.h"
 
-#define store_row 3
-#define store_column 3
-#define store_cell_size {38,2}
-#define store_start_point {5,3}
+#define store_row 1
+#define store_column 6
+#define store_cell_size {18,5}
+#define store_start_point {22,4}
 
 struct product
 {
@@ -15,7 +14,6 @@ struct product
 	int left_time;//剩余缓冲时间，單位：秒
 };
 
-//TODO 繼承表類
 class Store:public Table<product>
 {
 
@@ -32,10 +30,10 @@ public:
 
 	//返回選擇到的植物指針
 	Plant* SelectProducts(coordinate screen);
-	string get_name_by_ID(plant_ID target);
+	//string get_name_by_ID(plant_ID target);
 
 	
 	void buy();
 
-	void next();
+	void next(clock_t game_clock,int sun_flower_amount);
 };

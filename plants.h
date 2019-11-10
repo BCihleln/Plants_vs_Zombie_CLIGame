@@ -4,12 +4,13 @@
 #include "creature.h"
 #include "bullet.h"
 
-class Plant:public Creature //先只實現射擊型植物
+class Plant:private Creature //先只實現射擊型植物
 {
-	plant_ID ID;
-	int cost; // 消耗陽光數
-	int cool_time;// 能再次購買的冷卻時間 單位：秒
+	plant_ID ID_;
+	int cost_; // 消耗陽光數
+	int cool_time_;// 能再次購買的冷卻時間 單位：秒
 	queue<BULLET> bullets;//由植物生產的子彈隊列
+	void attack();
 public:
 
 	Plant();
@@ -17,13 +18,13 @@ public:
 
 	void set_type(const plant_ID ID);
 	void clean();
-	int get_cost()const;
-	int get_cool_time()const;
-	plant_ID get_ID()const;
+	int cost()const;
+	int cool_time()const;
+	plant_ID ID()const;
+	string name()const;
 
-	void attack();
 
-	virtual void next(int clock,coordinate& position);
+	virtual void next(int clock);
 };
 
 /*TODO：

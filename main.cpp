@@ -1,12 +1,5 @@
 #include "game_system.h"
 
-/**
-行有餘力：
-根據屏幕大小動態生成地圖，按比例縮放
-
-**/
-#ifdef DEBUG
-
 int main(void)
 {
 	GAME_SYSTEM game_system;
@@ -16,9 +9,9 @@ int main(void)
 
 		if (code == 0)
 			break;
-
 		game_system.next();
 	}
+
 
 	return 0;
 	//game_system.~GAME_SYSTEM();
@@ -43,9 +36,3 @@ int main(void)
 		return 0 又沒有錯誤了……真是莫名其妙呢
 		*/
 }
-
-#else
-int main() //速度測試
-{
-}
-#endif // !DEBUG

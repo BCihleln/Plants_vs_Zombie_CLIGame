@@ -1,6 +1,5 @@
 #pragma once
 #include "basic.h"
-#include <vector>
 #include "plants.h"
 #include "map.h"
 #include "store.h"
@@ -31,18 +30,18 @@ class GAME_SYSTEM
 	DISPLAY display;
 
 	int score;
-	int clock;
+	clock_t clock_start;//游戲開始時間
 
 	//返回值0 代表退出
-	int interpret_key(DWORD target);
-	int interpret_mouse(DWORD target);
+	char interpret_key(DWORD target);
+	void interpret_mouse(DWORD target);
 	void mode_change();
 
 
 //根據玩家所處的模式 
 	enum class player_mode { normal, store_selecting,map_selecting } mode;
 	enum class signal {move,left_click,right_click} mouse;
-	int key_stroke;
+	char key_stroke;
 	coordinate mouse_position;
 	bool selected;
 	Plant* selected_plant;//拿起的植物
@@ -50,6 +49,7 @@ class GAME_SYSTEM
 	//根據這個時隙發生的輸入事件與系統狀態，做出相應動作
 	void action();
 public:
+	clock_t game_clock;//游戲内時間 單位：毫秒
 	GAME_SYSTEM();
 	~GAME_SYSTEM();
 

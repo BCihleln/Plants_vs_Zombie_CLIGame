@@ -1,8 +1,8 @@
 #pragma once
 
 #include "basic.h"
-//#include "table.h"
 #include "table.cpp"
+	//需要找到基類函數的定義，故包含cpp
 #include "plants.h"
 #include "bullet.h"
 #include "zombie.h"
@@ -11,13 +11,19 @@
 struct mapCell
 {
 	Plant plant;
-	ZOMBIE* zombie;//也許會有很多個zombie，可能要用vector結構存儲一個單元格裏面的所有zombie
 	BULLET* bullet;//當前單元格是否有子彈
 };
 
 class Map:public Table <mapCell>
 {
-	vector<ZOMBIE> zombies[map_row];
+	struct zombie_on_screen
+	{
+		ZOMBIE zombie;
+		coordinate screen;
+	};
+	vector<zombie_on_screen> zombies[map_row];
+
+	int SunFlower_amount;
 
 	//coordinate Screen2Map(coordinate target);
 	//TODO 處理植物、僵尸雙方攻擊
@@ -29,9 +35,7 @@ class Map:public Table <mapCell>
 	void generate_zombie();
 
 	void init();
-public:
-	friend class GAME_SYSTEM;
-	
+public:	
 	Map();
 	~Map();
 
@@ -47,5 +51,5 @@ public:
 
 	string PlantOnXY(const Plant* target,coordinate position);
 
-	void next();
+	int next(clock_t game_clock);
 };

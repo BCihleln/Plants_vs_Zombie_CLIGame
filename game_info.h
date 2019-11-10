@@ -1,6 +1,6 @@
 #pragma once
 
-const char version[] = "0.0.3";
+const char version[] = "0.3.1";
 
 enum class plant_ID
 {
@@ -10,9 +10,9 @@ enum class plant_ID
 	Nut_Wall
 };
 
-//enum zombie_list
+//enum class zombie_list
 //{
-//	plant_ID::None,
+//	None,
 //	zombie,
 //	Bucket_zombie,
 //	Dancer
@@ -24,4 +24,4 @@ enum class plant_ID
 #define map_cell_width 10
 
 #define map_file "map.txt"
-#define info_file "info_test.txt"
+#define info_file "info.txt"

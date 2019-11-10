@@ -56,8 +56,8 @@ public:
 	coordinate Table2Screen(coordinate table_coordinate)const ;
 	coordinate Screen2Cell_middle(coordinate screen)const;
 
-	//根據屏幕坐標選擇單元格
-	type* select(coordinate screen,bool strong_check)const;
+	//根據屏幕坐標選擇單元格，將選擇結果存入the_chosen_one
+	void select(coordinate screen,bool strong_check);
 
 	//coordinate table_size()const ;
 
@@ -69,6 +69,6 @@ public:
 	type Cell(coordinate target);
 
 	//column 行 row 列
-	type& at(short column, short row);
-	type& at(coordinate target);
+	//type& at(short column, short row);
+	//type& at(coordinate target);
 };

@@ -33,7 +33,7 @@ bool Table<type>::check_border(coordinate& screen, bool strong_check) const
 		//	return false;
 		//}
 		//else return true;
-		if (screen < start_point + table_size && screen > start_point)
+		if (screen < start_point + table_size && screen >= start_point)
 			return true;
 		else
 			return false;
@@ -88,13 +88,15 @@ coordinate Table<type>::Screen2Cell_middle(coordinate screen) const
 }
 
 template<typename type>
-type* Table<type>::select(coordinate screen,bool strong_check) const
+void Table<type>::select(coordinate screen,bool strong_check) 
 {
 	coordinate tmp = Screen2Table(screen, strong_check);
 	if (tmp != coordinate_out_of_border)
-		return &table[tmp.Y][tmp.X];
+	{
+		the_chosen_one = &table[tmp.Y][tmp.X];
+	}
 	else
-		return NULL;
+		the_chosen_one = nullptr;
 }
 
 template<typename type>
@@ -112,6 +114,12 @@ bool Table<type>::in_table(coordinate screen)
 template<typename type>
 type Table<type>::Cell(short x, short y)
 {
+	if (x > this->column || y > this->table_row ||
+		x < 0 || y < 0)
+	{
+		cout << "table visit out of range!" << endl;
+		exit(0);
+	}
 	return table[y][x];
 }
 template<typename type>
@@ -120,23 +128,22 @@ type Table<type>::Cell(coordinate target)
 	return Cell(target.X, target.Y);
 }
 
-template<typename type>
-type& Table<type>::at(short column, short row)
-{
-	if(column>this->column || row > this->table_row ||
-		column <0 || row<0)
-	{
-		cout << "table visit out of range!" << endl;
-		exit(0);
-	}
-	return table[row][column];
-}
-
-template<typename type>
-type& Table<type>::at(coordinate target)
-{
-	return at(target.X, target.Y);
-}
+//template<typename type>
+//type& Table<type>::at(short column, short row)
+//{
+//	if(column>this->column || row > this->table_row ||
+//		column <0 || row<0)
+//	{
+//		cout << "table visit out of range!" << endl;
+//		exit(0);
+//	}
+//	return table[row][column];
+//}
+//template<typename type>
+//type& Table<type>::at(coordinate target)
+//{
+//	return at(target.X, target.Y);
+//}
 
 template<typename type>
 Table<type>::Table() :

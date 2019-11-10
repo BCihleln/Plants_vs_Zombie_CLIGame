@@ -21,20 +21,13 @@ void GAME_SYSTEM::action()
 		{
 			//cout << "mode : player_mode::selected" << endl;
 			
-			display.PrintOnMouse(selected_plant->name);
+			display.PrintOnMouse(selected_plant->name());
 		}
 		else//menu
 		{
 			//cout << "mode : player_mode::normal_play" << endl;
 			display.PrintOnMouse("+");
 		}
-	/*TODO 根據模式切換鼠標移動時所顯示的東西
-	menu、player_mode::normal_play：顯示“+”
-	player_mode::selecting：顯示指標植物的cost -> 信息菜單：植物簡介、cost
-	player_mode::selected：在種下植物前
-						地圖範圍内始終顯示選中的植物名，
-						地圖範圍外顯示out border
-	*/
 
 	break;
 	}
@@ -42,24 +35,20 @@ void GAME_SYSTEM::action()
 	{
 		if (mode == player_mode::normal)
 		{
-			//do nothing
+			display.PrintOnMouse("+");
 		}
 		else if (mode == player_mode::store_selecting)
 		{
-			if (store.in_table(mouse_position))//在商店範圍内左鍵選擇植物
-			{
-				selected_plant = store.SelectProducts(mouse_position);
-				if (selected_plant->name != "None")//有選到商品
-				{
-					//mode = player_mode::map_selecting;
-					selected = true;//-> 在下個時隙的mode_change函數中會更改模式
-				}
-			}
+			selected_plant = store.SelectProducts(mouse_position);
+			if (selected_plant && selected_plant->ID()!=plant_ID::None)//有選到商品，非空指針
+				selected = true;
+			else
+				display.PrintOnMouse("+");
 		}
 		else//map_selecting
 		{
-			string Plant_State = map.PlantOnXY(selected_plant, mouse_position);//種植成功的話會返回所種植物的名字
-				//TODO 修改植物冷卻時間
+			string Plant_State = map.PlantOnXY(selected_plant, mouse_position);
+			//種植成功的話會返回所種植物的名字
 			if (Plant_State != "Out of Border" &&
 				Plant_State != "Place already plant")
 			{
@@ -74,40 +63,6 @@ void GAME_SYSTEM::action()
 				display.PrintOnMouse(Plant_State);
 			}
 		}
-
-
-		//if (store.in_table(mouse_position))//在商店範圍
-		//{
-		//	if (mode == player_mode::store_selecting)
-		//	{
-		//		selected_plant = store.SelectProducts(mouse_position);
-		//		if (selected_plant != plant_ID::None)//有選到商品
-		//		{
-		//			mode = player_mode::map_selecting;
-		//			selected = true;
-		//		}
-		//	}
-		//}
-		//else if (map.in_table(mouse_position))//在地圖範圍
-		//{
-		//	if (mode == player_mode::map_selecting)
-		//	{
-		//		string Plant_State = map.PlantOnXY(selected_pllant, mouse_position);//種植成功的話會返回所種植物的名字
-		//		//TODO 修改植物冷卻時間
-		//		if (Plant_State != "Out of Border" &&
-		//			Plant_State != "Place already plant")
-		//		{
-		//			display.NewPlant(mouse_position, Plant_State);
-		//			selected = false;
-		//			mode = player_mode::normal;
-		//			selected_plant = plant_ID::None;
-		//		}
-		//		else
-		//		{
-		//			display.PrintOnMouse(Plant_State);
-		//		}
-		//	}
-		//}
 		break;
 	}
 	case signal::right_click:
@@ -124,10 +79,12 @@ void GAME_SYSTEM::action()
 }
 
 GAME_SYSTEM::GAME_SYSTEM() :
-	score(0), clock(0),
+	score(0), 
+	clock_start(clock()),game_clock(clock_start),
 	mode(player_mode::normal),
 	mouse(signal::move), mouse_position({ 0,0 }),
 	key_stroke(0),
+	selected(false), selected_plant(nullptr),
 	display(map, store)
 {
 	// 获取标准输入输出设备句柄
@@ -204,13 +161,13 @@ int GAME_SYSTEM::get_input()
 void GAME_SYSTEM::next()
 {
 	action();
-	store.next();
-	map.next();
-	clock++;
+	game_clock = clock() - clock_start;
+	int SunFlower_amount = map.next(game_clock);
+	store.next(game_clock, SunFlower_amount);
 }
 
 
-int GAME_SYSTEM::interpret_key(DWORD target)
+char GAME_SYSTEM::interpret_key(DWORD target)
 {//TODO: 填充行爲，商店買賣
 
 	/*
@@ -223,35 +180,34 @@ int GAME_SYSTEM::interpret_key(DWORD target)
 	{
 	case 0x11/*w*/:case 0x48://方向鍵上 (int)72
 		display.PrintOnMouse("↑");
-		return 1;
+		return 'w';
 		break;
 	case 0x1e/*a*/:case 0x4b://方向鍵左 (int)75 
 		display.PrintOnMouse("←");
-		return 3;
+		return 'a';
 		break;
 	case 0x1f/*s*/:case 0x50://方向鍵下
 		display.PrintOnMouse("↓");
-		return  2;
+		return  's';
 		break;
 	case 0x20/*d*/:case 0x4d://方向鍵右
 		display.PrintOnMouse("→");
-		return 4;
+		return 'd';
 		break;
 	case 0x01: //Esc
 		display.PrintOnMouse("Esc");
-		return 0;
+		return '\0';
 	case 0x12: //e
 		display.PrintOnMouse("e");
-		return 5;
+		return 'e';
 	default:
 		display.PrintOnMouse("Undefine key");
-		return MAXINT;
+		return MAXCHAR;
 	}
 	return 0;
 }
-int GAME_SYSTEM::interpret_mouse(DWORD target)
-{//TODO : 填充行爲（需要判斷當前模式）：商店買賣相關
-
+void GAME_SYSTEM::interpret_mouse(DWORD target)
+{
  //static int click_amount = 0; 
 	//switch (target)
 	//{
@@ -286,45 +242,21 @@ int GAME_SYSTEM::interpret_mouse(DWORD target)
 	//	break;
 	//}
 	//return 1;
-
-	//TODO 判斷鼠標所處範圍
+	
 	switch (target)
 	{
 	case FROM_LEFT_1ST_BUTTON_PRESSED:			// 左键
-	{
-
 		mouse = signal::left_click;
+		return;
 
-		//種植物模塊
-		//TODO 根據商店所選擇種下相應植物
-		//string Plant_State = map.PlantOnXY(Sun_Flower, position);//種植成功的話會返回所種植物的名字
-		//if (Plant_State != "Out of Border" && 
-		//	Plant_State != "Place already plant")
-		//	display.NewPlant(position, Plant_State);
-		//else
-		//{
-		//	display.PrintOnMouse(Plant_State); 
-		//}
-
-		//商店選擇模塊
-		//string tmp = store.SelectProducts(position);
-		//display.PrintOnMouse(tmp);
-		break;
-	}
 	case RIGHTMOST_BUTTON_PRESSED:				// 右键
-	{
-		display.PrintOnMouse("Right Click");
 		mouse = signal::right_click;
-		break;
-	}
-	default://其他鼠標事件（滾輪相關、移動、其他案件）
-	{
-		mouse = signal::move;
+		return;
 
-		break;
+	default://其他鼠標事件（滾輪相關、移動、其他案件）
+		mouse = signal::move;
+		return;
 	}
-	}
-	return 1;
 }
 
 //傳入position 用以判斷鼠標所在區域（商店區、地圖區、其他）
@@ -339,7 +271,7 @@ void GAME_SYSTEM::mode_change()
 	{
 	case player_mode::normal:
 	{
-		if (in_store)
+		if (in_store || key_stroke=='e')
 			mode = player_mode::store_selecting;
 		return;
 		//break;
@@ -363,43 +295,6 @@ void GAME_SYSTEM::mode_change()
 		//break;
 	}
 	}
-
-	//if (store.in_table(mouse_position))
-	//{
-	//	if (mode == player_mode::normal)
-	//		mode = player_mode::store_selecting;
-	//	//normal_selecting --> store_selecting
-	//	//store_selecting --> store_selecting
-	//	//map_selecting --> map_selecting (Out of Border)
-	//	//cout << "mode : player_mode::selecting" << endl;
-	//	//store.SelectProducts(position);
-	//}
-	//else if (map.in_table(mouse_position))
-	//{
-	//	if (mode == player_mode::store_selecting )//store_selecting or map_selecting
-	//	{
-	//		if (selected)//==true
-	//			mode = player_mode::map_selecting;
-	//		else//從商店移開，取消選擇
-	//			mode = player_mode::normal;
-	//	}
-	//	
-	//	//map_selecting --> map_selecting
-	//	//normal --> normal
-	//	//store_selecting+ selected(false) --> normal
-	//	//store_selecting+ selected(true) --> map_selecting
-	//
-	//	//display.PrintOnMouse("player_mode::normal_play mode");
-	//}
-	//else//其他地區
-	//{
-	//	//normal --> normal
-	//	//store_selecting+selected(false) --> normal
-	//	//store_selecting+selected(true) --> map_selecting(Out of Border)
-	//	//map_selecting --> map_selecting
-	//	if (mode == player_mode::store_selecting && selected==false)
-	//		mode = player_mode::normal;
-	//}
 	//cout << "Change to : " << (int)mode<<endl;
 	//cout << "selected : " << selected << endl;
 	//cout << "selected Plant : " << (int)selected_plant;

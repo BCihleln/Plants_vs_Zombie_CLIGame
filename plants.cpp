@@ -1,9 +1,9 @@
 #include "plants.h"
 
-Plant::Plant():Creature("None"),ID(plant_ID::None)
+Plant::Plant():Creature("None"),ID_(plant_ID::None)
 {
-	cost = 0;
-	SPD = 0;
+	cost_ = 0;
+	SPD_ = 0;
 }
 
 Plant::~Plant()
@@ -17,36 +17,36 @@ Plant::~Plant()
 
 void Plant::set_type(const plant_ID ID)
 {
-	if(this->ID==plant_ID::None)//只能被設置一次
+	if(this->ID_ ==plant_ID::None)//只能被設置一次
 	{
-		this->ID = ID;
+		this->ID_ = ID;
 		switch (ID)
 		{
 		case	plant_ID::Sun_Flower:
-			this->name = "Sun Flower";
-			this->HP = 25;
-			this->ATK = 0;
-			this->ATK_SPD = 10;
-			this->cost = 25;
-			this->cool_time = 20;
+			this->name_ = "Sun Flower";
+			this->HP_ = 25;
+			this->ATK_ = 0;
+			this->ATK_SPD_ = 10;
+			this->cost_ = 25;
+			this->cool_time_ = 10;
 			return;
 		case plant_ID::Bean_Shooter://豌豆射手
-			this->name = "Bean Shooter";
-			this->HP = 40;
-			this->ATK = 25;
-			this->ATK_SPD = 50;
-			this->cost = 50;
-			this->cool_time = 30;
+			this->name_ = "Bean Shooter";
+			this->HP_ = 40;
+			this->ATK_ = 25;
+			this->ATK_SPD_ = 50;
+			this->cost_ = 50;
+			this->cool_time_ = 15;
 			return;
 		case plant_ID::Nut_Wall://堅果墻
-			this->name = "Nut Wall";
-			this->HP = 100;
-			this->DEF = 25;
-			this->cost = 50;
-			this->cool_time = 50;
+			this->name_ = "Nut Wall";
+			this->HP_ = 100;
+			this->DEF_ = 25;
+			this->cost_ = 50;
+			this->cool_time_ = 25;
 			return;
 		default:
-			this->ID = plant_ID::None;
+			this->ID_ = plant_ID::None;
 			return;
 		}
 	}
@@ -54,24 +54,30 @@ void Plant::set_type(const plant_ID ID)
 
 void Plant::clean()
 {
-	ID = plant_ID::None;
+	this->ID_ = plant_ID::None;
 
 }
 
-int Plant::get_cost() const
+int Plant::cost() const
 {
-	return this->cost;
+	return this->cost_;
 }
 
-int Plant::get_cool_time() const
+int Plant::cool_time() const
 {
-	return this->cool_time;
+	return this->cool_time_;
 }
 
-plant_ID Plant::get_ID() const
+plant_ID Plant::ID() const
 {
-	return ID;
+	return this->ID_;
 }
+
+string Plant::name() const
+{
+	return this->name_;
+}
+
 
 void Plant::attack()
 {
@@ -81,11 +87,11 @@ void Plant::attack()
 	//TODO 生產子彈
 }
 
-void Plant::next(int clock, coordinate& position)
+void Plant::next(int clock)
 {
-	if (HP > 0)//還活著的話
+	if (HP_ > 0)//還活著的話
 	{
-		if (clock % ATK_SPD == 0)
+		if (clock % ATK_SPD_ == 0)
 			attack();
 	}
 }

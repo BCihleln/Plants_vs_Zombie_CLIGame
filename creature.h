@@ -5,16 +5,16 @@
 class Creature
 {
 protected:
+	string name_;
 	int
-		HP,
-		ATK, ATK_SPD,//ATK Speed 攻速
-		SPD,//移動速度
-		DEF;//百分比防禦力最高99%
+		HP_,
+		ATK_, ATK_SPD_,//ATK Speed 攻速 單位：次/秒
+		SPD_,//移動速度 單位：字符寬/秒
+		DEF_;//百分比防禦力最高99%
 
 	//coordinate ATK_direction;
 	coordinate direction;//前進方向
 public:
-	string name;
 
 	//Creature();
 	Creature(string name);

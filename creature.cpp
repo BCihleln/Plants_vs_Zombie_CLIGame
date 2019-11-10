@@ -1,12 +1,12 @@
 #include "creature.h"
 
 Creature::Creature(string name):
-	name(name),
-	HP(50),//各項數值0~100
-	ATK(20),
-	ATK_SPD(1),//ATK_SPD實際計算：1500ms /ATK_SPD
-	SPD(0),
-	DEF(0)
+	name_(name),
+	HP_(50),//各項數值0~100
+	ATK_(20),
+	ATK_SPD_(1),//ATK_SPD實際計算：1500ms /ATK_SPD
+	SPD_(0),
+	DEF_(0)
 {
 }
 
@@ -33,19 +33,19 @@ Creature::Creature(string name):
 
 void Creature::injure(int damage)
 {
-	HP -= (damage * (DEF-1) / 100);
-	if (HP < 1)
+	HP_ -= (damage * (DEF_-1) / 100);
+	if (HP_ < 1)
 		die();
 }
 
 void Creature::die()
 {
-	name = "died " + name;
-	HP = 0;
-	ATK = 0;
-	ATK_SPD = 0;
-	SPD = 0;
-	DEF = 0;
+	name_ = "died " + name_;
+	HP_ = 0;
+	ATK_ = 0;
+	ATK_SPD_ = 0;
+	SPD_ = 0;
+	DEF_ = 0;
 }
 
 //void Creature::next(int clock, coordinate& position)

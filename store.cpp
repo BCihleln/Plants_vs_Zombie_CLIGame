@@ -23,53 +23,63 @@ void Store::init()
 		}
 
 	table[0][0].plant.set_type(plant_ID::Sun_Flower);
-	table[1][0].plant.set_type(plant_ID::Bean_Shooter);
-	table[2][0].plant.set_type(plant_ID::Nut_Wall);
+	table[0][1].plant.set_type(plant_ID::Bean_Shooter);
+	table[0][2].plant.set_type(plant_ID::Nut_Wall);
 }
 
 Plant* Store::SelectProducts(coordinate screen)
 {
-	product* target = this->select(screen, false);
+	select(screen, false);
 	//cout << position;
-	if (target == nullptr || //超界
-		target->left_time >0 || //緩衝未到
-		target->plant.get_cost() > sun //費用不足
+	if (the_chosen_one == nullptr || //超界
+		the_chosen_one->left_time >0 || //緩衝未到
+		the_chosen_one->plant.cost() > sun //費用不足
 		)
 	{
 		//return string("Out of border");
-		this->the_chosen_one = nullptr;
-		//return plant_ID::None;//不能選擇
-		return nullptr;
+		this->the_chosen_one = nullptr;//選擇失敗
+		return nullptr;//(Plant*)the_chosen_one
 	}
 	else
 	{
-		this->the_chosen_one = target;
 		return &the_chosen_one->plant;
 	}
 }
 
-string Store::get_name_by_ID(plant_ID target)
-{
-	Plant tmp;
-	tmp.set_type(target);
-	return tmp.name;
-}
+//string Store::get_name_by_ID(plant_ID target)
+//{
+//	Plant tmp;
+//	tmp.set_type(target);
+//	return tmp.name;
+//}
 
 void Store::buy()
 {
-	sun -= the_chosen_one->plant.get_cost();
-	the_chosen_one->left_time = the_chosen_one->plant.get_cool_time();//設置緩衝時間
-	//return &table[target.Y][target.X].plant;
+	if (the_chosen_one == nullptr)
+	{
+		cout << __FUNCTION__ << "error!" << endl;
+		exit(0);
+	}
+
+	sun -= the_chosen_one->plant.cost();
+	the_chosen_one->left_time = the_chosen_one->plant.cool_time();//設置緩衝時間
 }
 
-void Store::next()
+void Store::next(clock_t game_clock, int sun_flower_amount)
 {
-	for (int i = 0; i < store_row; ++i)
-		for (int j = 0; j < store_column; ++j)
-			if (table[i][j].left_time > 0)
-				table[i][j].left_time--;
+	static clock_t last_game_clock = 0;
 
-	sun++;
-	//TODO sun += amount_of_sun_flower * 10 考慮用變量存 每時隙增加的陽光數
+ 	clock_t duration = game_clock - last_game_clock;
+	while(duration>1000)//同步於1秒
+	{
+		for (int i = 0; i < store_row; ++i)
+			for (int j = 0; j < store_column; ++j)
+				if (table[i][j].left_time > 0)
+					table[i][j].left_time--;
+		sun += sun_flower_amount*10 + 5; 
+
+		duration -= 1000;
+	}
+	last_game_clock = game_clock;
 }
 

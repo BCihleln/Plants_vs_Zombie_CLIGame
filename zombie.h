@@ -6,11 +6,11 @@
 class ZOMBIE:private Creature //œ»åç¨F∆’Õ®Ω© ¨
 {
 	bool attack_flag;
+	void attack();
 public:
 	ZOMBIE();
 	~ZOMBIE();
 
-	void attack();
 	void move(coordinate& position);
 
 	void next(int clock,coordinate& position);

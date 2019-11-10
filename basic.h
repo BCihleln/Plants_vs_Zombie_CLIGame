@@ -6,6 +6,8 @@
 #include<windows.h>  
 	//控制終端輸出指針之位置、顔色
 	//包含了句柄HANDLE類
+#include <time.h>
+	//用於產生精度為毫秒的時鐘
 #include <string>
 #include <iostream>
 #include <fstream>

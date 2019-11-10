@@ -2,11 +2,11 @@
 
 ZOMBIE::ZOMBIE():Creature("zombie")
 {
-	this->ATK = 50;
-	this->ATK_SPD = 10;
-	this->HP = 100;
-	this->SPD = 10;
-	this->DEF = 0;
+	this->ATK_ = 50;
+	this->ATK_SPD_ = 10;
+	this->HP_ = 100;
+	this->SPD_ = 10;
+	this->DEF_ = 0;
 	attack_flag = false;
 }
 
@@ -34,12 +34,12 @@ void ZOMBIE::move(coordinate& position)
 
 void ZOMBIE::next(int clock, coordinate& position)
 {
-	if (HP > 0)//還活著的話
+	if (HP_ > 0)//還活著的話
 	{
-		if (clock % ATK_SPD == 0)
+		if (attack_flag && clock % ATK_SPD_ == 0)
 			attack();
 
-		if (clock % SPD == 0)
+		if (!attack_flag && clock % SPD_ == 0)
 			move(position);
 	}
 }
