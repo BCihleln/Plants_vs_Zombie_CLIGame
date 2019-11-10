@@ -29,6 +29,7 @@ class DISPLAY
 	
 	coordinate ScreenCursor;//光標位置
 	coordinate MouseCursor;//鼠標位置
+	short last_MouseCursor_Y;
 
 	CONSOLE_CURSOR_INFO default_cursor;
 	HANDLE hStdOut;//標準輸出句柄
@@ -47,7 +48,6 @@ class DISPLAY
 	void WriteScreenBuffer(const char* target, coordinate position);
 	void CleanMapCell(coordinate target_Cell);
 	void RefreshStdOut();
-
 
 	void HideCursor();//隐藏控制台的光标 
 	void SetScreenCursor(coordinate target);
