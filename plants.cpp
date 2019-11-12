@@ -28,7 +28,7 @@ void Plant::set_type(const plant_ID ID)
 			this->ATK_ = 0;
 			this->ATK_SPD_ = 10;
 			this->cost_ = 25;
-			this->cool_time_ = 10;
+			this->cool_time_ = 30;
 			return;
 		case plant_ID::Bean_Shooter://Íã¶¹ÉäÊÖ
 			this->name_ = "Bean Shooter";

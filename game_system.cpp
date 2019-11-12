@@ -106,6 +106,9 @@ GAME_SYSTEM::GAME_SYSTEM() :
 	std::thread deal_input(std::bind(&GAME_SYSTEM::get_input,this));//開新綫程
 	deal_input.detach();
 	std::thread deal_display(std::bind(&Display::next, &display));//綁定時記得傳入對象的地址
+	/*
+	之前出的bug就是忘記加取地址符，導致編譯器重新創建了一個Display的對象A，并把game_system中的display對象複製過去，然而display的SCREEN_BUFFER是主動申請的空間，A的SCREEN_BUFFER未經過初始化，指向了不該訪問的位置，導致錯誤
+	*/
 	deal_display.detach();
 
 	//CloseHandle(hStdin);  // 关闭标准输出设备句柄
@@ -130,10 +133,11 @@ int GAME_SYSTEM::get_input()
 
 		INPUT_RECORD	InputRecord;//Input Buffer	
 		DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
+
 	while (true)
 	{
 		ReadConsoleInput(hStdin, &InputRecord, 1, &res);//阻塞捕獲信號
-		//PeekConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &InputRecord, 1, &res);
+		//PeekConsoleInput(hStdin, &InputRecord, 1, &res);
 		if (InputRecord.EventType == MOUSE_EVENT)
 		{
 			//if (InputRecord.Event.MouseEvent.dwButtonState == FROM_LEFT_1ST_BUTTON_PRESSED)
@@ -159,15 +163,14 @@ int GAME_SYSTEM::get_input()
 			{
 				display.PrintOnMouse("Capture mouse Mode End!");
 				display.ShowCursor();
-				exit(0);
 				//return 0;
-				//return;
+				exit(0);
 			}
 			default:
 				break;
 			}
 		}
-		action();
+		//action();
 		//FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));//清掉之前的輸入緩衝信息
 	}
 	//should never be reach
@@ -176,11 +179,11 @@ int GAME_SYSTEM::get_input()
 
 void GAME_SYSTEM::next()
 {
-	//action();
+	action();
 	static clock_t clock_start = clock();
 
 	clock_t duration = clock() - clock_start;
-	if(duration>99)
+	if(duration>9)
 	{
 		game_clock +=1;//时钟同步一毫秒
 		clock_start = clock();

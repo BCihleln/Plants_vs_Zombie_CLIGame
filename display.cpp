@@ -251,12 +251,12 @@ void Display::UpdateStore()
 		for (short j = 0; j < store_column; ++j)
 		{
 			int product_lefttime = store->table[i][j].left_time;
+			char tmp[10];
+			sprintf(tmp, "%d", product_lefttime);
+			coordinate position = middle(tmp, store->Table2Screen({ j,i })) + coordinate{ 0,1 };
+			WriteScreenBuffer("            ", middle("            ", position));
 			if (product_lefttime > 0)
 			{
-				char tmp[10];
-				sprintf(tmp, "%d", product_lefttime);
-				coordinate position = middle(tmp, store->Table2Screen({ j,i })) + coordinate{ 0,1 };
-				WriteScreenBuffer("          ", position);
 				WriteScreenBuffer(tmp, position);
 			}
 		}
@@ -266,6 +266,7 @@ void Display::UpdateSun()
 {
 	char tmp[10];
 	sprintf(tmp, "%d", store->sun);
+	WriteScreenBuffer("              ", middle("              ", { 9,5 }));
 	WriteScreenBuffer(tmp, middle(tmp, { 9,5 }));
 }
 
@@ -286,3 +287,11 @@ void Display::next()
 		UpdateScore();
 	}
 }
+
+//void Display::next()
+//{
+//
+//		UpdateStore();
+//		UpdateSun();
+//		UpdateScore();
+//}

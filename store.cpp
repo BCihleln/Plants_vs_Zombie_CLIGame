@@ -14,7 +14,7 @@ Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size
 
 void Store::init()
 {
-	sun = 0;
+	sun = 25;
 	//sun = 10000;
 	for (int i = 0; i < store_row; ++i)
 		for (int j = 0; j < store_column; ++j)
@@ -67,7 +67,6 @@ void Store::buy()
 
 void Store::next(clock_t game_clock, int sun_flower_amount)
 {
-	static clock_t last_game_clock = 0;
 
  //	clock_t duration = game_clock - last_game_clock;
 	//while(duration>1000)//同步於1秒
@@ -80,15 +79,13 @@ void Store::next(clock_t game_clock, int sun_flower_amount)
 
 	//	duration -= 1000;
 	//}
-	if(game_clock % 10==0)
+	if(game_clock % 10==0)//同步於1秒
 	{
 		for (int i = 0; i < store_row; ++i)
 			for (int j = 0; j < store_column; ++j)
 				if (table[i][j].left_time > 0)
 					table[i][j].left_time--;
-		sun += sun_flower_amount * 10 + 1;
+		sun += sun_flower_amount;
 	}
-
-	last_game_clock = game_clock;
 }
 
