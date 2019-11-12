@@ -22,7 +22,7 @@
 
 class GAME_SYSTEM
 {
-	//HANDLE hStdin;//標準輸入句柄
+	HANDLE hStdin;//標準輸入句柄
 	
 	//INPUT_RECORD	InputRecord;//Input Buffer
 	//DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
@@ -33,7 +33,6 @@ class GAME_SYSTEM
 	Display display;
 
 	int score;
-	clock_t clock_start;//游戲開始時間
 
 	//返回值0 代表退出
 	char interpret_key(DWORD target);
@@ -52,6 +51,7 @@ class GAME_SYSTEM
 	//根據這個時隙發生的輸入事件與系統狀態，做出相應動作
 	void action();
 public:
+	friend class Display;
 	clock_t game_clock;//游戲内時間 單位：毫秒
 	GAME_SYSTEM();
 	~GAME_SYSTEM();

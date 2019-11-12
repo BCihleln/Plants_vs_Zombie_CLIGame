@@ -86,7 +86,7 @@ void Store::next(clock_t game_clock, int sun_flower_amount)
 			for (int j = 0; j < store_column; ++j)
 				if (table[i][j].left_time > 0)
 					table[i][j].left_time--;
-		sun += sun_flower_amount * 10 + 5;
+		sun += sun_flower_amount * 10 + 1;
 	}
 
 	last_game_clock = game_clock;

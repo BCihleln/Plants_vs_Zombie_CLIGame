@@ -1,6 +1,6 @@
 #include "display.h"
 
-inline void Display::ReadDataFileToScreenBuff(const char* filepath, int position_x, int position_y)
+inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate start_position)
 {
 	ifstream file;
 	file.open(filepath);
@@ -12,26 +12,28 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, int position
 		getchar();
 		exit(0);
 	}
+
+	int i = start_position.Y;//SCREEN_BUFFER 访问行下标
 	while (!file.eof())
 	{
-		if (position_y > SCREEN_WIDTH)
+		if (i > SCREEN_WIDTH)
 		{
 			color(red);
 			cout << __FUNCTION__ << endl<< 
-				"Write Screen Buffer out of range" << 
-				filepath << endl;
+				"Write Screen Buffer out of range"<< endl 
+				<< filepath ;
 			getchar();
 			exit(0);
 		}
-		strcpy(tmp_line, SCREEN_BUFFER[position_y]);
-		file.getline(&SCREEN_BUFFER[position_y][position_x], SCREEN_LENGTH);
+		strcpy(tmp_line, SCREEN_BUFFER[i]);
+		file.getline(&SCREEN_BUFFER[i][start_position.X], SCREEN_LENGTH);
 
-		for (int i = 0; i < SCREEN_LENGTH; ++i)//替換掉getline過程中添加的\0
-			if (SCREEN_BUFFER[position_y][i] == '\0')
-				SCREEN_BUFFER[position_y][i] = tmp_line[i];
+		for (int j = 0; j < SCREEN_LENGTH; ++j)//替換掉getline過程中添加的\0
+			if (SCREEN_BUFFER[i][j] == '\0')
+				SCREEN_BUFFER[i][j] = tmp_line[j];
 
 		//cout << SCREEN_BUFFER[position_y];
-		position_y++;//下一行
+		i++;//下一行
 	}
 	file.close();
 	delete[] tmp_line;//釋放暫時申請的内存
@@ -47,12 +49,12 @@ void Display::RefreshStdOut()const
 	}
 }
 
-void Display::CleanMapCell(coordinate target_Cell)
-{
-	coordinate tmp = map->Table2Screen(target_Cell);
-	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);//TODO 不需要每次刷新時都讀文件
-
-}
+//void Display::CleanMapCell(coordinate target_Cell)
+//{
+//	coordinate tmp = map->Table2Screen(target_Cell);
+//	ReadDataFileToScreenBuff("mapcell.txt", tmp.X, tmp.Y);//TODO 不需要每次刷新時都讀文件
+//
+//}
 
 Display::Display(const Map&target_map,const Store& target_store,int* score):
 	SCREEN_SIZE({0,0}),
@@ -72,8 +74,8 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 
 	//ReadInfo();
 	//ReadMap();
-	ReadDataFileToScreenBuff(info_file,0,0);
-	ReadDataFileToScreenBuff(map_file,0,10);
+	ReadDataFileToScreenBuff(info_file, { 0,0 });
+	ReadDataFileToScreenBuff(map_file, { 0,10 });
 	ReadStoreInfo();
 
 	RefreshStdOut();
@@ -254,6 +256,7 @@ void Display::UpdateStore()
 				char tmp[10];
 				sprintf(tmp, "%d", product_lefttime);
 				coordinate position = middle(tmp, store->Table2Screen({ j,i })) + coordinate{ 0,1 };
+				WriteScreenBuffer("          ", position);
 				WriteScreenBuffer(tmp, position);
 			}
 		}
@@ -263,20 +266,23 @@ void Display::UpdateSun()
 {
 	char tmp[10];
 	sprintf(tmp, "%d", store->sun);
-	WriteScreenBuffer(tmp, middle(tmp, { 9,4 }));
+	WriteScreenBuffer(tmp, middle(tmp, { 9,5 }));
 }
 
 void Display::UpdateScore()
 {
 	char tmp[10];
 	sprintf(tmp, "%d", *score);
-	WriteScreenBuffer(tmp, middle(tmp, { 136,4 }));
+	WriteScreenBuffer(tmp, middle(tmp, { 138,4 }));
 }
 
 void Display::next()
 {
 	//new thread
+	while(true)
+	{
 		UpdateStore();
 		UpdateSun();
 		UpdateScore();
+	}
 }

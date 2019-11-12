@@ -36,6 +36,7 @@ class Map:public Table <mapCell>
 
 	void init();
 public:	
+	friend class Display;
 	Map();
 	~Map();
 

@@ -44,11 +44,11 @@ class Display
 #define SCREEN_LENGTH SCREEN_SIZE.X
 #define SCREEN_WIDTH SCREEN_SIZE.Y
 	char** SCREEN_BUFFER;//屏幕緩衝，打印時可以保存之前屏幕的信息
-	inline void ReadDataFileToScreenBuff(const char* filepath,int position_x,int position_y);
+	inline void ReadDataFileToScreenBuff(const char* filepath,coordinate start_position);
 	void ReadStoreInfo();
 	void screen_buffer_init();
 	void WriteScreenBuffer(const char* target, coordinate position);
-	void CleanMapCell(coordinate target_Cell);
+	//void CleanMapCell(coordinate target_Cell);
 	void RefreshStdOut()const;
 
 	void HideCursor();//隐藏控制台的光标 
