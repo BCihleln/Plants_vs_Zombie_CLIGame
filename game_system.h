@@ -5,6 +5,9 @@
 #include "store.h"
 #include "zombie.h"
 #include "display.h"
+#include <thread>
+#include <functional>
+	//bind 綁定器
 
 /*
 完成功能
@@ -19,10 +22,10 @@
 
 class GAME_SYSTEM
 {
-	HANDLE hStdin;//標準輸入句柄
-
-	INPUT_RECORD	InputRecord;//Input Buffer
-	DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
+	//HANDLE hStdin;//標準輸入句柄
+	
+	//INPUT_RECORD	InputRecord;//Input Buffer
+	//DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
 	
 	Map map;//map中包含了所有植物、與僵尸vector
 	Store store;

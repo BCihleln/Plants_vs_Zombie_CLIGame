@@ -17,7 +17,9 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, int position
 		if (position_y > SCREEN_WIDTH)
 		{
 			color(red);
-			cout << __FUNCTION__ << "Write Screen Buffer out of range"<< filepath<<endl;
+			cout << __FUNCTION__ << endl<< 
+				"Write Screen Buffer out of range" << 
+				filepath << endl;
 			getchar();
 			exit(0);
 		}
@@ -52,11 +54,12 @@ void Display::CleanMapCell(coordinate target_Cell)
 
 }
 
-Display::Display(const Map&target_map,const Store& target_store):
+Display::Display(const Map&target_map,const Store& target_store,int* score):
 	SCREEN_SIZE({0,0}),
 	ScreenCursor({0,0}),
 	MouseCursor({0,0}),
-	map(&target_map),store(&target_store)
+	map(&target_map),store(&target_store),
+	score(score)
 {
 	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//«@µÃ˜ËœÊÝ”³ö¾ä±ú
 	
@@ -263,16 +266,17 @@ void Display::UpdateSun()
 	WriteScreenBuffer(tmp, middle(tmp, { 9,4 }));
 }
 
-void Display::UpdateScore(int score)
+void Display::UpdateScore()
 {
 	char tmp[10];
-	sprintf(tmp, "%d", score);
-	WriteScreenBuffer(tmp, middle(tmp, { 139,4 }));
+	sprintf(tmp, "%d", *score);
+	WriteScreenBuffer(tmp, middle(tmp, { 136,4 }));
 }
 
-void Display::next(int score)
+void Display::next()
 {
-	UpdateStore();
-	UpdateSun();
-	UpdateScore(score);
+	//new thread
+		UpdateStore();
+		UpdateSun();
+		UpdateScore();
 }

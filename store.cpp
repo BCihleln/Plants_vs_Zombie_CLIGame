@@ -14,8 +14,8 @@ Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size
 
 void Store::init()
 {
-	//sun = 0;
-	sun = 10000;
+	sun = 0;
+	//sun = 10000;
 	for (int i = 0; i < store_row; ++i)
 		for (int j = 0; j < store_column; ++j)
 		{

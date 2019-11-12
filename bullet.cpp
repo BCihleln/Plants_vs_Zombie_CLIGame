@@ -13,9 +13,7 @@ BULLET::BULLET(string name,int attack, short effect):
 
 BULLET::~BULLET()
 {
-#ifdef DEBUG
-	static auto count = 1;
-	cout << "bullet destruct " << count << endl;
-	count++;
-#endif // DEBUG
+	//static auto count = 1;
+	////cout << "bullet destruct " << count << endl;
+	//count++;
 }

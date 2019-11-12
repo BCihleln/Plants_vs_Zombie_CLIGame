@@ -36,6 +36,7 @@ class Display
 
 	const Map* map;
 	const Store* store;
+	const int* score;
 
 	void window_init();//初始化窗口為最大化，并獲取屏幕大小（單位：字符）
 
@@ -81,7 +82,7 @@ class Display
 	//coordinate Store2Screen(short x, short y);
 
 public:
-	Display(const Map& target_map, const Store& target_store);
+	Display(const Map& target_map, const Store& target_store, int* score);
 	~Display();
 
 	void SetMousePosition(coordinate target);
@@ -109,6 +110,6 @@ public:
 
 	void UpdateStore();
 	void UpdateSun();
-	void UpdateScore(int score);
-	void next(int);
+	void UpdateScore();
+	void next();
 };
