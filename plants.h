@@ -34,7 +34,37 @@ public:
 	³ÖÀm‚ûº¦£¨eg µØ´Ì
 */
 
-class Bean_Shooter :public Plant
+class Shooting_Plant :public Plant
 {
+
+	/*
+	Type
+	-> Bean Shooter Series
+	-> Mushroom
+	*/
+	virtual void attack()override;
+};
+
+class Explosive_Plant :public Plant
+{
+	/*
+Type
+-> Cherry Bomb
+-> Potato Mine
+-> Melon ÙÁ¹Ï
+-> Corn Missle
+*/
+	virtual void attack()override;
+};
+
+class Buff_Plant :public Plant
+{
+	/*
+	Type
+	-> Sun flower
+	-> Nut wall
+	-> thorns ÇG¼¬
+	-> Garlic 
+	*/
 	virtual void attack()override;
 };

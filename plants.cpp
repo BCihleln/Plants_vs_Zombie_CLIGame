@@ -95,6 +95,14 @@ void Plant::next(int clock)
 	}
 }
 
-void Bean_Shooter::attack()
+void Shooting_Plant::attack()
+{
+}
+
+void Explosive_Plant::attack()
+{
+}
+
+void Buff_Plant::attack()
 {
 }

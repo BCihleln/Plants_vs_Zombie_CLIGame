@@ -40,7 +40,7 @@ void Creature::injure(int damage)
 
 void Creature::die()
 {
-	name_ = "died " + name_;
+	name_ = "dead " + name_;
 	HP_ = 0;
 	ATK_ = 0;
 	ATK_SPD_ = 0;
