@@ -15,42 +15,42 @@ Plant::~Plant()
 //#endif
 }
 
-void Plant::set_type(const plant_ID ID)
-{
-	if(this->ID_ ==plant_ID::None)//只能被設置一次
-	{
-		this->ID_ = ID;
-		switch (ID)
-		{
-		case	plant_ID::Sun_Flower:
-			this->name_ = "Sun Flower";
-			this->HP_ = 25;
-			this->ATK_ = 0;
-			this->ATK_SPD_ = 10;
-			this->cost_ = 25;
-			this->cool_time_ = 30;
-			return;
-		case plant_ID::Bean_Shooter://豌豆射手
-			this->name_ = "Bean Shooter";
-			this->HP_ = 40;
-			this->ATK_ = 25;
-			this->ATK_SPD_ = 50;
-			this->cost_ = 50;
-			this->cool_time_ = 15;
-			return;
-		case plant_ID::Nut_Wall://堅果墻
-			this->name_ = "Nut Wall";
-			this->HP_ = 100;
-			this->DEF_ = 25;
-			this->cost_ = 50;
-			this->cool_time_ = 25;
-			return;
-		default:
-			this->ID_ = plant_ID::None;
-			return;
-		}
-	}
-}
+//void Plant::set_type(const plant_ID ID)
+//{
+//	if(this->ID_ ==plant_ID::None)//只能被設置一次
+//	{
+//		this->ID_ = ID;
+//		switch (ID)
+//		{
+//		case	plant_ID::Sun_Flower:
+//			this->name_ = "Sun Flower";
+//			this->HP_ = 25;
+//			this->ATK_ = 0;
+//			this->ATK_SPD_ = 10;
+//			this->cost_ = 25;
+//			this->cool_time_ = 30;
+//			return;
+//		case plant_ID::Bean_Shooter://豌豆射手
+//			this->name_ = "Bean Shooter";
+//			this->HP_ = 40;
+//			this->ATK_ = 25;
+//			this->ATK_SPD_ = 50;
+//			this->cost_ = 50;
+//			this->cool_time_ = 15;
+//			return;
+//		case plant_ID::Nut_Wall://堅果墻
+//			this->name_ = "Nut Wall";
+//			this->HP_ = 100;
+//			this->DEF_ = 25;
+//			this->cost_ = 50;
+//			this->cool_time_ = 25;
+//			return;
+//		default:
+//			this->ID_ = plant_ID::None;
+//			return;
+//		}
+//	}
+//}
 
 void Plant::clean()
 {
@@ -78,14 +78,13 @@ string Plant::name() const
 	return this->name_;
 }
 
-
-void Plant::attack()
-{
-	////射擊型植物的攻擊方式是生產一顆子彈
-	BULLET tmp(name_,this->ATK_,0);
-	bullets.push(tmp);//TODO 在函數時會析構掉tmp，不知道是否會影響到queue裏的元素，待逐步調試時查證
-	//TODO 生產子彈
-}
+//void Plant::attack()
+//{
+//	////射擊型植物的攻擊方式是生產一顆子彈
+//	BULLET tmp(name_,this->ATK_,0);
+//	bullets.push(tmp);//TODO 在函數時會析構掉tmp，不知道是否會影響到queue裏的元素，待逐步調試時查證
+//	//TODO 生產子彈
+//}
 
 void Plant::next(int clock)
 {
@@ -94,4 +93,8 @@ void Plant::next(int clock)
 		if (clock % ATK_SPD_ == 0)
 			attack();
 	}
+}
+
+void Bean_Shooter::attack()
+{
 }

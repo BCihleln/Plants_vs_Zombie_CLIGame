@@ -10,13 +10,13 @@ class Plant:private Creature //先只實現射擊型植物
 	int cost_; // 消耗陽光數
 	int cool_time_;// 能再次購買的冷卻時間 單位：秒
 	queue<BULLET> bullets;//由植物生產的子彈隊列
-	void attack();
+	virtual void attack()=0;
 public:
 
 	Plant();
 	~Plant();
 
-	void set_type(const plant_ID ID);
+	//void set_type(const plant_ID ID);
 	void clean();
 	int cost()const;
 	int cool_time()const;
@@ -33,3 +33,8 @@ public:
 	一次性植物（eg 櫻桃、倭瓜）
 	持續傷害（eg 地刺
 */
+
+class Bean_Shooter :public Plant
+{
+	virtual void attack()override;
+};
