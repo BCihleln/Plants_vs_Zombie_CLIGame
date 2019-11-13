@@ -147,11 +147,16 @@ void Display::ReadStoreInfo()
 	for (short i = 0; i < store_row; ++i)
 		for (short j = 0; j < store_column; ++j)
 		{
-			string product_name = store->table[i][j].plant.name();
+			//string product_name = store->table[i][j].plant.name();
+			product& target = store->table[i][j];
+			string product_name = target.plant.name();
 			if(product_name != "None")
 			{
-				coordinate position = middle(product_name, store->Table2Screen({ j,i })) - coordinate{ 0,2 };
-				WriteScreenBuffer(product_name.c_str(), position);
+				coordinate position = middle(product_name, store->Table2Screen({ j,i })) ;
+				WriteScreenBuffer(product_name.c_str(), position- coordinate{ 0,2 });
+				char tmp[15];
+				sprintf(tmp, "cost : %d", target.plant.cost());
+				WriteScreenBuffer(tmp, position - coordinate{ 0,1 });
 			}
 		}
 }
@@ -250,11 +255,14 @@ void Display::UpdateStore()
 	for (short i = 0; i < store_row; ++i)
 		for (short j = 0; j < store_column; ++j)
 		{
-			int product_lefttime = store->table[i][j].left_time;
+			product target = store->table[i][j];
+			int product_lefttime =target.left_time;
+			int product_cost = target.plant.cost();
 			char tmp[10];
-			sprintf(tmp, "%d", product_lefttime);
-			coordinate position = middle(tmp, store->Table2Screen({ j,i })) + coordinate{ 0,1 };
-			WriteScreenBuffer("            ", middle("            ", position));
+			float percentage = (float)product_lefttime / (float)target.plant.cool_time() * (float)100;
+			sprintf(tmp, "(%d%%)", 100-(int)percentage);
+			coordinate position = middle(tmp, store->Table2Screen({ j,i }) + coordinate{ 0,1 });
+			WriteScreenBuffer("           ", middle("           ", position));
 			if (product_lefttime > 0)
 			{
 				WriteScreenBuffer(tmp, position);

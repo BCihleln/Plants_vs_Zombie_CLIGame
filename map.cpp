@@ -50,21 +50,15 @@ int Map::next(clock_t game_clock)
 {
 	for(int i = 0;i<map_row;++i)
 	{
-		for (int j = 0; j < zombies[i].size(); ++j)
+		for (int j = 0; j < zombies[i].size(); ++j)// 全體僵尸行動！
 			zombies[i][j].zombie.next(game_clock,zombies[i][j].screen);
 
-		for(int j = 0;j<map_column;++j)
+		for(int j = 0;j<map_column;++j)//植物組織反擊！
 			if (table[i][j].plant.ID() != plant_ID::None)
 			{
 				table[i][j].plant.next(game_clock);
 
 			}
 	}
-	return SunFlower_amount;
+	return SunFlower_amount;//返回太陽花數量，用以給store增加sun數
 }
-
-//Plant* Map::select(coordinate position)
-//{
-//	position = Screen2Map(position);
-//	return &plants[position.Y][position.X];
-//}

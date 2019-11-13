@@ -183,7 +183,7 @@ void GAME_SYSTEM::next()
 	static clock_t clock_start = clock();
 
 	clock_t duration = clock() - clock_start;
-	if(duration>9)
+	if(duration>game_speed)
 	{
 		game_clock +=1;//时钟同步一毫秒
 		clock_start = clock();
