@@ -7,7 +7,8 @@
 //	return coordinate({ x,y });
 //}
 
-Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size)
+Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size),
+	the_chosen_one(nullptr)
 {
 	init();
 }
@@ -29,7 +30,7 @@ void Store::init()
 
 Plant* Store::SelectProducts(coordinate screen)
 {
-	select(screen, false);
+	the_chosen_one = select(screen, false);
 	//cout << position;
 	if (the_chosen_one == nullptr || //³¬½ç
 		the_chosen_one->left_time >0 || //¾ÐnÎ´µ½
@@ -37,7 +38,7 @@ Plant* Store::SelectProducts(coordinate screen)
 		)
 	{
 		//return string("Out of border");
-		this->the_chosen_one = nullptr;//ßx“ñÊ§”¡
+		//this->the_chosen_one = nullptr;//ßx“ñÊ§”¡
 		return nullptr;//(Plant*)the_chosen_one
 	}
 	else

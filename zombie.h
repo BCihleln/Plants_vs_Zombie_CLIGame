@@ -2,21 +2,34 @@
 #include "basic.h"
 #include "creature.h"
 
-//行走攻擊分開執行，每時隙只能執行其中一個
-class ZOMBIE:private Creature //先實現普通僵尸
+
+enum class tool_type
 {
-	bool attack_flag;
-	void attack();
-public:
-	ZOMBIE();
-	~ZOMBIE();
-
-	void move(coordinate& position);
-
-	void next(int clock,coordinate& position);
+	None,
+	Flag,
+	Barrel, Bucket,
+	Newspaper,
+	Dancer_King
 };
 
-/*
-TODO
-不同種類的僵尸
-*/
+//行走攻擊分開執行，每時隙只能執行其中一個
+class Zombie:public Creature
+{
+	int
+		SPD_,//移動速度 單位：字符寬/秒
+		DEF_;//是額外血量，也就是道具的血量
+	coordinate direction;//前進方向
+
+	tool_type tool;
+
+	void Skill();
+	void move(coordinate& position);
+public:
+	Zombie();
+	~Zombie();
+
+	void change_type(tool_type target);
+
+	//返回當前時隙僵尸的攻擊力，在map中處理被攻擊的對象
+	int next(int clock,coordinate& position, bool obstacle);
+};

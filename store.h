@@ -17,13 +17,12 @@ struct product
 class Store:public Table<product>
 {
 
-//products[store_row][store_column];//總共十二個可供購買的植物
-
+	/*
+	TODO: 像map一樣改爲 聚合table
+	*/
 	int sun;//當前玩家的陽光數
-
-	//coordinate Screen2Store(coordinate target);
-	//coordinate Screen2Store(short x,short y);
-
+	
+	product* the_chosen_one;
 	void init();
 public:
 	friend class Display;

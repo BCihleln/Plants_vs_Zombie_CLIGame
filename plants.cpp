@@ -3,7 +3,7 @@
 Plant::Plant():Creature("None"),ID_(plant_ID::None)
 {
 	cost_ = 0;
-	SPD_ = 0;
+	cool_time_ = 25;
 }
 
 Plant::~Plant()
@@ -13,6 +13,7 @@ Plant::~Plant()
 //	cout << "destruct plant " << count<< endl;
 //	count++;
 //#endif
+	//cout << this << endl;
 }
 
 void Plant::set_type(const plant_ID ID)
@@ -40,8 +41,7 @@ void Plant::set_type(const plant_ID ID)
 			return;
 		case plant_ID::Nut_Wall://ˆÔ¹û‰¦
 			this->name_ = "Nut Wall";
-			this->HP_ = 100;
-			this->DEF_ = 25;
+			this->HP_ = 200;
 			this->cost_ = 50;
 			this->cool_time_ = 25;
 			return;

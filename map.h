@@ -7,31 +7,41 @@
 #include "bullet.h"
 #include "zombie.h"
 
+//
+//struct mapCell
+//{
+//	Plant plant;
+//	BULLET* bullet;//當前單元格是否有子彈
+//};
 
-struct mapCell
+class Map
 {
-	Plant plant;
-	BULLET* bullet;//當前單元格是否有子彈
-};
+	Table<Plant> yard;//種植物的院子
 
-class Map:public Table <mapCell>
-{
 	struct zombie_on_screen
 	{
-		ZOMBIE zombie;
-		coordinate screen;
+		Zombie zombie;//用zombie基類的引用管理派生類
+		coordinate screen;//屏幕坐標
 	};
 	vector<zombie_on_screen> zombies[map_row];
 
+	struct bullet_on_screen
+	{
+		BULLET bullet;
+		coordinate screen;
+	};
+	queue<bullet_on_screen> bullets[map_row];
+
+
 	int SunFlower_amount;
 
-	//coordinate Screen2Map(coordinate target);
+	bool has_plant(int x, int y);
+
 	//TODO 處理植物、僵尸雙方攻擊
 	void compute_attack();
 	//TODO 維護僵尸、子彈移動坐標
 	void comput_move();
 	
-	//僵尸的管理 循環隊列，死掉的僵尸改名換姓后重新加入隊尾
 	void generate_zombie();
 
 	void init();
@@ -49,6 +59,13 @@ public:
 	//	}
 	//	return map[target];
 	//}//重載[]來直接取得單元格數據
+
+
+	//暫時給display類用，後面要刪除，因爲display類直接引入table的指針
+	coordinate Screen2Cell_middle(coordinate screen_position)const
+	{
+		return yard.Screen2Cell_middle(screen_position);
+	}
 
 	string PlantOnXY(const Plant* target,coordinate position);
 

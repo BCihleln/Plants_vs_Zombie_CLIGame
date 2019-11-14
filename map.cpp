@@ -1,6 +1,7 @@
 #include "map.h"
 
-Map::Map() :Table(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width })
+Map::Map() :yard(map_row, map_column, { 0,10 }, { map_cell_length,map_cell_width }),
+	SunFlower_amount(0)
 {
 	init();
 }
@@ -9,13 +10,37 @@ Map::~Map()
 {
 }
 
+bool Map::has_plant(int x, int y)
+{
+	x = x < 0 ? 0 : x;
+	y = y < 0 ? 0 : y;
+	return (yard[coordinate{ (short)x,(short)y }].ID() != plant_ID::None);
+}
+
+void Map::generate_zombie()
+{	//TODO:僵尸的管理 循環隊列，死掉的僵尸改名換姓后重新加入隊尾
+
+	short y = rand() % map_row;
+
+	Zombie tmp;
+	tmp.change_type(tool_type::None);
+	//隨機產生一隻僵尸
+	//TODO 類型隨機
+	coordinate screen = {
+		map_cell_length * map_column + rand() % 100 ,
+		y * map_cell_width + rand() % map_cell_width };
+
+	zombies[y].push_back(zombie_on_screen{ tmp,screen });
+}
+
 void Map::init()
 {
-	for (int i = 0; i < map_row; ++i)
+	Plant tmp;
+	for (short i = 0; i < map_row; ++i)
 	{
-		for (int j = 0; j < map_column; ++j)
+		for (short j = 0; j < map_column; ++j)
 		{
-			this->table[i][j] = {Plant(), nullptr };
+			yard[coordinate{ i,j }] = tmp;
 		}
 	}
 	SunFlower_amount = 0;
@@ -24,21 +49,21 @@ void Map::init()
 
 string Map::PlantOnXY(const Plant* target, coordinate position)
 {
-	select(position,true);
+	Plant* the_chosen_one = yard.select(position, true);
 	if (the_chosen_one != nullptr)//成功選擇
 	{
-		if (the_chosen_one->plant.ID() == plant_ID::None)
+		if (the_chosen_one->ID() == plant_ID::None)
 		{
-			the_chosen_one->plant = *target;//複製到地圖中
-			
-			if (the_chosen_one->plant.ID() == plant_ID::Sun_Flower)
+			*the_chosen_one = *target;//複製到地圖中
+
+			if (the_chosen_one->ID() == plant_ID::Sun_Flower)
 				SunFlower_amount++;
 
-			return the_chosen_one->plant.name();
+			return the_chosen_one->name();
 		}
 		else
 		{
-			the_chosen_one = nullptr;
+			//the_chosen_one = nullptr;
 			return string("Place already plant");
 		}
 	}
@@ -48,16 +73,28 @@ string Map::PlantOnXY(const Plant* target, coordinate position)
 
 int Map::next(clock_t game_clock)
 {
-	for(int i = 0;i<map_row;++i)
+	generate_zombie();
+	for (short i = 0; i < map_row; ++i)
 	{
-		for (int j = 0; j < zombies[i].size(); ++j)// 全體僵尸行動！
-			zombies[i][j].zombie.next(game_clock,zombies[i][j].screen);
+		for (short j = 0; j < (short)zombies[i].size(); ++j)// 全體僵尸行動！
+		{
+			//if (yard.in_table(zombies[i][j].screen) //僵尸在院子内
+			//	&& has_plant(i - 1, j))//前方有植物
+			//		obstacle = true;
+			bool obstacle = 
+				yard.in_table(zombies[i][j].screen) //僵尸在院子内
+				&& has_plant(i - 1, j);//前方有植物
 
-		for(int j = 0;j<map_column;++j)//植物組織反擊！
-			if (table[i][j].plant.ID() != plant_ID::None)
+			int damage = zombies[i][j].zombie.next(game_clock, zombies[i][j].screen, obstacle);
+			if(obstacle)
+				yard[coordinate{ i,j }].injure(damage);
+		}
+
+		for (short j = 0; j < map_column; ++j)//植物組織反擊！
+			if (has_plant(i, j))
 			{
-				table[i][j].plant.next(game_clock);
-
+				Plant& target = yard[coordinate{ i,j }];
+				target.next(game_clock);
 			}
 	}
 	return SunFlower_amount;//返回太陽花數量，用以給store增加sun數

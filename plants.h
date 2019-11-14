@@ -4,7 +4,7 @@
 #include "creature.h"
 #include "bullet.h"
 
-class Plant:private Creature //先只實現射擊型植物
+class Plant:public Creature //先只實現射擊型植物
 {
 	plant_ID ID_;
 	int cost_; // 消耗陽光數
@@ -16,6 +16,18 @@ public:
 	Plant();
 	~Plant();
 
+	//void operator=(const Plant& target)
+	//{
+	//	this->ATK_ = target.ATK_;
+	//	this->ATK_SPD_ = target.ATK_SPD_;
+	//	this->cool_time_ = target.cool_time_;
+	//	this->cost_ = target.cost_;
+	//	this->DEF_ = target.DEF_;
+	//	this->direction = target.direction;
+	//	this->ID_ = target.ID_;
+	//	this->name_ = target.name_;
+	//}
+
 	void set_type(const plant_ID ID);
 	void clean();
 	int cost()const;
@@ -26,10 +38,3 @@ public:
 
 	virtual void next(int clock);
 };
-
-/*TODO：
-實現方式：繼承？
-	BUFF型植物（eg 向日葵、大蒜
-	一次性植物（eg 櫻桃、倭瓜）
-	持續傷害（eg 地刺
-*/

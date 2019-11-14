@@ -4,7 +4,6 @@
 
 int main(void)
 {
-	//TODO ¶à¾Q³Ì
 	GAME_SYSTEM game_system;
 	//std::thread thrd(std::bind(&GAME_SYSTEM::get_input,game_system));
 	//thrd.detach();

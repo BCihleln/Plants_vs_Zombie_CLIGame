@@ -4,11 +4,9 @@ BULLET::BULLET(string name,int attack, short effect):
 	Creature(name + "'s bullet"),
 	effect(effect)
 {
+	this->HP_ = 1;
 	this->ATK_ = attack;
 	this->ATK_SPD_ = 0;
-	this->DEF_ = 0;
-	this->SPD_ = 1;
-	this->HP_ = 1;
 }
 
 BULLET::~BULLET()

@@ -1,45 +1,70 @@
 #include "zombie.h"
 
-ZOMBIE::ZOMBIE():Creature("zombie")
+Zombie::Zombie():
+	Creature("zombie"),
+	direction(coordinate{-1,0})
 {
 	this->ATK_ = 50;
 	this->ATK_SPD_ = 10;
 	this->HP_ = 100;
 	this->SPD_ = 10;
 	this->DEF_ = 0;
-	attack_flag = false;
 }
 
-ZOMBIE::~ZOMBIE()
+Zombie::~Zombie()
 {
 }
 
-void ZOMBIE::attack()
-{
-}
-
-void ZOMBIE::move(coordinate& position)
+void Zombie::move(coordinate& position)
 {	//傳入位置引用，直接修改位置
-
-	//TODO 判斷前面是否有障礙物
-	/*
-	有的話 更改attack_flag下個時隙攻擊
-	沒有的話，繼續前進
-	*/
-
-	if(attack_flag==false)
-		position = position+coordinate{-1, 0};//僵尸靠近一字符寬
-
+	position = position+coordinate{-1, 0};//僵尸靠近一字符寬
 }
-
-void ZOMBIE::next(int clock, coordinate& position)
+//返回當前時隙僵尸的攻擊力
+int Zombie::next(int clock, coordinate& position, bool obstacle)
 {
 	if (HP_ > 0)//還活著的話
 	{
-		if (attack_flag && clock % ATK_SPD_ == 0)
-			attack();
+		if (obstacle && clock % ATK_SPD_ == 0)
+			return ATK_;
 
-		if (!attack_flag && clock % SPD_ == 0)
+		if (!obstacle && clock % SPD_ == 0)
 			move(position);
 	}
+	return 0;
+}
+
+void Zombie::change_type(tool_type target)
+{
+	switch (target)
+	{
+	case tool_type::None:
+		if (tool == tool_type::Newspaper)//丟掉newspaper后，狂暴
+		{
+			ATK_ += 30;
+			ATK_SPD_ += 20;
+			SPD_ += 10;
+		}
+		name_ = "";
+		DEF_ = 0;
+		break;
+	case tool_type::Flag:
+		name_ = "Flag";
+		break;
+	case tool_type::Barrel:
+		name_ = "Barrel";
+		DEF_ = 50;
+		break;
+	case tool_type::Bucket:
+		name_ = "Bucket";
+		DEF_ = 100;
+		break;
+	case tool_type::Newspaper:
+		name_ = "Newspaper";
+		break;
+	case tool_type::Dancer_King:
+		name_ = "Dancer King";
+		break;
+	}
+	tool = target;
+	name_ += " Zombie";
 }

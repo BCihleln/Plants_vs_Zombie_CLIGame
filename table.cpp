@@ -88,15 +88,15 @@ coordinate Table<type>::Screen2Cell_middle(coordinate screen) const
 }
 
 template<typename type>
-void Table<type>::select(coordinate screen,bool strong_check) 
+type* Table<type>::select(coordinate screen,bool strong_check) 
 {
 	coordinate tmp = Screen2Table(screen, strong_check);
 	if (tmp != coordinate_out_of_border)
 	{
-		the_chosen_one = &table[tmp.Y][tmp.X];
+		return &table[tmp.Y][tmp.X];
 	}
 	else
-		the_chosen_one = nullptr;
+		return  nullptr;
 }
 
 template<typename type>
@@ -111,22 +111,22 @@ bool Table<type>::in_table(coordinate screen)
 //	return coordinate{table_length,table_width};
 //}
 
-template<typename type>
-type Table<type>::Cell(short x, short y)
-{
-	if (x > this->column || y > this->table_row ||
-		x < 0 || y < 0)
-	{
-		cout << "table visit out of range!" << endl;
-		exit(0);
-	}
-	return table[y][x];
-}
-template<typename type>
-type Table<type>::Cell(coordinate target)
-{
-	return Cell(target.X, target.Y);
-}
+//template<typename type>
+//type Table<type>::Cell(short x, short y)
+//{
+//	if (x > this->column || y > this->table_row ||
+//		x < 0 || y < 0)
+//	{
+//		cout << "table visit out of range!" << endl;
+//		exit(0);
+//	}
+//	return table[y][x];
+//}
+//template<typename type>
+//type Table<type>::Cell(coordinate target)
+//{
+//	return Cell(target.X, target.Y);
+//}
 
 //template<typename type>
 //type& Table<type>::at(short column, short row)

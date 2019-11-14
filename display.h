@@ -111,5 +111,8 @@ public:
 	void UpdateStore();
 	void UpdateSun();
 	void UpdateScore();
+	void UpdateZombie();
+	void UpdatePlant();
+	void UpdateBullet();
 	void next();
 };

@@ -285,6 +285,18 @@ void Display::UpdateScore()
 	WriteScreenBuffer(tmp, middle(tmp, { 138,4 }));
 }
 
+void Display::UpdateZombie()
+{
+	for (int i = 0; i < map_row; ++i)
+	{
+		for(int j = 0;j< map->zombies[i].size();++j)
+		{
+			coordinate zombie_position = map->zombies[i][j].screen;
+			PrintOnXY(map->zombies[i][j].zombie.name(), zombie_position);
+		}
+	}
+}
+
 void Display::next()
 {
 	//new thread
@@ -298,7 +310,6 @@ void Display::next()
 
 //void Display::next()
 //{
-//
 //		UpdateStore();
 //		UpdateSun();
 //		UpdateScore();

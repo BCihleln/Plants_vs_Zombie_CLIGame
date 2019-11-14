@@ -80,7 +80,7 @@ void GAME_SYSTEM::action()
 }
 
 GAME_SYSTEM::GAME_SYSTEM() :
-	hStdin(GetStdHandle(STD_INPUT_HANDLE)),
+	hStdin(GetStdHandle(STD_INPUT_HANDLE)),	// 获取标准输入输出设备句柄
 	score(0), 
 	game_clock(0),
 	mode(player_mode::normal),
@@ -89,8 +89,7 @@ GAME_SYSTEM::GAME_SYSTEM() :
 	selected(false), selected_plant(nullptr),
 	display(map, store,&score)
 {
-	// 获取标准输入输出设备句柄
-	//HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+	srand((unsigned)time(NULL));//隨機數初始化
 
 	//貌似沒什麽用處……
 	HWND hwnd = GetForegroundWindow();
