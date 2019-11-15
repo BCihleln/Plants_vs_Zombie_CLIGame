@@ -27,12 +27,12 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate s
 			getchar();
 			exit(0);
 		}
-		strcpy(tmp_line, SCREEN_BUFFER[i]);
-		file.getline(&SCREEN_BUFFER[i][start_position.X], SCREEN_LENGTH);
+		strcpy(tmp_line, MapLayer[i]);
+		file.getline(&MapLayer[i][start_position.X], SCREEN_LENGTH);
 
 		for (int j = 0; j < SCREEN_LENGTH; ++j)//替換掉getline過程中添加的\0
-			if (SCREEN_BUFFER[i][j] == '\0')
-				SCREEN_BUFFER[i][j] = tmp_line[j];
+			if (MapLayer[i][j] == '\0')
+				MapLayer[i][j] = tmp_line[j];
 
 		//cout << SCREEN_BUFFER[position_y];
 		i++;//下一行
@@ -48,22 +48,28 @@ void Display::RefreshStdOut()
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
-		cout << SCREEN_BUFFER[i];//因爲是直接打印整個屏幕長度，不需要手動換行
+		cout << Zombie_BulletLayer[i];//因爲是直接打印整個屏幕長度，不需要手動換行
 	}
 	//mutex.unlock();
 }
-
-void Display::RefreshConsoleScreenBuffer()
+inline void Display::RefreshLayer()
 {
-	SetConsoleCursorPosition(ConsoleScreenBuffer, { 0,0 });
-	coordinate tmp = { 0,0 };
-	DWORD tmp2=0;
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
-	{//因爲是直接打印整個屏幕長度，不需要手動換行
-		tmp.Y = i;
-		WriteConsoleOutputCharacterA(ConsoleScreenBuffer, SCREEN_BUFFER[i], SCREEN_LENGTH, tmp, &tmp2);
+	{
+		strcpy(Zombie_BulletLayer[i],MapLayer[i]);
 	}
 }
+
+//void Display::RefreshConsoleScreenBuffer()
+//{
+//	coordinate tmp = { 0,0 };
+//	DWORD tmp2=0;
+//	for (int i = 0; i <= SCREEN_WIDTH; ++i)
+//	{//因爲是直接打印整個屏幕長度，不需要手動換行
+//		tmp.Y = i;
+//		WriteConsoleOutputCharacterA(ConsoleScreenBuffer, SCREEN_BUFFER[i], SCREEN_LENGTH, tmp, &tmp2);
+//	}
+//}
 
 //void Display::CleanMapCell(coordinate target_Cell)
 //{
@@ -79,16 +85,17 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 	map(&target_map),
 	store(&target_store),
 	score(score),
-	continue_flag(true)
+	continue_flag(true),
+	MouseDisplay("+")
 {
 	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//獲得標準輸出句柄
-	ConsoleScreenBuffer = CreateConsoleScreenBuffer(
-		GENERIC_WRITE,//定義進程可以往緩衝區寫數據
-		FILE_SHARE_WRITE,//定義緩衝區可共享寫權限
-		NULL,
-		CONSOLE_TEXTMODE_BUFFER,
-		NULL
-	);
+	//ConsoleScreenBuffer = CreateConsoleScreenBuffer(
+	//	GENERIC_WRITE,//定義進程可以往緩衝區寫數據
+	//	FILE_SHARE_WRITE,//定義緩衝區可共享寫權限
+	//	NULL,
+	//	CONSOLE_TEXTMODE_BUFFER,
+	//	NULL
+	//);
 
 	//獲取標準輸出后才能設置窗口，順序不可顛倒
 	window_init();
@@ -105,13 +112,13 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 	ReadStoreInfo();
 
 	RefreshStdOut();
-	RefreshConsoleScreenBuffer();
+	RefreshLayer();
+	//RefreshConsoleScreenBuffer();
 	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
 	//CleanMapCell(5, 6);
 	//RefreshStdOut();
 
-
-	//開印個新的更新屏幕綫程
+	//更新屏幕綫程
 	std::thread display_next(std::bind(&Display::next, this));//綫程綁定時傳入的是目標函數與該函數對象的地址
 	
 /*
@@ -122,12 +129,19 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 
 Display::~Display()
 {
-	mutex.lock();//防止在其他綫程鎖住時析構對象
+	continue_flag = false;
+	mutex.lock();//等待其他綫程運作結束才析構對象
+
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
-		delete[] SCREEN_BUFFER[i];
-	delete SCREEN_BUFFER;
+	{
+		delete[] MapLayer[i];
+		delete[] Zombie_BulletLayer[i];
+	}
+	delete[] MapLayer;
+	delete[] Zombie_BulletLayer;
 	CloseHandle(this->hStdOut);   // 关闭标准输入设备句柄
 	ShowCursor();
+
 	mutex.unlock();
 }
 
@@ -145,28 +159,37 @@ coordinate Display::middle(const string& target, coordinate left_side)
 }
 
 
-void Display::PrintOnMouse(const string& target)
+void Display::PrintOnMouse()
 {
 	mutex.lock();
+	//SetConsoleActiveScreenBuffer(ConsoleScreenBuffer);
+
 	RefreshStdOut();//清掉之前打印的鼠標打印的東西
+	//string eraser(target.length(),' ');
+	//if(last_MouseCursor_Y!=MouseCursor.Y)
+		//PrintOnXY(eraser, middle(eraser, coordinate{ MouseCursor.X, last_MouseCursor_Y }));
 
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
-	PrintOnXY(target, middle(target,MouseCursor));
+	PrintOnXY(MouseDisplay, middle(MouseDisplay,MouseCursor));
+
+
 	mutex.unlock();
-}
-void Display::PrintOnXY(const  string& target, short x, short y)
-{
-	//mutex.lock();
-	coordinate tmp = { x,y };
-	SetConsoleCursorPosition(hStdOut, tmp);
-	cout << target;
-	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
-	//SetConsoleCursorPosition(hStdOut, coordinate{ 0,0 });//維護屏幕指針
-	//mutex.unlock();
 }
 void Display::PrintOnXY(const string& target, coordinate position)
 {
-	PrintOnXY(target, position.X, position.Y);
+	if (position < coordinate{ 0,0 } || position > SCREEN_SIZE)//超界檢查
+		return;
+	//SetConsoleActiveScreenBuffer(ConsoleScreenBuffer);
+
+	//mutex.lock();
+	SetConsoleCursorPosition(hStdOut, coordinate{ 0,position.Y });//清理一行
+	cout << MapLayer[position.Y];
+
+	SetConsoleCursorPosition(hStdOut, position);
+	cout << target;
+	SetConsoleActiveScreenBuffer(hStdOut);
+
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
 }
 void Display::PrintOnXY(const  coordinate& target, short x, short y)
 {
@@ -174,7 +197,7 @@ void Display::PrintOnXY(const  coordinate& target, short x, short y)
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
 	cout << target;
-	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
+	//SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
 	//SetConsoleCursorPosition(hStdOut, coordinate{ 0,0 });
 	//mutex.unlock();
 }
@@ -182,7 +205,6 @@ void Display::PrintOnXY(const coordinate& target, coordinate position)
 {
 	PrintOnXY(target, position.X, position.Y);
 }
-
 
 void Display::ReadStoreInfo()
 {
@@ -195,10 +217,10 @@ void Display::ReadStoreInfo()
 			if(product_name != "None")
 			{
 				coordinate position = middle(product_name, store->Table2Screen({ j,i })) ;
-				WriteScreenBuffer(product_name.c_str(), position- coordinate{ 0,2 });
+				WriteScreenBuffer(MapLayer,product_name.c_str(), position- coordinate{ 0,2 },false);
 				char tmp[15];
 				sprintf(tmp, "cost : %d", target.plant.cost());
-				WriteScreenBuffer(tmp, position - coordinate{ 0,1 });
+				WriteScreenBuffer(MapLayer,tmp, position - coordinate{ 0,1 },false );
 			}
 		}
 }
@@ -232,20 +254,28 @@ void Display::window_init()
 
 void Display::screen_buffer_init()
 {
-	SCREEN_BUFFER = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
+	MapLayer = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
+	Zombie_BulletLayer = new char* [SCREEN_WIDTH + 1];
 	for (int i = 0; i < SCREEN_WIDTH+1; ++i)
 	{
-		SCREEN_BUFFER[i] = new char[SCREEN_LENGTH+1];
-		SCREEN_BUFFER[i][SCREEN_LENGTH] = '\0';
+		MapLayer[i] = new char[SCREEN_LENGTH+1];
+		MapLayer[i][SCREEN_LENGTH] = '\0';
+
+		Zombie_BulletLayer[i] = new char[SCREEN_LENGTH + 1];
+		Zombie_BulletLayer[i][SCREEN_LENGTH] = '\0';
 		for (int j = 0; j < SCREEN_LENGTH; ++j)
-			SCREEN_BUFFER[i][j] = ' ';
+		{
+			MapLayer[i][j] = ' ';
+			Zombie_BulletLayer[i][j] = ' ';
+		}
 	}
-	SCREEN_BUFFER[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
+	MapLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
+	Zombie_BulletLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
 }
-void Display::WriteScreenBuffer(const char* target, coordinate position)
+void Display::WriteScreenBuffer(char* ScreenBuffer[],const char* target, coordinate position, bool middle_flag)
 {
-	//if (continue_flag != true)
-	//	return;
+	if (middle_flag)
+		position = middle(target, position);
 	int length = strlen(target);
 	if (position > SCREEN_SIZE || position < coordinate{0, 0})//邊界檢查
 	{
@@ -255,7 +285,7 @@ void Display::WriteScreenBuffer(const char* target, coordinate position)
 		exit(0);
 	}
 	for (int i = 0; i < length && i+position.X < SCREEN_LENGTH-1; ++i)//終止條件包含橫坐標邊界檢查
-		this->SCREEN_BUFFER[position.Y][i+position.X] = target[i];
+		ScreenBuffer[position.Y][i+position.X] = target[i];
 }
 
 void Display::SetScreenCursor(short x, short y)
@@ -292,13 +322,15 @@ void Display::ShowCursor()
 //只有植物種植成功才調用
 void Display::NewPlant(coordinate screen_position, const string& name)
 {
-	WriteScreenBuffer(name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
+	//WriteScreenBuffer(Zombie_BulletLayer,name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
+	WriteScreenBuffer(Zombie_BulletLayer,name.c_str(), map->Screen2Cell_middle(screen_position),true);
 }
 
 void Display::UpdateStore()
 {
 	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
 		return;
+
 	for (short i = 0; i < store_row; ++i)
 		for (short j = 0; j < store_column; ++j)
 		{
@@ -308,51 +340,64 @@ void Display::UpdateStore()
 			char tmp[10];
 			float percentage = (float)product_lefttime / (float)target.plant.cool_time() * (float)100;
 			sprintf(tmp, "(%d%%)", 100-(int)percentage);
-			coordinate position = middle(tmp, store->Table2Screen({ j,i }) + coordinate{ 0,1 });
-			WriteScreenBuffer("           ", middle("           ", position));
+			coordinate position = store->Table2Screen({ j,i }) + coordinate{ 0,1 };
+			WriteScreenBuffer(Zombie_BulletLayer,"           ", position,true);//清空要打印的位置
 			if (product_lefttime > 0)
 			{
-				WriteScreenBuffer(tmp, position);
+				WriteScreenBuffer(Zombie_BulletLayer,tmp, position,true);
 			}
 		}
 }
-
 void Display::UpdateSun()
 {
 	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
 		return;
+
 	char tmp[10];
 	sprintf(tmp, "%d", store->sun);
-	WriteScreenBuffer("              ", middle("              ", { 9,5 }));
-	WriteScreenBuffer(tmp, middle(tmp, { 9,5 }));
+	WriteScreenBuffer(Zombie_BulletLayer,"              ", { 9,5 },true);
+	WriteScreenBuffer(Zombie_BulletLayer,tmp, { 9,5 },true);
 }
-
 void Display::UpdateScore()
 {
 	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
 		return;
+
 	char tmp[10];
 	sprintf(tmp, "%d", *score);
-	WriteScreenBuffer(tmp, middle(tmp, { 138,4 }));
+	WriteScreenBuffer(Zombie_BulletLayer,tmp, { 138,4 },true);
 }
-
 void Display::UpdateZombie()
 {
 	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
 		return;
-	mutex.lock();
+
+	//mutex.lock();
 	for (int i = 0; i < map_row; ++i)
 	{
 		for(int j = 0;j< map->zombies[i].size();++j)
 		{
-			const coordinate zombie_position = map->zombies[i][j].screen;
+			const Zombie& z = map->zombies[i][j].zombie;
+			const coordinate& zombie_position = map->zombies[i][j].screen;
 			if(zombie_position < SCREEN_SIZE )
 			{
-				PrintOnXY(map->zombies[i][j].zombie.name(), zombie_position);
+				//PrintOnXY(map->zombies[i][j].zombie.name(), zombie_position);
+				//TODO 更新移動問題-> 圖層：底層（地圖圖層）、僵尸圖層、植物圖層、子彈圖層
+				//string tmp = z.name();
+				//if (short t = zombie_position.X + tmp.length() + 1 < SCREEN_LENGTH)
+				//	tmp += string(1,MapLayer[zombie_position.Y][t]);
+				////緩兵之計，所有僵尸移動後面會變成空白條
+				WriteScreenBuffer(Zombie_BulletLayer, &MapLayer[zombie_position.Y][zombie_position.X], zombie_position,false);//清空一行
+				WriteScreenBuffer(Zombie_BulletLayer,z.name().c_str(), zombie_position,false);
 			}
 		}
 	}
-	mutex.unlock();
+	//mutex.unlock();
+}
+void Display::UpdateBullet()
+{
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
 }
 
 void Display::next()
@@ -360,10 +405,14 @@ void Display::next()
 	//new thread
 	while(continue_flag)
 	{
+		PrintOnMouse();
+
+		UpdateBullet();
 		UpdateZombie();
 		UpdateSun();
 		UpdateStore();
 		UpdateScore();
+
 	}
 }
 

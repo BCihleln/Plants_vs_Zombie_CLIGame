@@ -40,7 +40,6 @@ class Display
 
 	CONSOLE_CURSOR_INFO default_cursor;
 	HANDLE hStdOut;//標準輸出句柄
-	HANDLE ConsoleScreenBuffer;//輸出緩衝
 
 	std::mutex mutex;
 	const Map* map;
@@ -52,14 +51,18 @@ class Display
 	coordinate SCREEN_SIZE;//單位：字符單元格
 #define SCREEN_LENGTH SCREEN_SIZE.X
 #define SCREEN_WIDTH SCREEN_SIZE.Y
-	char** SCREEN_BUFFER;//屏幕緩衝，打印時可以保存之前屏幕的信息
+
+
+	char** MapLayer;//屏幕緩衝，打印時可以保存之前屏幕的信息
+	char** Zombie_BulletLayer;
 	inline void ReadDataFileToScreenBuff(const char* filepath,coordinate start_position);
 	void ReadStoreInfo();
 	void screen_buffer_init();
-	void WriteScreenBuffer(const char* target, coordinate position);
+	void WriteScreenBuffer(char* ScreenBuffer[],const char* target, coordinate position,bool middle_flag);
 	//void CleanMapCell(coordinate target_Cell);
 	void RefreshStdOut();
-	void RefreshConsoleScreenBuffer();
+	void RefreshLayer();
+	//void RefreshConsoleScreenBuffer();
 
 	void HideCursor();//隐藏控制台的光标 
 	void SetScreenCursor(coordinate target);
@@ -80,26 +83,21 @@ class Display
 
 	//void PrintLine();
 	//void PrintLine(const string& target);
-	void PrintOnXY(const string& target, short x, short y) ;
+	void PrintOnMouse();
 	void PrintOnXY(const string& target, coordinate position);
 	void PrintOnXY(const coordinate& target, short x, short y);
 	void PrintOnXY(const coordinate& target, coordinate position);
 	//傳入最左側的起始位置，返回居中后的坐標
 	coordinate middle(const string& target, coordinate left_side);
-
-	//coordinate Map2Screen(short x, short y);//地圖坐標轉屏幕坐標
-	//coordinate Map2Screen(coordinate position);
-	//coordinate Store2Screen(short x, short y);
-
+	
 public:
+	string MouseDisplay;
 	Display(const Map& target_map, const Store& target_store, int* score);
 	~Display();
 
 	void SetMousePosition(coordinate target);
 	void ShowCursor();
-
-	void PrintOnMouse(const string& target);
-
+	
 	void NewPlant(coordinate screen_position,const string& name);
 	
 	void Info();
@@ -122,7 +120,6 @@ public:
 	void UpdateSun();
 	void UpdateScore();
 	void UpdateZombie();
-	void UpdatePlant();
 	void UpdateBullet();
 	void next();
 };

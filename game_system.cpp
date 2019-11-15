@@ -21,12 +21,12 @@ void GAME_SYSTEM::action()
 		{
 			//cout << "mode : player_mode::selected" << endl;
 			
-			display.PrintOnMouse(selected_plant->name());
+			display.MouseDisplay = selected_plant->name();
 		}
-		else//menu
+		else
 		{
 			//cout << "mode : player_mode::normal_play" << endl;
-			display.PrintOnMouse("+");
+			display.MouseDisplay = "+";
 		}
 
 	break;
@@ -35,15 +35,18 @@ void GAME_SYSTEM::action()
 	{
 		if (mode == player_mode::normal)
 		{
-			display.PrintOnMouse("+");
+			display.MouseDisplay = "+";
 		}
 		else if (mode == player_mode::store_selecting)
 		{
 			selected_plant = store.SelectProducts(mouse_position);
 			if (selected_plant && selected_plant->ID()!=plant_ID::None)//有選到商品，非空指針
+			{
 				selected = true;
-			else
-				display.PrintOnMouse("+");
+				display.MouseDisplay = selected_plant->name();
+			}
+			//else
+			//	display.MouseDisplay = "+";
 		}
 		else//map_selecting
 		{
@@ -60,7 +63,7 @@ void GAME_SYSTEM::action()
 			}
 			else
 			{
-				display.PrintOnMouse(Plant_State);
+				display.MouseDisplay = Plant_State;
 			}
 		}
 		break;
@@ -156,7 +159,7 @@ int GAME_SYSTEM::get_input()
 			{
 			case 0:
 			{
-				display.PrintOnMouse("Capture mouse Mode End!");
+				display.MouseDisplay="Capture mouse Mode End!";
 				display.ShowCursor();
 				display.continue_flag = continued_flag = false;
 			}
@@ -206,29 +209,29 @@ char GAME_SYSTEM::interpret_key(DWORD target)
 	switch (target)
 	{
 	case 0x11/*w*/:case 0x48://方向鍵上 (int)72
-		display.PrintOnMouse("↑");
+		display.MouseDisplay = "↑";
 		return 'w';
 		break;
 	case 0x1e/*a*/:case 0x4b://方向鍵左 (int)75 
-		display.PrintOnMouse("←");
+		display.MouseDisplay = "←";
 		return 'a';
 		break;
 	case 0x1f/*s*/:case 0x50://方向鍵下
-		display.PrintOnMouse("↓");
+		display.MouseDisplay = "↓";
 		return  's';
 		break;
 	case 0x20/*d*/:case 0x4d://方向鍵右
-		display.PrintOnMouse("→");
+		display.MouseDisplay = "→";
 		return 'd';
 		break;
 	case 0x01: //Esc
-		display.PrintOnMouse("Esc");
+		display.MouseDisplay = "Esc";
 		return '\0';
 	case 0x12: //e
-		display.PrintOnMouse("e");
+		display.MouseDisplay = "e";
 		return 'e';
 	default:
-		display.PrintOnMouse("Undefine key");
+		display.MouseDisplay = "Undefine key";
 		return MAXCHAR;
 	}
 	return 0;

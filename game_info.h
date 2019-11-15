@@ -26,4 +26,4 @@ enum class plant_ID
 #define map_file "map.txt"
 #define info_file "info.txt"
 
-#define game_speed 1
+constexpr auto game_speed = 9;

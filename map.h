@@ -38,10 +38,9 @@ class Map
 	//x : row_index, y : column_index
 	bool has_plant(int x, int y);
 
-	//TODO 處理植物、僵尸雙方攻擊
-	void compute_attack();
-	//TODO 維護僵尸、子彈移動坐標
-	void comput_move();
+	//void compute_attack();
+
+	//void comput_move();
 	
 	void generate_zombie();
 
