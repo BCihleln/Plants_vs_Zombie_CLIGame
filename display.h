@@ -4,6 +4,11 @@
 #include "map.h"
 #include "store.h"
 
+#include <thread>
+#include <mutex>
+#include <functional>
+	//bind 綁定器
+
 /*
 完成功能
 	窗口設定
@@ -16,6 +21,8 @@
 
 class Display
 {
+
+
 	enum color_type {//foreground color
 		black, blue,
 		green, lakeblue,
@@ -33,7 +40,9 @@ class Display
 
 	CONSOLE_CURSOR_INFO default_cursor;
 	HANDLE hStdOut;//標準輸出句柄
+	HANDLE ConsoleScreenBuffer;//輸出緩衝
 
+	std::mutex mutex;
 	const Map* map;
 	const Store* store;
 	const int* score;
@@ -49,7 +58,8 @@ class Display
 	void screen_buffer_init();
 	void WriteScreenBuffer(const char* target, coordinate position);
 	//void CleanMapCell(coordinate target_Cell);
-	void RefreshStdOut()const;
+	void RefreshStdOut();
+	void RefreshConsoleScreenBuffer();
 
 	void HideCursor();//隐藏控制台的光标 
 	void SetScreenCursor(coordinate target);
@@ -107,7 +117,7 @@ public:
 
 	void GameOver();
 
-
+	bool continue_flag;
 	void UpdateStore();
 	void UpdateSun();
 	void UpdateScore();

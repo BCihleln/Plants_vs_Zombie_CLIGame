@@ -76,12 +76,12 @@ void GAME_SYSTEM::action()
 		break;
 	}
 	}
-
 }
 
 GAME_SYSTEM::GAME_SYSTEM() :
 	hStdin(GetStdHandle(STD_INPUT_HANDLE)),	// 获取标准输入输出设备句柄
-	score(0), 
+	score(0),
+	continued_flag(true),
 	game_clock(0),
 	mode(player_mode::normal),
 	mouse(signal::move), mouse_position({ 0,0 }),
@@ -104,11 +104,6 @@ GAME_SYSTEM::GAME_SYSTEM() :
 
 	std::thread deal_input(std::bind(&GAME_SYSTEM::get_input,this));//開新綫程
 	deal_input.detach();
-	std::thread deal_display(std::bind(&Display::next, &display));//綁定時記得傳入對象的地址
-	/*
-	之前出的bug就是忘記加取地址符，導致編譯器重新創建了一個Display的對象A，并把game_system中的display對象複製過去，然而display的SCREEN_BUFFER是主動申請的空間，A的SCREEN_BUFFER未經過初始化，指向了不該訪問的位置，導致錯誤
-	*/
-	deal_display.detach();
 
 	//CloseHandle(hStdin);  // 关闭标准输出设备句柄
 }
@@ -133,7 +128,8 @@ int GAME_SYSTEM::get_input()
 		INPUT_RECORD	InputRecord;//Input Buffer	
 		DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
 
-	while (true)
+	//New Thread
+	while (continued_flag)
 	{
 		ReadConsoleInput(hStdin, &InputRecord, 1, &res);//阻塞捕獲信號
 		//PeekConsoleInput(hStdin, &InputRecord, 1, &res);
@@ -162,8 +158,7 @@ int GAME_SYSTEM::get_input()
 			{
 				display.PrintOnMouse("Capture mouse Mode End!");
 				display.ShowCursor();
-				//return 0;
-				exit(0);
+				display.continue_flag = continued_flag = false;
 			}
 			default:
 				break;
@@ -173,10 +168,10 @@ int GAME_SYSTEM::get_input()
 		//FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));//清掉之前的輸入緩衝信息
 	}
 	//should never be reach
-	return 1;
+	return 0;
 }
 
-void GAME_SYSTEM::next()
+bool GAME_SYSTEM::next()
 {
 	action();
 	static clock_t clock_start = clock();
@@ -188,9 +183,14 @@ void GAME_SYSTEM::next()
 		clock_start = clock();
 
 		int SunFlower_amount = map.next(game_clock);
+		if (SunFlower_amount == MAXINT)//僵尸抵達地圖最左側
+		{
+			display.continue_flag = continued_flag = false;//游戲結束
+		}
 		store.next(game_clock, SunFlower_amount);
 	}
 	//display.next();
+	return continued_flag;
 }
 
 
@@ -251,7 +251,6 @@ void GAME_SYSTEM::interpret_mouse(DWORD target)
 	}
 }
 
-//傳入position 用以判斷鼠標所在區域（商店區、地圖區、其他）
 void GAME_SYSTEM::mode_change()
 {
 	//TODO 鍵盤狀況加入

@@ -34,6 +34,7 @@ class GAME_SYSTEM
 	Display display;
 
 	int score;
+	bool continued_flag;
 
 	//返回值0 代表退出
 	char interpret_key(DWORD target);
@@ -59,5 +60,5 @@ public:
 
 	//獲取輸入信號 鼠標+鍵盤
 	int get_input();
-	void next();
+	bool next();
 };

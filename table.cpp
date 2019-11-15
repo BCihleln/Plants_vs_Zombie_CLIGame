@@ -41,6 +41,8 @@ bool Table<type>::check_border(coordinate& screen, bool strong_check) const
 	return false;//非界内，界外
 }
 
+
+//return {table_column_index, table_row_index}
 template <typename type>
 coordinate Table<type>::Screen2Table(coordinate screen_coordinate, bool strong_check)const
 {

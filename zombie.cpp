@@ -1,7 +1,7 @@
 #include "zombie.h"
 
 Zombie::Zombie():
-	Creature("zombie"),
+	Creature("Zombie"),
 	direction(coordinate{-1,0})
 {
 	this->ATK_ = 50;
@@ -44,7 +44,6 @@ void Zombie::change_type(tool_type target)
 			ATK_SPD_ += 20;
 			SPD_ += 10;
 		}
-		name_ = "";
 		DEF_ = 0;
 		break;
 	case tool_type::Flag:

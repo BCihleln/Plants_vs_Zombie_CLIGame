@@ -7,6 +7,7 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate s
 	char* tmp_line = new char[SCREEN_LENGTH+1];
 	if (!file.is_open())
 	{
+		system("cls");
 		color(red);
 		cout << filepath << "open failed" << endl;
 		getchar();
@@ -18,6 +19,7 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate s
 	{
 		if (i > SCREEN_WIDTH)
 		{
+			system("cls");
 			color(red);
 			cout << __FUNCTION__ << endl<< 
 				"Write Screen Buffer out of range"<< endl 
@@ -39,13 +41,27 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate s
 	delete[] tmp_line;//釋放暫時申請的内存
 }
 
-void Display::RefreshStdOut()const
+void Display::RefreshStdOut()
 {
+	//mutex.lock();
 	 SetConsoleCursorPosition(hStdOut, { 0,0 });
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
 		cout << SCREEN_BUFFER[i];//因爲是直接打印整個屏幕長度，不需要手動換行
+	}
+	//mutex.unlock();
+}
+
+void Display::RefreshConsoleScreenBuffer()
+{
+	SetConsoleCursorPosition(ConsoleScreenBuffer, { 0,0 });
+	coordinate tmp = { 0,0 };
+	DWORD tmp2=0;
+	for (int i = 0; i <= SCREEN_WIDTH; ++i)
+	{//因爲是直接打印整個屏幕長度，不需要手動換行
+		tmp.Y = i;
+		WriteConsoleOutputCharacterA(ConsoleScreenBuffer, SCREEN_BUFFER[i], SCREEN_LENGTH, tmp, &tmp2);
 	}
 }
 
@@ -60,11 +76,21 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 	SCREEN_SIZE({0,0}),
 	ScreenCursor({0,0}),
 	MouseCursor({0,0}),
-	map(&target_map),store(&target_store),
-	score(score)
+	map(&target_map),
+	store(&target_store),
+	score(score),
+	continue_flag(true)
 {
 	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//獲得標準輸出句柄
-	
+	ConsoleScreenBuffer = CreateConsoleScreenBuffer(
+		GENERIC_WRITE,//定義進程可以往緩衝區寫數據
+		FILE_SHARE_WRITE,//定義緩衝區可共享寫權限
+		NULL,
+		CONSOLE_TEXTMODE_BUFFER,
+		NULL
+	);
+
+	//獲取標準輸出后才能設置窗口，順序不可顛倒
 	window_init();
 
 	GetConsoleCursorInfo(hStdOut, &this->default_cursor);// 保存初始光標信息，便於恢復
@@ -79,18 +105,30 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 	ReadStoreInfo();
 
 	RefreshStdOut();
+	RefreshConsoleScreenBuffer();
 	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
 	//CleanMapCell(5, 6);
 	//RefreshStdOut();
+
+
+	//開印個新的更新屏幕綫程
+	std::thread display_next(std::bind(&Display::next, this));//綫程綁定時傳入的是目標函數與該函數對象的地址
+	
+/*
+之前在game_system中的bug就是忘記加取地址符，導致編譯器重新創建了一個Display的對象A，并把game_system中的display對象複製過去，然而display的SCREEN_BUFFER是主動申請的空間，A的SCREEN_BUFFER未經過初始化，指向了不該訪問的位置，導致錯誤
+*/
+	display_next.detach();
 }
 
 Display::~Display()
 {
+	mutex.lock();//防止在其他綫程鎖住時析構對象
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
 		delete[] SCREEN_BUFFER[i];
 	delete SCREEN_BUFFER;
 	CloseHandle(this->hStdOut);   // 关闭标准输入设备句柄
 	ShowCursor();
+	mutex.unlock();
 }
 
 //傳入最左側的起始位置(屏幕)，返回居中后的坐標
@@ -109,21 +147,22 @@ coordinate Display::middle(const string& target, coordinate left_side)
 
 void Display::PrintOnMouse(const string& target)
 {
+	mutex.lock();
 	RefreshStdOut();//清掉之前打印的鼠標打印的東西
-	//TODO 優化鼠標打印效率
-	//SetScreenCursor(0, last_MouseCursor_Y);
-	//cout << SCREEN_BUFFER[last_MouseCursor_Y];
-	//SetScreenCursor(0, 0);
 
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
 	PrintOnXY(target, middle(target,MouseCursor));
+	mutex.unlock();
 }
 void Display::PrintOnXY(const  string& target, short x, short y)
 {
+	//mutex.lock();
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
 	cout << target;
 	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
+	//SetConsoleCursorPosition(hStdOut, coordinate{ 0,0 });//維護屏幕指針
+	//mutex.unlock();
 }
 void Display::PrintOnXY(const string& target, coordinate position)
 {
@@ -131,10 +170,13 @@ void Display::PrintOnXY(const string& target, coordinate position)
 }
 void Display::PrintOnXY(const  coordinate& target, short x, short y)
 {
+	//mutex.lock();
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
 	cout << target;
-	SetConsoleCursorPosition(hStdOut, ScreenCursor);
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
+	//SetConsoleCursorPosition(hStdOut, coordinate{ 0,0 });
+	//mutex.unlock();
 }
 void Display::PrintOnXY(const coordinate& target, coordinate position)
 {
@@ -202,11 +244,13 @@ void Display::screen_buffer_init()
 }
 void Display::WriteScreenBuffer(const char* target, coordinate position)
 {
+	//if (continue_flag != true)
+	//	return;
 	int length = strlen(target);
-	if (position.Y > SCREEN_WIDTH)//縱坐標邊界檢查
+	if (position > SCREEN_SIZE || position < coordinate{0, 0})//邊界檢查
 	{
 		color(red);
-		cout << __FUNCTION__ << "Out of range" << endl;
+		cout << __FUNCTION__ << " Out of range" << endl;
 		cout << position;
 		exit(0);
 	}
@@ -237,6 +281,7 @@ void Display::HideCursor()
 {
 	CONSOLE_CURSOR_INFO hide_cursor = { 1, 0 };
 	SetConsoleCursorInfo(hStdOut, &hide_cursor);
+	SetConsoleCursorInfo(ConsoleScreenBuffer, &hide_cursor);
 }
 void Display::ShowCursor()
 {
@@ -252,6 +297,8 @@ void Display::NewPlant(coordinate screen_position, const string& name)
 
 void Display::UpdateStore()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
 	for (short i = 0; i < store_row; ++i)
 		for (short j = 0; j < store_column; ++j)
 		{
@@ -272,6 +319,8 @@ void Display::UpdateStore()
 
 void Display::UpdateSun()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
 	char tmp[10];
 	sprintf(tmp, "%d", store->sun);
 	WriteScreenBuffer("              ", middle("              ", { 9,5 }));
@@ -280,6 +329,8 @@ void Display::UpdateSun()
 
 void Display::UpdateScore()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
 	char tmp[10];
 	sprintf(tmp, "%d", *score);
 	WriteScreenBuffer(tmp, middle(tmp, { 138,4 }));
@@ -287,23 +338,31 @@ void Display::UpdateScore()
 
 void Display::UpdateZombie()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+	mutex.lock();
 	for (int i = 0; i < map_row; ++i)
 	{
 		for(int j = 0;j< map->zombies[i].size();++j)
 		{
-			coordinate zombie_position = map->zombies[i][j].screen;
-			PrintOnXY(map->zombies[i][j].zombie.name(), zombie_position);
+			const coordinate zombie_position = map->zombies[i][j].screen;
+			if(zombie_position < SCREEN_SIZE )
+			{
+				PrintOnXY(map->zombies[i][j].zombie.name(), zombie_position);
+			}
 		}
 	}
+	mutex.unlock();
 }
 
 void Display::next()
 {
 	//new thread
-	while(true)
+	while(continue_flag)
 	{
-		UpdateStore();
+		UpdateZombie();
 		UpdateSun();
+		UpdateStore();
 		UpdateScore();
 	}
 }

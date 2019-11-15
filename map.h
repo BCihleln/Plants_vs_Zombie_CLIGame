@@ -35,6 +35,7 @@ class Map
 
 	int SunFlower_amount;
 
+	//x : row_index, y : column_index
 	bool has_plant(int x, int y);
 
 	//TODO ÌÀíÖ²Îï¡¢½©Ê¬ëp·½¹¥“ô
