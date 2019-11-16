@@ -43,7 +43,7 @@ class GAME_SYSTEM
 
 
 //根據玩家所處的模式 
-	enum class player_mode { normal, store_selecting,map_selecting } mode;
+	enum class player_mode { normal, pause,store_selecting,map_selecting } mode;
 	enum class signal {move,left_click,right_click} mouse;
 	char key_stroke;
 	coordinate mouse_position;

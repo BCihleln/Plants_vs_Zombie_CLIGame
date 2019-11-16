@@ -170,8 +170,9 @@ void Display::PrintOnMouse()
 		//PrintOnXY(eraser, middle(eraser, coordinate{ MouseCursor.X, last_MouseCursor_Y }));
 
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
-	PrintOnXY(MouseDisplay, middle(MouseDisplay,MouseCursor));
-
+	SetConsoleCursorPosition(hStdOut, middle(MouseDisplay, MouseCursor));
+	cout << MouseDisplay;
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);
 
 	mutex.unlock();
 }
@@ -187,7 +188,6 @@ void Display::PrintOnXY(const string& target, coordinate position)
 
 	SetConsoleCursorPosition(hStdOut, position);
 	cout << target;
-	SetConsoleActiveScreenBuffer(hStdOut);
 
 	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
 }
@@ -311,7 +311,6 @@ void Display::HideCursor()
 {
 	CONSOLE_CURSOR_INFO hide_cursor = { 1, 0 };
 	SetConsoleCursorInfo(hStdOut, &hide_cursor);
-	SetConsoleCursorInfo(ConsoleScreenBuffer, &hide_cursor);
 }
 void Display::ShowCursor()
 {

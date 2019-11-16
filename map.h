@@ -2,7 +2,7 @@
 
 #include "basic.h"
 #include "table.cpp"
-	//需要找到基類函數的定義，故包含cpp
+//	//需要找到模板化基類成員函數的定義，故包含cpp
 #include "plants.h"
 #include "bullet.h"
 #include "zombie.h"

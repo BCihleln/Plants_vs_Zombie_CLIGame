@@ -16,7 +16,10 @@ int main(void)
 		//if (code == 0)
 		//	break;
 	}
+	system("cls");
 	cout << "Game Over!" << endl;
+	cout << "Press [ Enter ] to continue..." << endl;
+	getchar();
 
 
 	return 0;

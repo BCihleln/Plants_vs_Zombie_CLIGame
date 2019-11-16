@@ -1,6 +1,7 @@
 #pragma once
 #include "basic.h"
 #include "table.cpp"
+//	//需要找到模板化基類成員函數的定義，故包含cpp
 #include "plants.h"
 
 #define store_row 1

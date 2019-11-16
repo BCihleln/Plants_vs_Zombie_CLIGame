@@ -159,9 +159,10 @@ int GAME_SYSTEM::get_input()
 			{
 			case 0:
 			{
-				display.MouseDisplay="Capture mouse Mode End!";
-				display.ShowCursor();
-				display.continue_flag = continued_flag = false;
+				//display.MouseDisplay="Capture mouse Mode End!";
+				//display.ShowCursor();
+				//display.continue_flag = continued_flag = false;
+				//TODO : Pause
 			}
 			default:
 				break;
@@ -170,7 +171,6 @@ int GAME_SYSTEM::get_input()
 		//action();
 		//FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));//清掉之前的輸入緩衝信息
 	}
-	//should never be reach
 	return 0;
 }
 
@@ -189,11 +189,12 @@ bool GAME_SYSTEM::next()
 		if (SunFlower_amount == MAXINT)//僵尸抵達地圖最左側
 		{
 			display.continue_flag = continued_flag = false;//游戲結束
+			return false;
 		}
 		store.next(game_clock, SunFlower_amount);
 	}
 	//display.next();
-	return continued_flag;
+	return true;
 }
 
 
