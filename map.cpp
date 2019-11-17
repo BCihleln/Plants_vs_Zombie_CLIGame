@@ -120,6 +120,18 @@ void Map::plant_attack()
 	}
 }
 
+void Map::manage_bullet()
+{
+	for(short i = 0;i<map_row;++i)
+		for (short j = 0; j < bullets[i].size();++j)
+		{
+			Bullet& target = bullets[i][j].bullet;
+			coordinate& position = bullets[i][j].screen;
+
+			//position+=target.
+		}
+}
+
 //若傳回值超過sun flower最大數量，則代表游戲結束，僵尸抵達最左邊
 int Map::next(clock_t game_clock)
 {
@@ -130,6 +142,7 @@ int Map::next(clock_t game_clock)
 		return MAXINT;
 	
 	plant_attack();
+	
 
 //返回太陽花數量，用以給store增加sun數
 	return SunFlower_amount;

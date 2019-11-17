@@ -26,7 +26,7 @@ void Plant::set_type(const plant_ID ID)
 		{
 		case	plant_ID::Sun_Flower:
 			this->name_ = "Sun Flower";
-			this->HP_ = 25;
+			this->HP_ = 50;
 			this->ATK_ = 0;
 			this->ATK_SPD_ = 10;
 			this->cost_ = 25;
@@ -34,7 +34,7 @@ void Plant::set_type(const plant_ID ID)
 			return;
 		case plant_ID::Bean_Shooter://豌豆射手
 			this->name_ = "Bean Shooter";
-			this->HP_ = 40;
+			this->HP_ = 60;
 			this->ATK_ = 25;
 			this->ATK_SPD_ = 50;
 			this->cost_ = 50;
@@ -42,7 +42,7 @@ void Plant::set_type(const plant_ID ID)
 			return;
 		case plant_ID::Nut_Wall://堅果墻
 			this->name_ = "Nut Wall";
-			this->HP_ = 200;
+			this->HP_ = 500;
 			this->cost_ = 50;
 			this->cool_time_ = 25;
 			return;
@@ -83,7 +83,7 @@ string Plant::name() const
 void Plant::attack()
 {
 	////射擊型植物的攻擊方式是生產一顆子彈
-	BULLET tmp(name_,this->ATK_,0);
+	Bullet tmp(name_,this->ATK_,0);
 	bullets.push(tmp);//TODO 在函數時會析構掉tmp，不知道是否會影響到queue裏的元素，待逐步調試時查證
 	//TODO 生產子彈
 }

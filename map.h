@@ -7,13 +7,6 @@
 #include "bullet.h"
 #include "zombie.h"
 
-//
-//struct mapCell
-//{
-//	Plant plant;
-//	BULLET* bullet;//當前單元格是否有子彈
-//};
-
 class Map
 {
 	Table<Plant> yard;//種植物的院子
@@ -27,10 +20,10 @@ class Map
 
 	struct bullet_on_screen
 	{
-		BULLET bullet;
+		Bullet bullet;
 		coordinate screen;
 	};
-	queue<bullet_on_screen> bullets[map_row];
+	vector<bullet_on_screen> bullets[map_row];
 
 	clock_t clock;
 	int SunFlower_amount;
@@ -41,6 +34,7 @@ class Map
 	void generate_zombie();
 	int manage_zombie();
 	void plant_attack();
+	void manage_bullet();
 
 	void init();
 public:	
@@ -48,18 +42,7 @@ public:
 	Map();
 	~Map();
 
-	//mapCell* operator[](int target)
-	//{
-	//	if (target > map_column)
-	//	{
-	//		cout << "Reading map out of Range!\n";
-	//		exit(0);
-	//	}
-	//	return map[target];
-	//}//重載[]來直接取得單元格數據
-
-
-	//暫時給display類用，後面要刪除，因爲display類直接引入table的指針
+	//暫時給display類用，TODO 後面要刪除，因爲計劃直接讓display類使用table指針
 	coordinate Screen2Cell_middle(coordinate screen_position)const
 	{
 		return yard.Screen2Cell_middle(screen_position);
