@@ -6,56 +6,43 @@
 
 class Plant:public Creature //先只實現射擊型植物
 {
+protected:
 	plant_ID ID_;
-	int attack_range_;//攻擊範圍，單位：屏幕字符寬度
+	//int attack_range_;//攻擊範圍，單位：屏幕字符寬度
 	int cost_; // 消耗陽光數
 	int cool_time_;// 能再次購買的冷卻時間 單位：秒
-	queue<Bullet> bullets;//由植物生產的子彈隊列
-	void attack();
-	void die()override;
+	virtual void attack()=0;
+	void die()override;//override from creature
 public:
 
 	Plant();
 	~Plant();
 
-	//void operator=(const Plant& target)
-	//{
-	//	this->ATK_ = target.ATK_;
-	//	this->ATK_SPD_ = target.ATK_SPD_;
-	//	this->cool_time_ = target.cool_time_;
-	//	this->cost_ = target.cost_;
-	//	this->DEF_ = target.DEF_;
-	//	this->direction = target.direction;
-	//	this->ID_ = target.ID_;
-	//	this->name_ = target.name_;
-	//}
-
-	void set_type(const plant_ID ID);
+	virtual void set_type(const plant_ID& ID)=0;
 	void clean();
 	int cost()const;
 	int cool_time()const;
 	plant_ID ID()const;
 	string name()const;
 
-	virtual void next(int clock);
+	virtual void next(int clock)=0;
 };
-
-/*TODO：
-實現方式：繼承？
-	BUFF型植物（eg 向日葵、大蒜
-	一次性植物（eg 櫻桃、倭瓜）
-	持續傷害（eg 地刺
-*/
 
 class Shooting_Plant :public Plant
 {
-
 	/*
 	Type
 	-> Bean Shooter Series
-	-> Mushroom
+	-> Ice_Shooter
 	*/
+	int attack_range_;
+	queue<Bullet> bullets;//由植物生產的子彈隊列
 	virtual void attack()override;
+public:
+	Shooting_Plant();
+
+	void set_type(const plant_ID& ID)override;
+	virtual void next(int clock)override;
 };
 
 class Explosive_Plant :public Plant
@@ -65,9 +52,17 @@ Type
 -> Cherry Bomb
 -> Potato Mine
 -> Melon 倭瓜
--> Corn Missle
+-> Corn Nuke
 */
+
+	int explode_range_;//爆炸半徑
+
 	virtual void attack()override;
+public:
+	Explosive_Plant();
+
+	void set_type(const plant_ID& ID)override;
+	virtual void next(int clock)override;
 };
 
 class Buff_Plant :public Plant
@@ -78,6 +73,12 @@ class Buff_Plant :public Plant
 	-> Nut wall
 	-> thorns 荊棘
 	-> Garlic 
+	-> Fire Chunk 火炬樹
 	*/
 	virtual void attack()override;
+public:
+	Buff_Plant();
+
+	void set_type(const plant_ID& ID)override;
+	virtual void next(int clock)override;
 };

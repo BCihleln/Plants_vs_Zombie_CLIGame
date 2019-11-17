@@ -3,11 +3,28 @@
 const char version[] = "0.6.0";
 
 enum class plant_ID
-{
+{	//TODO 把所有屬性資料寫在csv文件中，啓動游戲時讀取
 	None,
+
+	//Buff
 	Sun_Flower,
+	Nut_Wall,
+	Thorns,//荊棘地刺
+	Garlic,
+	Fire_chunk,//火炬樹
+
+	//Shooter
 	Bean_Shooter,
-	Nut_Wall
+	Double_Bean_Shooter,
+	Triple_Bean_Shooter,
+	Bean_Gatlin,
+	Ice_Bean_Shooter,
+
+	//Explosive
+	Cherry_Bomb,
+	Potato_Mine,
+	Melon,
+	Corn_Nuke
 };
 
 //enum class zombie_list
