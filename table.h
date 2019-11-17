@@ -40,11 +40,18 @@ protected:
 	type** table;
 public:
 
-	type& operator[](const coordinate& target)const//用table坐標訪問table單元格内容
+	/*
+	intput coordinate{row_index, column_index} 
+	make sure you input a valid table coordinate
+	*/
+	type& operator[](const coordinate& target)const
 	{
-		//coordinate tmp = Table2Screen(target);
-		//check_border(tmp, false);
-		//tmp = Screen2Table(tmp);
+		if (target < coordinate{0, 0} || target > coordinate{row, column})//check border
+		{
+			system("cls");
+			cout << "Told you check coordinate before using this Function!" << endl;
+			exit(0);
+		}
 		return table[target.X][target.Y];
 	}
 	////獲得單元格内數據
@@ -57,7 +64,7 @@ public:
 
 
 	//返回對應單元格居中的屏幕坐標
-	coordinate Table2Screen(coordinate table_coordinate)const ;
+	coordinate Table2Screen(const coordinate& table_coordinate)const ;
 	//返回傳入屏幕坐標所對應得單元格，居中后的屏幕坐標
 	coordinate Screen2Cell_middle(coordinate screen)const;
 	//返回對應的表格坐標

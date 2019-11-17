@@ -87,6 +87,8 @@ void Store::next(clock_t game_clock, int sun_flower_amount)
 				if (table[i][j].left_time > 0)
 					table[i][j].left_time--;
 		sun += sun_flower_amount;
+		if (game_clock % 50 == 0)//每五秒產生2個陽光
+			sun += 2;
 	}
 }
 

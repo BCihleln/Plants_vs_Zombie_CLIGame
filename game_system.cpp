@@ -22,6 +22,11 @@ void GAME_SYSTEM::action()
 			//cout << "mode : player_mode::selected" << endl;
 			
 			display.MouseDisplay = selected_plant->name();
+			/*TODO 
+			這條語句會使鼠標打印時的坐標錯亂
+			原因是某個時隙内selected_name()會返回空字符串，尚未查明原因
+			推測與綫程切換有關
+			*/
 		}
 		else
 		{
@@ -56,7 +61,6 @@ void GAME_SYSTEM::action()
 				Plant_State != "Place already plant")
 			{
 				store.buy();
-				display.NewPlant(mouse_position, Plant_State);
 				selected = false;
 				mode = player_mode::normal;
 				selected_plant = nullptr;
@@ -83,6 +87,8 @@ void GAME_SYSTEM::action()
 
 GAME_SYSTEM::GAME_SYSTEM() :
 	hStdin(GetStdHandle(STD_INPUT_HANDLE)),	// 获取标准输入输出设备句柄
+	info_file(info_file_path),
+	map_file(map_file_path),
 	score(0),
 	continued_flag(true),
 	game_clock(0),
@@ -90,7 +96,7 @@ GAME_SYSTEM::GAME_SYSTEM() :
 	mouse(signal::move), mouse_position({ 0,0 }),
 	key_stroke(0),
 	selected(false), selected_plant(nullptr),
-	display(map, store,&score)
+	display(map, store,map_file,info_file,&score)
 {
 	srand((unsigned)time(NULL));//隨機數初始化
 
@@ -108,7 +114,8 @@ GAME_SYSTEM::GAME_SYSTEM() :
 	std::thread deal_input(std::bind(&GAME_SYSTEM::get_input,this));//開新綫程
 	deal_input.detach();
 
-	//CloseHandle(hStdin);  // 关闭标准输出设备句柄
+	map_file.close();
+	info_file.close();
 }
 
 GAME_SYSTEM::~GAME_SYSTEM()

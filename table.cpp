@@ -42,10 +42,11 @@ bool Table<type>::check_border(coordinate& screen, bool strong_check) const
 }
 
 
-//return {table_column_index, table_row_index}
+//return {table_row_index, table_column_index}
 template <typename type>
 coordinate Table<type>::Screen2Table(coordinate screen_coordinate, bool strong_check)const
 {
+	//TODO 考慮傳回右值引用提升程序效率？就不需要反復的複製、撤銷傳遞的變量了
 	//cout << __FUNCTION__ << endl;
 	//cout << table_length << "," << table_width << endl;
 	//cout << screen_coordinate << endl;
@@ -58,7 +59,7 @@ coordinate Table<type>::Screen2Table(coordinate screen_coordinate, bool strong_c
 		target.X /= cell_length;
 		target.Y /= cell_width;
 		//cout << "Table coordinate: " << target << endl;
-		return target;
+		return coordinate{ target.Y,target.X };
 	}
 	else
 	{
@@ -66,13 +67,17 @@ coordinate Table<type>::Screen2Table(coordinate screen_coordinate, bool strong_c
 	}
 }
 
+/*
+input {table_row_index, table_column_index}
+output {screen_length_index, screen_width_index}
+*/
 template<typename type>
-coordinate Table<type>::Table2Screen(coordinate table_coordinate)const
+coordinate Table<type>::Table2Screen(const coordinate& table_coordinate)const
 {
 	coordinate target =
 	{
-		table_coordinate.X * cell_length + (cell_length >> 1),
-		table_coordinate.Y * cell_width + (cell_width >> 1)
+		table_coordinate.Y * cell_length + (cell_length >> 1),
+		table_coordinate.X * cell_width + (cell_width >> 1)
 	};
 
 	target = this->start_point+target;
@@ -95,7 +100,7 @@ type* Table<type>::select(coordinate screen,bool strong_check)
 	coordinate tmp = Screen2Table(screen, strong_check);
 	if (tmp != coordinate_out_of_border)
 	{
-		return &table[tmp.Y][tmp.X];
+		return &table[tmp.X][tmp.Y];
 	}
 	else
 		return  nullptr;

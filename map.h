@@ -32,17 +32,15 @@ class Map
 	};
 	queue<bullet_on_screen> bullets[map_row];
 
-
+	clock_t clock;
 	int SunFlower_amount;
 
-	//x : row_index, y : column_index
-	bool has_plant(int x, int y);
+	//yard position
+	bool has_plant(const coordinate position);
 
-	//void compute_attack();
-
-	//void comput_move();
-	
 	void generate_zombie();
+	int manage_zombie();
+	void plant_attack();
 
 	void init();
 public:	

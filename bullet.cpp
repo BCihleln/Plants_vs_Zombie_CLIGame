@@ -1,7 +1,6 @@
 #include "bullet.h"
 
 BULLET::BULLET(string name,int attack, short effect):
-	Creature(name + "'s bullet"),
 	effect(effect)
 {
 	this->HP_ = 1;

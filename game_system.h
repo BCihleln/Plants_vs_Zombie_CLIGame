@@ -9,6 +9,9 @@
 #include <functional>
 	//bind 綁定器
 
+#define map_file_path "map.txt"
+#define info_file_path "info.txt"
+
 /*
 完成功能
 	輸入信號的捕獲
@@ -25,13 +28,10 @@ class GAME_SYSTEM
 	
 	//INPUT_RECORD	InputRecord;//Input Buffer
 	//DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
-	
-	Map map;//map中包含了所有植物、與僵尸vector
-	Store store;
 
-	HANDLE hStdin;//標準輸入句柄
-
-	Display display;
+	HANDLE hStdin;//標準輸入句柄	
+	ifstream info_file;
+	ifstream map_file;
 
 	int score;
 	bool continued_flag;
@@ -45,10 +45,15 @@ class GAME_SYSTEM
 //根據玩家所處的模式 
 	enum class player_mode { normal, pause,store_selecting,map_selecting } mode;
 	enum class signal {move,left_click,right_click} mouse;
-	char key_stroke;
 	coordinate mouse_position;
+	char key_stroke;
 	bool selected;
 	Plant* selected_plant;//拿起的植物
+
+
+	Map map;//map中包含了所有植物、與僵尸vector
+	Store store;
+	Display display;
 
 	//根據這個時隙發生的輸入事件與系統狀態，做出相應動作
 	void action();

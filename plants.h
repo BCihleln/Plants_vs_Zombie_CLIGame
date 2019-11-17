@@ -7,10 +7,12 @@
 class Plant:public Creature //先只實現射擊型植物
 {
 	plant_ID ID_;
+	int attack_range_;//攻擊範圍，單位：屏幕字符寬度
 	int cost_; // 消耗陽光數
 	int cool_time_;// 能再次購買的冷卻時間 單位：秒
 	queue<BULLET> bullets;//由植物生產的子彈隊列
 	void attack();
+	void die()override;
 public:
 
 	Plant();
@@ -34,7 +36,6 @@ public:
 	int cool_time()const;
 	plant_ID ID()const;
 	string name()const;
-
 
 	virtual void next(int clock);
 };

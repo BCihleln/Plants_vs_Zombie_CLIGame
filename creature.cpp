@@ -41,13 +41,13 @@ void Creature::injure(int damage)
 		die();
 }
 
-void Creature::die()
-{
-	name_ = "died " + name_;
-	HP_ = 0;
-	ATK_ = 0;
-	ATK_SPD_ = 0;
-}
+//void Creature::die()
+//{
+//	name_ = "None";
+//	HP_ = 0;
+//	ATK_ = 0;
+//	ATK_SPD_ = 0;
+//}
 
 //void Creature::next(int clock, coordinate& position)
 //{

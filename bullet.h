@@ -1,7 +1,8 @@
 #pragma once
 #include "creature.h"
+#include "zombie.h"
 
-class BULLET :private Creature//子彈作爲一種特殊的生物（突然想到的騷操作）
+class BULLET :public Zombie//子彈作爲一種特殊的生物（突然想到的騷操作）
 {	//TODO：繼承Zombie
 	//子彈的坐標在地圖類中管理
 	short effect;//子彈造成的效果代號

@@ -1,19 +1,17 @@
 #include "display.h"
 
-inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate start_position)
+inline void Display::ReadDataFileToScreenBuff(ifstream& file, coordinate start_position)
 {
-	ifstream file;
-	file.open(filepath);
-	char* tmp_line = new char[SCREEN_LENGTH+1];
 	if (!file.is_open())
 	{
 		system("cls");
 		color(red);
-		cout << filepath << "open failed" << endl;
+		cout <<  "file open failed" << endl;
 		getchar();
 		exit(0);
 	}
 
+	char* tmp_line = new char[SCREEN_LENGTH+1];
 	int i = start_position.Y;//SCREEN_BUFFER 访问行下标
 	while (!file.eof())
 	{
@@ -22,8 +20,7 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate s
 			system("cls");
 			color(red);
 			cout << __FUNCTION__ << endl<< 
-				"Write Screen Buffer out of range"<< endl 
-				<< filepath ;
+				"Write Screen Buffer out of range"<< endl;
 			getchar();
 			exit(0);
 		}
@@ -37,7 +34,6 @@ inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate s
 		//cout << SCREEN_BUFFER[position_y];
 		i++;//下一行
 	}
-	file.close();
 	delete[] tmp_line;//釋放暫時申請的内存
 }
 
@@ -48,7 +44,7 @@ void Display::RefreshStdOut()
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
-		cout << Zombie_BulletLayer[i];//因爲是直接打印整個屏幕長度，不需要手動換行
+		cout << DynamicLayer[i];//因爲是直接打印整個屏幕長度，不需要手動換行
 	}
 	//mutex.unlock();
 }
@@ -56,7 +52,7 @@ inline void Display::RefreshLayer()
 {
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
-		strcpy(Zombie_BulletLayer[i],MapLayer[i]);
+		strcpy(DynamicLayer[i],MapLayer[i]);
 	}
 }
 
@@ -78,7 +74,11 @@ inline void Display::RefreshLayer()
 //
 //}
 
-Display::Display(const Map&target_map,const Store& target_store,int* score):
+Display::Display(
+	const Map&target_map,const Store& target_store,
+	ifstream& map_file,
+	ifstream& info_file, int* score
+):
 	SCREEN_SIZE({0,0}),
 	ScreenCursor({0,0}),
 	MouseCursor({0,0}),
@@ -99,6 +99,7 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 
 	//獲取標準輸出后才能設置窗口，順序不可顛倒
 	window_init();
+	screen_buffer_init();
 
 	GetConsoleCursorInfo(hStdOut, &this->default_cursor);// 保存初始光標信息，便於恢復
 	//ScreenCursor = { 0,0 };
@@ -135,10 +136,10 @@ Display::~Display()
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
 	{
 		delete[] MapLayer[i];
-		delete[] Zombie_BulletLayer[i];
+		delete[] DynamicLayer[i];
 	}
 	delete[] MapLayer;
-	delete[] Zombie_BulletLayer;
+	delete[] DynamicLayer;
 	CloseHandle(this->hStdOut);   // 关闭标准输入设备句柄
 	ShowCursor();
 
@@ -172,7 +173,7 @@ void Display::PrintOnMouse()
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
 	SetConsoleCursorPosition(hStdOut, middle(MouseDisplay, MouseCursor));
 	cout << MouseDisplay;
-	SetConsoleCursorPosition(hStdOut, ScreenCursor);
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕光標
 
 	mutex.unlock();
 }
@@ -216,7 +217,7 @@ void Display::ReadStoreInfo()
 			string product_name = target.plant.name();
 			if(product_name != "None")
 			{
-				coordinate position = middle(product_name, store->Table2Screen({ j,i })) ;
+				coordinate position = middle(product_name, store->Table2Screen({ i,j })) ;
 				WriteScreenBuffer(MapLayer,product_name.c_str(), position- coordinate{ 0,2 },false);
 				char tmp[15];
 				sprintf(tmp, "cost : %d", target.plant.cost());
@@ -249,28 +250,27 @@ void Display::window_init()
 	//SCREEN_SIZE = SCREEN_SIZE - coordinate({ 0,1 });
 	SCREEN_SIZE -= coordinate{0, 1};
 
-	screen_buffer_init();
 }
 
 void Display::screen_buffer_init()
 {
 	MapLayer = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
-	Zombie_BulletLayer = new char* [SCREEN_WIDTH + 1];
+	DynamicLayer = new char* [SCREEN_WIDTH + 1];
 	for (int i = 0; i < SCREEN_WIDTH+1; ++i)
 	{
 		MapLayer[i] = new char[SCREEN_LENGTH+1];
 		MapLayer[i][SCREEN_LENGTH] = '\0';
 
-		Zombie_BulletLayer[i] = new char[SCREEN_LENGTH + 1];
-		Zombie_BulletLayer[i][SCREEN_LENGTH] = '\0';
+		DynamicLayer[i] = new char[SCREEN_LENGTH + 1];
+		DynamicLayer[i][SCREEN_LENGTH] = '\0';
 		for (int j = 0; j < SCREEN_LENGTH; ++j)
 		{
 			MapLayer[i][j] = ' ';
-			Zombie_BulletLayer[i][j] = ' ';
+			DynamicLayer[i][j] = ' ';
 		}
 	}
 	MapLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
-	Zombie_BulletLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
+	DynamicLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
 }
 void Display::WriteScreenBuffer(char* ScreenBuffer[],const char* target, coordinate position, bool middle_flag)
 {
@@ -319,11 +319,11 @@ void Display::ShowCursor()
 
 
 //只有植物種植成功才調用
-void Display::NewPlant(coordinate screen_position, const string& name)
-{
-	//WriteScreenBuffer(Zombie_BulletLayer,name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
-	WriteScreenBuffer(Zombie_BulletLayer,name.c_str(), map->Screen2Cell_middle(screen_position),true);
-}
+//void Display::NewPlant(coordinate screen_position, const string& name)
+//{
+//	//WriteScreenBuffer(DynamicLayer,name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
+//	WriteScreenBuffer(DynamicLayer,name.c_str(), map->Screen2Cell_middle(screen_position),true);
+//}
 
 void Display::UpdateStore()
 {
@@ -339,11 +339,11 @@ void Display::UpdateStore()
 			char tmp[10];
 			float percentage = (float)product_lefttime / (float)target.plant.cool_time() * (float)100;
 			sprintf(tmp, "(%d%%)", 100-(int)percentage);
-			coordinate position = store->Table2Screen({ j,i }) + coordinate{ 0,1 };
-			WriteScreenBuffer(Zombie_BulletLayer,"           ", position,true);//清空要打印的位置
+			coordinate position = store->Table2Screen({ i,j }) + coordinate{ 0,1 };
+			WriteScreenBuffer(DynamicLayer,"           ", position,true);//清空要打印的位置
 			if (product_lefttime > 0)
 			{
-				WriteScreenBuffer(Zombie_BulletLayer,tmp, position,true);
+				WriteScreenBuffer(DynamicLayer,tmp, position,true);
 			}
 		}
 }
@@ -354,8 +354,8 @@ void Display::UpdateSun()
 
 	char tmp[10];
 	sprintf(tmp, "%d", store->sun);
-	WriteScreenBuffer(Zombie_BulletLayer,"              ", { 9,5 },true);
-	WriteScreenBuffer(Zombie_BulletLayer,tmp, { 9,5 },true);
+	WriteScreenBuffer(DynamicLayer,"              ", { 9,5 },true);
+	WriteScreenBuffer(DynamicLayer,tmp, { 9,5 },true);
 }
 void Display::UpdateScore()
 {
@@ -364,7 +364,7 @@ void Display::UpdateScore()
 
 	char tmp[10];
 	sprintf(tmp, "%d", *score);
-	WriteScreenBuffer(Zombie_BulletLayer,tmp, { 138,4 },true);
+	WriteScreenBuffer(DynamicLayer,tmp, { 138,4 },true);
 }
 void Display::UpdateZombie()
 {
@@ -380,18 +380,37 @@ void Display::UpdateZombie()
 			const coordinate& zombie_position = map->zombies[i][j].screen;
 			if(zombie_position < SCREEN_SIZE )
 			{
-				//PrintOnXY(map->zombies[i][j].zombie.name(), zombie_position);
-				//TODO 更新移動問題-> 圖層：底層（地圖圖層）、僵尸圖層、植物圖層、子彈圖層
-				//string tmp = z.name();
-				//if (short t = zombie_position.X + tmp.length() + 1 < SCREEN_LENGTH)
-				//	tmp += string(1,MapLayer[zombie_position.Y][t]);
-				////緩兵之計，所有僵尸移動後面會變成空白條
-				WriteScreenBuffer(Zombie_BulletLayer, &MapLayer[zombie_position.Y][zombie_position.X], zombie_position,false);//清空一行
-				WriteScreenBuffer(Zombie_BulletLayer,z.name().c_str(), zombie_position,false);
+				WriteScreenBuffer(DynamicLayer, &MapLayer[zombie_position.Y][zombie_position.X], zombie_position,false);//清空一行
+				WriteScreenBuffer(DynamicLayer,z.name().c_str(), zombie_position,false);
 			}
 		}
 	}
 	//mutex.unlock();
+}
+void Display::UpdatePlant()
+{
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+
+	for (short i = 0; i < map_row; ++i)
+	{
+		for (short j = 0; j < map_column; ++j)
+		{
+			Plant& target = map->yard[coordinate{ i, j }];
+			coordinate tmp = map->yard.Table2Screen(coordinate{ i,j });
+
+			if (target.ID() != plant_ID::None)
+			{
+				WriteScreenBuffer(DynamicLayer, target.name().c_str(), tmp, true);
+			}
+			else
+			{
+				string eraser(map_cell_length - 2, ' ');
+				WriteScreenBuffer(DynamicLayer, eraser.c_str(), tmp, true);//清空一行
+			}
+		}
+	}
+
 }
 void Display::UpdateBullet()
 {
@@ -407,7 +426,9 @@ void Display::next()
 		PrintOnMouse();
 
 		UpdateBullet();
+		UpdatePlant();
 		UpdateZombie();
+
 		UpdateSun();
 		UpdateStore();
 		UpdateScore();

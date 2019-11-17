@@ -24,6 +24,7 @@ class Zombie:public Creature
 
 	void Skill();
 	void move(coordinate& position);
+	void die()override;
 public:
 	Zombie();
 	~Zombie();

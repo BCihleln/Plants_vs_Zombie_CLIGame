@@ -4,7 +4,7 @@ Zombie::Zombie():
 	Creature("Zombie"),
 	direction(coordinate{-1,0})
 {
-	this->ATK_ = 50;
+	this->ATK_ = 20;
 	this->ATK_SPD_ = 10;
 	this->HP_ = 100;
 	this->SPD_ = 10;
@@ -19,6 +19,19 @@ void Zombie::move(coordinate& position)
 {	//傳入位置引用，直接修改位置
 	position = position+coordinate{-1, 0};//僵尸靠近一字符寬
 }
+
+void Zombie::die()
+{
+	name_ = "None";
+	HP_ = 0;
+	ATK_ = 0;
+	ATK_SPD_ = 0;
+	SPD_ = 0;
+	DEF_ = 0;
+	tool = tool_type::None;
+	direction = coordinate{ 0,0 };
+}
+
 //返回當前時隙僵尸的攻擊力
 int Zombie::next(int clock, coordinate& position, bool obstacle)
 {

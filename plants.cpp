@@ -2,6 +2,7 @@
 
 Plant::Plant():Creature("None"),ID_(plant_ID::None)
 {
+	attack_range_ = 10;
 	cost_ = 0;
 	cool_time_ = 25;
 }
@@ -85,6 +86,17 @@ void Plant::attack()
 	BULLET tmp(name_,this->ATK_,0);
 	bullets.push(tmp);//TODO 在函數時會析構掉tmp，不知道是否會影響到queue裏的元素，待逐步調試時查證
 	//TODO 生產子彈
+}
+
+void Plant::die()
+{
+	name_ = "None";
+	this->ID_ = plant_ID::None;
+	HP_ = 0;
+	ATK_ = 0;
+	ATK_SPD_ = 0;
+	cost_ = 0;
+	cool_time_ = 0;
 }
 
 void Plant::next(int clock)
