@@ -2,37 +2,39 @@
 
 #include "basic.h"
 #include "table.cpp"
-	//需要找到基類函數的定義，故包含cpp
+//	//需要找到模板化基類成員函數的定義，故包含cpp
 #include "plants.h"
 #include "bullet.h"
 #include "zombie.h"
 
-
-struct mapCell
+class Map
 {
-	Plant plant;
-	BULLET* bullet;//當前單元格是否有子彈
-};
+	Table<Plant> yard;//種植物的院子
 
-class Map:public Table <mapCell>
-{
 	struct zombie_on_screen
 	{
-		ZOMBIE zombie;
-		coordinate screen;
+		Zombie zombie;//用zombie基類的引用管理派生類
+		coordinate screen;//屏幕坐標
 	};
 	vector<zombie_on_screen> zombies[map_row];
 
+	struct bullet_on_screen
+	{
+		Bullet bullet;
+		coordinate screen;
+	};
+	vector<bullet_on_screen> bullets[map_row];
+
+	clock_t clock;
 	int SunFlower_amount;
 
-	//coordinate Screen2Map(coordinate target);
-	//TODO 處理植物、僵尸雙方攻擊
-	void compute_attack();
-	//TODO 維護僵尸、子彈移動坐標
-	void comput_move();
-	
-	//僵尸的管理 循環隊列，死掉的僵尸改名換姓后重新加入隊尾
+	//yard position
+	bool has_plant(const coordinate position);
+
 	void generate_zombie();
+	int manage_zombie();
+	void plant_attack();
+	void manage_bullet();
 
 	void init();
 public:	
@@ -40,15 +42,11 @@ public:
 	Map();
 	~Map();
 
-	//mapCell* operator[](int target)
-	//{
-	//	if (target > map_column)
-	//	{
-	//		cout << "Reading map out of Range!\n";
-	//		exit(0);
-	//	}
-	//	return map[target];
-	//}//重載[]來直接取得單元格數據
+	//暫時給display類用，TODO 後面要刪除，因爲計劃直接讓display類使用table指針
+	coordinate Screen2Cell_middle(coordinate screen_position)const
+	{
+		return yard.Screen2Cell_middle(screen_position);
+	}
 
 	string PlantOnXY(const Plant* target,coordinate position);
 

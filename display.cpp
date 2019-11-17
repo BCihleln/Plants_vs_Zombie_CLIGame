@@ -1,53 +1,71 @@
 #include "display.h"
 
-inline void Display::ReadDataFileToScreenBuff(const char* filepath, coordinate start_position)
+inline void Display::ReadDataFileToScreenBuff(ifstream& file, coordinate start_position)
 {
-	ifstream file;
-	file.open(filepath);
-	char* tmp_line = new char[SCREEN_LENGTH+1];
 	if (!file.is_open())
 	{
+		system("cls");
 		color(red);
-		cout << filepath << "open failed" << endl;
+		cout <<  "file open failed" << endl;
 		getchar();
 		exit(0);
 	}
 
+	char* tmp_line = new char[SCREEN_LENGTH+1];
 	int i = start_position.Y;//SCREEN_BUFFER 访问行下标
 	while (!file.eof())
 	{
 		if (i > SCREEN_WIDTH)
 		{
+			system("cls");
 			color(red);
 			cout << __FUNCTION__ << endl<< 
-				"Write Screen Buffer out of range"<< endl 
-				<< filepath ;
+				"Write Screen Buffer out of range"<< endl;
 			getchar();
 			exit(0);
 		}
-		strcpy(tmp_line, SCREEN_BUFFER[i]);
-		file.getline(&SCREEN_BUFFER[i][start_position.X], SCREEN_LENGTH);
+		strcpy(tmp_line, MapLayer[i]);
+		file.getline(&MapLayer[i][start_position.X], SCREEN_LENGTH);
 
 		for (int j = 0; j < SCREEN_LENGTH; ++j)//替換掉getline過程中添加的\0
-			if (SCREEN_BUFFER[i][j] == '\0')
-				SCREEN_BUFFER[i][j] = tmp_line[j];
+			if (MapLayer[i][j] == '\0')
+				MapLayer[i][j] = tmp_line[j];
 
 		//cout << SCREEN_BUFFER[position_y];
 		i++;//下一行
 	}
-	file.close();
 	delete[] tmp_line;//釋放暫時申請的内存
 }
 
-void Display::RefreshStdOut()const
+void Display::RefreshStdOut()
 {
+	//mutex.lock();
 	 SetConsoleCursorPosition(hStdOut, { 0,0 });
 	//system("cls"); cls會導致鼠標捕獲模式退出
 	for (int i = 0; i <= SCREEN_WIDTH; ++i)
 	{
-		cout << SCREEN_BUFFER[i];//因爲是直接打印整個屏幕長度，不需要手動換行
+		cout << DynamicLayer[i];//因爲是直接打印整個屏幕長度，不需要手動換行
+	}
+	//mutex.unlock();
+}
+inline void Display::RefreshLayer()
+{
+	for (int i = 0; i <= SCREEN_WIDTH; ++i)
+	{
+		strcpy(DynamicLayer[i],MapLayer[i]);
 	}
 }
+
+//void Display::RefreshConsoleScreenBuffer()
+//{
+//	coordinate tmp = { 0,0 };
+//	DWORD tmp2=0;
+//	for (int i = 0; i <= SCREEN_WIDTH; ++i)
+//	{//因爲是直接打印整個屏幕長度，不需要手動換行
+//		tmp.Y = i;
+//		WriteConsoleOutputCharacterA(ConsoleScreenBuffer, SCREEN_BUFFER[i], SCREEN_LENGTH, tmp, &tmp2);
+//	}
+//}
 
 //void Display::CleanMapCell(coordinate target_Cell)
 //{
@@ -56,16 +74,32 @@ void Display::RefreshStdOut()const
 //
 //}
 
-Display::Display(const Map&target_map,const Store& target_store,int* score):
+Display::Display(
+	const Map&target_map,const Store& target_store,
+	ifstream& map_file,
+	ifstream& info_file, int* score
+):
 	SCREEN_SIZE({0,0}),
 	ScreenCursor({0,0}),
 	MouseCursor({0,0}),
-	map(&target_map),store(&target_store),
-	score(score)
+	map(&target_map),
+	store(&target_store),
+	score(score),
+	continue_flag(true),
+	MouseDisplay("+")
 {
 	this->hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);//獲得標準輸出句柄
-	
+	//ConsoleScreenBuffer = CreateConsoleScreenBuffer(
+	//	GENERIC_WRITE,//定義進程可以往緩衝區寫數據
+	//	FILE_SHARE_WRITE,//定義緩衝區可共享寫權限
+	//	NULL,
+	//	CONSOLE_TEXTMODE_BUFFER,
+	//	NULL
+	//);
+
+	//獲取標準輸出后才能設置窗口，順序不可顛倒
 	window_init();
+	screen_buffer_init();
 
 	GetConsoleCursorInfo(hStdOut, &this->default_cursor);// 保存初始光標信息，便於恢復
 	//ScreenCursor = { 0,0 };
@@ -79,18 +113,37 @@ Display::Display(const Map&target_map,const Store& target_store,int* score):
 	ReadStoreInfo();
 
 	RefreshStdOut();
+	RefreshLayer();
+	//RefreshConsoleScreenBuffer();
 	//WriteScreenBuffer("Test Mode! Wakanda forever!!!",Map2Screen( 5,6));
 	//CleanMapCell(5, 6);
 	//RefreshStdOut();
+
+	//更新屏幕綫程
+	std::thread display_next(std::bind(&Display::next, this));//綫程綁定時傳入的是目標函數與該函數對象的地址
+	
+/*
+之前在game_system中的bug就是忘記加取地址符，導致編譯器重新創建了一個Display的對象A，并把game_system中的display對象複製過去，然而display的SCREEN_BUFFER是主動申請的空間，A的SCREEN_BUFFER未經過初始化，指向了不該訪問的位置，導致錯誤
+*/
+	display_next.detach();
 }
 
 Display::~Display()
 {
+	continue_flag = false;
+	mutex.lock();//等待其他綫程運作結束才析構對象
+
 	for (int i = 0; i < SCREEN_WIDTH; ++i)
-		delete[] SCREEN_BUFFER[i];
-	delete SCREEN_BUFFER;
+	{
+		delete[] MapLayer[i];
+		delete[] DynamicLayer[i];
+	}
+	delete[] MapLayer;
+	delete[] DynamicLayer;
 	CloseHandle(this->hStdOut);   // 关闭标准输入设备句柄
 	ShowCursor();
+
+	mutex.unlock();
 }
 
 //傳入最左側的起始位置(屏幕)，返回居中后的坐標
@@ -107,40 +160,52 @@ coordinate Display::middle(const string& target, coordinate left_side)
 }
 
 
-void Display::PrintOnMouse(const string& target)
+void Display::PrintOnMouse()
 {
+	mutex.lock();
+	//SetConsoleActiveScreenBuffer(ConsoleScreenBuffer);
+
 	RefreshStdOut();//清掉之前打印的鼠標打印的東西
-	//TODO 優化鼠標打印效率
-	//SetScreenCursor(0, last_MouseCursor_Y);
-	//cout << SCREEN_BUFFER[last_MouseCursor_Y];
-	//SetScreenCursor(0, 0);
+	//string eraser(target.length(),' ');
+	//if(last_MouseCursor_Y!=MouseCursor.Y)
+		//PrintOnXY(eraser, middle(eraser, coordinate{ MouseCursor.X, last_MouseCursor_Y }));
 
 	//讓要打印的内容出現在指標中間，也就是讓打印内容的中心處於指標位置
-	PrintOnXY(target, middle(target,MouseCursor));
-}
-void Display::PrintOnXY(const  string& target, short x, short y)
-{
-	coordinate tmp = { x,y };
-	SetConsoleCursorPosition(hStdOut, tmp);
-	cout << target;
-	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
+	SetConsoleCursorPosition(hStdOut, middle(MouseDisplay, MouseCursor));
+	cout << MouseDisplay;
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕光標
+
+	mutex.unlock();
 }
 void Display::PrintOnXY(const string& target, coordinate position)
 {
-	PrintOnXY(target, position.X, position.Y);
+	if (position < coordinate{ 0,0 } || position > SCREEN_SIZE)//超界檢查
+		return;
+	//SetConsoleActiveScreenBuffer(ConsoleScreenBuffer);
+
+	//mutex.lock();
+	SetConsoleCursorPosition(hStdOut, coordinate{ 0,position.Y });//清理一行
+	cout << MapLayer[position.Y];
+
+	SetConsoleCursorPosition(hStdOut, position);
+	cout << target;
+
+	SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
 }
 void Display::PrintOnXY(const  coordinate& target, short x, short y)
 {
+	//mutex.lock();
 	coordinate tmp = { x,y };
 	SetConsoleCursorPosition(hStdOut, tmp);
 	cout << target;
-	SetConsoleCursorPosition(hStdOut, ScreenCursor);
+	//SetConsoleCursorPosition(hStdOut, ScreenCursor);//維護屏幕指針
+	//SetConsoleCursorPosition(hStdOut, coordinate{ 0,0 });
+	//mutex.unlock();
 }
 void Display::PrintOnXY(const coordinate& target, coordinate position)
 {
 	PrintOnXY(target, position.X, position.Y);
 }
-
 
 void Display::ReadStoreInfo()
 {
@@ -152,11 +217,11 @@ void Display::ReadStoreInfo()
 			string product_name = target.plant.name();
 			if(product_name != "None")
 			{
-				coordinate position = middle(product_name, store->Table2Screen({ j,i })) ;
-				WriteScreenBuffer(product_name.c_str(), position- coordinate{ 0,2 });
+				coordinate position = middle(product_name, store->Table2Screen({ i,j })) ;
+				WriteScreenBuffer(MapLayer,product_name.c_str(), position- coordinate{ 0,2 },false);
 				char tmp[15];
 				sprintf(tmp, "cost : %d", target.plant.cost());
-				WriteScreenBuffer(tmp, position - coordinate{ 0,1 });
+				WriteScreenBuffer(MapLayer,tmp, position - coordinate{ 0,1 },false );
 			}
 		}
 }
@@ -185,33 +250,42 @@ void Display::window_init()
 	//SCREEN_SIZE = SCREEN_SIZE - coordinate({ 0,1 });
 	SCREEN_SIZE -= coordinate{0, 1};
 
-	screen_buffer_init();
 }
 
 void Display::screen_buffer_init()
 {
-	SCREEN_BUFFER = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
+	MapLayer = new char* [SCREEN_WIDTH+1];//建立屏幕輸出緩衝
+	DynamicLayer = new char* [SCREEN_WIDTH + 1];
 	for (int i = 0; i < SCREEN_WIDTH+1; ++i)
 	{
-		SCREEN_BUFFER[i] = new char[SCREEN_LENGTH+1];
-		SCREEN_BUFFER[i][SCREEN_LENGTH] = '\0';
+		MapLayer[i] = new char[SCREEN_LENGTH+1];
+		MapLayer[i][SCREEN_LENGTH] = '\0';
+
+		DynamicLayer[i] = new char[SCREEN_LENGTH + 1];
+		DynamicLayer[i][SCREEN_LENGTH] = '\0';
 		for (int j = 0; j < SCREEN_LENGTH; ++j)
-			SCREEN_BUFFER[i][j] = ' ';
+		{
+			MapLayer[i][j] = ' ';
+			DynamicLayer[i][j] = ' ';
+		}
 	}
-	SCREEN_BUFFER[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
+	MapLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
+	DynamicLayer[SCREEN_WIDTH ][SCREEN_LENGTH - 1] = '\0';//最後一行倒數第二位設置為\0防止打印滾動
 }
-void Display::WriteScreenBuffer(const char* target, coordinate position)
+void Display::WriteScreenBuffer(char* ScreenBuffer[],const char* target, coordinate position, bool middle_flag)
 {
+	if (middle_flag)
+		position = middle(target, position);
 	int length = strlen(target);
-	if (position.Y > SCREEN_WIDTH)//縱坐標邊界檢查
+	if (position > SCREEN_SIZE || position < coordinate{0, 0})//邊界檢查
 	{
 		color(red);
-		cout << __FUNCTION__ << "Out of range" << endl;
+		cout << __FUNCTION__ << " Out of range" << endl;
 		cout << position;
 		exit(0);
 	}
 	for (int i = 0; i < length && i+position.X < SCREEN_LENGTH-1; ++i)//終止條件包含橫坐標邊界檢查
-		this->SCREEN_BUFFER[position.Y][i+position.X] = target[i];
+		ScreenBuffer[position.Y][i+position.X] = target[i];
 }
 
 void Display::SetScreenCursor(short x, short y)
@@ -245,13 +319,17 @@ void Display::ShowCursor()
 
 
 //只有植物種植成功才調用
-void Display::NewPlant(coordinate screen_position, const string& name)
-{
-	WriteScreenBuffer(name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
-}
+//void Display::NewPlant(coordinate screen_position, const string& name)
+//{
+//	//WriteScreenBuffer(DynamicLayer,name.c_str(), middle(name, map->Screen2Cell_middle(screen_position)));
+//	WriteScreenBuffer(DynamicLayer,name.c_str(), map->Screen2Cell_middle(screen_position),true);
+//}
 
 void Display::UpdateStore()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+
 	for (short i = 0; i < store_row; ++i)
 		for (short j = 0; j < store_column; ++j)
 		{
@@ -261,44 +339,105 @@ void Display::UpdateStore()
 			char tmp[10];
 			float percentage = (float)product_lefttime / (float)target.plant.cool_time() * (float)100;
 			sprintf(tmp, "(%d%%)", 100-(int)percentage);
-			coordinate position = middle(tmp, store->Table2Screen({ j,i }) + coordinate{ 0,1 });
-			WriteScreenBuffer("           ", middle("           ", position));
+			coordinate position = store->Table2Screen({ i,j }) + coordinate{ 0,1 };
+			WriteScreenBuffer(DynamicLayer,"           ", position,true);//清空要打印的位置
 			if (product_lefttime > 0)
 			{
-				WriteScreenBuffer(tmp, position);
+				WriteScreenBuffer(DynamicLayer,tmp, position,true);
 			}
 		}
 }
-
 void Display::UpdateSun()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+
 	char tmp[10];
 	sprintf(tmp, "%d", store->sun);
-	WriteScreenBuffer("              ", middle("              ", { 9,5 }));
-	WriteScreenBuffer(tmp, middle(tmp, { 9,5 }));
+	WriteScreenBuffer(DynamicLayer,"              ", { 9,5 },true);
+	WriteScreenBuffer(DynamicLayer,tmp, { 9,5 },true);
 }
-
 void Display::UpdateScore()
 {
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+
 	char tmp[10];
 	sprintf(tmp, "%d", *score);
-	WriteScreenBuffer(tmp, middle(tmp, { 138,4 }));
+	WriteScreenBuffer(DynamicLayer,tmp, { 138,4 },true);
+}
+void Display::UpdateZombie()
+{
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+
+	//mutex.lock();
+	for (int i = 0; i < map_row; ++i)
+	{
+		for(int j = 0;j< map->zombies[i].size();++j)
+		{
+			const Zombie& z = map->zombies[i][j].zombie;
+			const coordinate& zombie_position = map->zombies[i][j].screen;
+			if(zombie_position < SCREEN_SIZE )
+			{
+				WriteScreenBuffer(DynamicLayer, &MapLayer[zombie_position.Y][zombie_position.X], zombie_position,false);//清空一行
+				WriteScreenBuffer(DynamicLayer,z.name().c_str(), zombie_position,false);
+			}
+		}
+	}
+	//mutex.unlock();
+}
+void Display::UpdatePlant()
+{
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
+
+	for (short i = 0; i < map_row; ++i)
+	{
+		for (short j = 0; j < map_column; ++j)
+		{
+			Plant& target = map->yard[coordinate{ i, j }];
+			coordinate tmp = map->yard.Table2Screen(coordinate{ i,j });
+
+			if (target.ID() != plant_ID::None)
+			{
+				WriteScreenBuffer(DynamicLayer, target.name().c_str(), tmp, true);
+			}
+			else
+			{
+				string eraser(map_cell_length - 2, ' ');
+				WriteScreenBuffer(DynamicLayer, eraser.c_str(), tmp, true);//清空一行
+			}
+		}
+	}
+
+}
+void Display::UpdateBullet()
+{
+	if (!continue_flag)//避免主綫程已經發出停止請求，副綫程卻已經進入循環的情況
+		return;
 }
 
 void Display::next()
 {
 	//new thread
-	while(true)
+	while(continue_flag)
 	{
-		UpdateStore();
+		PrintOnMouse();
+
+		UpdateBullet();
+		UpdatePlant();
+		UpdateZombie();
+
 		UpdateSun();
+		UpdateStore();
 		UpdateScore();
+
 	}
 }
 
 //void Display::next()
 //{
-//
 //		UpdateStore();
 //		UpdateSun();
 //		UpdateScore();

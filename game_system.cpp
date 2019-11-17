@@ -21,12 +21,17 @@ void GAME_SYSTEM::action()
 		{
 			//cout << "mode : player_mode::selected" << endl;
 			
-			display.PrintOnMouse(selected_plant->name());
+			display.MouseDisplay = selected_plant->name();
+			/*TODO 
+			這條語句會使鼠標打印時的坐標錯亂
+			原因是某個時隙内selected_name()會返回空字符串，尚未查明原因
+			推測與綫程切換有關
+			*/
 		}
-		else//menu
+		else
 		{
 			//cout << "mode : player_mode::normal_play" << endl;
-			display.PrintOnMouse("+");
+			display.MouseDisplay = "+";
 		}
 
 	break;
@@ -35,15 +40,18 @@ void GAME_SYSTEM::action()
 	{
 		if (mode == player_mode::normal)
 		{
-			display.PrintOnMouse("+");
+			display.MouseDisplay = "+";
 		}
 		else if (mode == player_mode::store_selecting)
 		{
 			selected_plant = store.SelectProducts(mouse_position);
 			if (selected_plant && selected_plant->ID()!=plant_ID::None)//有選到商品，非空指針
+			{
 				selected = true;
-			else
-				display.PrintOnMouse("+");
+				display.MouseDisplay = selected_plant->name();
+			}
+			//else
+			//	display.MouseDisplay = "+";
 		}
 		else//map_selecting
 		{
@@ -53,14 +61,13 @@ void GAME_SYSTEM::action()
 				Plant_State != "Place already plant")
 			{
 				store.buy();
-				display.NewPlant(mouse_position, Plant_State);
 				selected = false;
 				mode = player_mode::normal;
 				selected_plant = nullptr;
 			}
 			else
 			{
-				display.PrintOnMouse(Plant_State);
+				display.MouseDisplay = Plant_State;
 			}
 		}
 		break;
@@ -76,21 +83,22 @@ void GAME_SYSTEM::action()
 		break;
 	}
 	}
-
 }
 
 GAME_SYSTEM::GAME_SYSTEM() :
-	hStdin(GetStdHandle(STD_INPUT_HANDLE)),
-	score(0), 
+	hStdin(GetStdHandle(STD_INPUT_HANDLE)),	// 获取标准输入输出设备句柄
+	info_file(info_file_path),
+	map_file(map_file_path),
+	score(0),
+	continued_flag(true),
 	game_clock(0),
 	mode(player_mode::normal),
 	mouse(signal::move), mouse_position({ 0,0 }),
 	key_stroke(0),
 	selected(false), selected_plant(nullptr),
-	display(map, store,&score)
+	display(map, store,map_file,info_file,&score)
 {
-	// 获取标准输入输出设备句柄
-	//HANDLE hStdin = GetStdHandle(STD_INPUT_HANDLE);
+	srand((unsigned)time(NULL));//隨機數初始化
 
 	//貌似沒什麽用處……
 	HWND hwnd = GetForegroundWindow();
@@ -105,13 +113,9 @@ GAME_SYSTEM::GAME_SYSTEM() :
 
 	std::thread deal_input(std::bind(&GAME_SYSTEM::get_input,this));//開新綫程
 	deal_input.detach();
-	std::thread deal_display(std::bind(&Display::next, &display));//綁定時記得傳入對象的地址
-	/*
-	之前出的bug就是忘記加取地址符，導致編譯器重新創建了一個Display的對象A，并把game_system中的display對象複製過去，然而display的SCREEN_BUFFER是主動申請的空間，A的SCREEN_BUFFER未經過初始化，指向了不該訪問的位置，導致錯誤
-	*/
-	deal_display.detach();
 
-	//CloseHandle(hStdin);  // 关闭标准输出设备句柄
+	map_file.close();
+	info_file.close();
 }
 
 GAME_SYSTEM::~GAME_SYSTEM()
@@ -134,7 +138,8 @@ int GAME_SYSTEM::get_input()
 		INPUT_RECORD	InputRecord;//Input Buffer	
 		DWORD				res;//IpNumbersOfEventsRead 讀取到的行爲數量
 
-	while (true)
+	//New Thread
+	while (continued_flag)
 	{
 		ReadConsoleInput(hStdin, &InputRecord, 1, &res);//阻塞捕獲信號
 		//PeekConsoleInput(hStdin, &InputRecord, 1, &res);
@@ -161,10 +166,10 @@ int GAME_SYSTEM::get_input()
 			{
 			case 0:
 			{
-				display.PrintOnMouse("Capture mouse Mode End!");
-				display.ShowCursor();
-				//return 0;
-				exit(0);
+				//display.MouseDisplay="Capture mouse Mode End!";
+				//display.ShowCursor();
+				//display.continue_flag = continued_flag = false;
+				//TODO : Pause
 			}
 			default:
 				break;
@@ -173,11 +178,10 @@ int GAME_SYSTEM::get_input()
 		//action();
 		//FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));//清掉之前的輸入緩衝信息
 	}
-	//should never be reach
-	return 1;
+	return 0;
 }
 
-void GAME_SYSTEM::next()
+bool GAME_SYSTEM::next()
 {
 	action();
 	static clock_t clock_start = clock();
@@ -189,9 +193,15 @@ void GAME_SYSTEM::next()
 		clock_start = clock();
 
 		int SunFlower_amount = map.next(game_clock);
+		if (SunFlower_amount == MAXINT)//僵尸抵達地圖最左側
+		{
+			display.continue_flag = continued_flag = false;//游戲結束
+			return false;
+		}
 		store.next(game_clock, SunFlower_amount);
 	}
 	//display.next();
+	return true;
 }
 
 
@@ -207,29 +217,29 @@ char GAME_SYSTEM::interpret_key(DWORD target)
 	switch (target)
 	{
 	case 0x11/*w*/:case 0x48://方向鍵上 (int)72
-		display.PrintOnMouse("↑");
+		display.MouseDisplay = "↑";
 		return 'w';
 		break;
 	case 0x1e/*a*/:case 0x4b://方向鍵左 (int)75 
-		display.PrintOnMouse("←");
+		display.MouseDisplay = "←";
 		return 'a';
 		break;
 	case 0x1f/*s*/:case 0x50://方向鍵下
-		display.PrintOnMouse("↓");
+		display.MouseDisplay = "↓";
 		return  's';
 		break;
 	case 0x20/*d*/:case 0x4d://方向鍵右
-		display.PrintOnMouse("→");
+		display.MouseDisplay = "→";
 		return 'd';
 		break;
 	case 0x01: //Esc
-		display.PrintOnMouse("Esc");
+		display.MouseDisplay = "Esc";
 		return '\0';
 	case 0x12: //e
-		display.PrintOnMouse("e");
+		display.MouseDisplay = "e";
 		return 'e';
 	default:
-		display.PrintOnMouse("Undefine key");
+		display.MouseDisplay = "Undefine key";
 		return MAXCHAR;
 	}
 	return 0;
@@ -252,7 +262,6 @@ void GAME_SYSTEM::interpret_mouse(DWORD target)
 	}
 }
 
-//傳入position 用以判斷鼠標所在區域（商店區、地圖區、其他）
 void GAME_SYSTEM::mode_change()
 {
 	//TODO 鍵盤狀況加入

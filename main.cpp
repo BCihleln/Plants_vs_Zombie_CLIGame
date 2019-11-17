@@ -4,19 +4,22 @@
 
 int main(void)
 {
-	//TODO ¶à¾Q³Ì
 	GAME_SYSTEM game_system;
 	//std::thread thrd(std::bind(&GAME_SYSTEM::get_input,game_system));
 	//thrd.detach();
-	while (true)
+	while (game_system.next())
 	{
 		//int code = game_system.get_input();
 
-		game_system.next();
+		//game_system.next();
 
 		//if (code == 0)
 		//	break;
 	}
+	system("cls");
+	cout << "Game Over!" << endl;
+	cout << "Press [ Enter ] to continue..." << endl;
+	getchar();
 
 
 	return 0;

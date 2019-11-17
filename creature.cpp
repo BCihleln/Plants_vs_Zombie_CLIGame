@@ -4,9 +4,7 @@ Creature::Creature(string name):
 	name_(name),
 	HP_(50),//¸÷í—”µÖµ0~100
 	ATK_(20),
-	ATK_SPD_(1),//ATK_SPDŒëHÓ‹Ëã£º1500ms /ATK_SPD
-	SPD_(0),
-	DEF_(0)
+	ATK_SPD_(1)//ATK_SPDŒëHÓ‹Ëã£º1500ms /ATK_SPD
 {
 }
 
@@ -31,22 +29,25 @@ Creature::Creature(string name):
 //	return name;
 //}
 
+string Creature::name() const
+{
+	return name_;
+}
+
 void Creature::injure(int damage)
 {
-	HP_ -= (damage * (DEF_-1) / 100);
+	HP_ -= damage;
 	if (HP_ < 1)
 		die();
 }
 
-void Creature::die()
-{
-	name_ = "dead " + name_;
-	HP_ = 0;
-	ATK_ = 0;
-	ATK_SPD_ = 0;
-	SPD_ = 0;
-	DEF_ = 0;
-}
+//void Creature::die()
+//{
+//	name_ = "None";
+//	HP_ = 0;
+//	ATK_ = 0;
+//	ATK_SPD_ = 0;
+//}
 
 //void Creature::next(int clock, coordinate& position)
 //{

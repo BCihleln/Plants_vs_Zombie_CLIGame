@@ -7,7 +7,8 @@
 //	return coordinate({ x,y });
 //}
 
-Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size)
+Store::Store() :Table(store_row, store_column, store_start_point,store_cell_size),
+	the_chosen_one(nullptr)
 {
 	init();
 }
@@ -29,7 +30,7 @@ void Store::init()
 
 Plant* Store::SelectProducts(coordinate screen)
 {
-	select(screen, false);
+	the_chosen_one = select(screen, false);
 	//cout << position;
 	if (the_chosen_one == nullptr || //超界
 		the_chosen_one->left_time >0 || //緩衝未到
@@ -37,7 +38,7 @@ Plant* Store::SelectProducts(coordinate screen)
 		)
 	{
 		//return string("Out of border");
-		this->the_chosen_one = nullptr;//選擇失敗
+		//this->the_chosen_one = nullptr;//選擇失敗
 		return nullptr;//(Plant*)the_chosen_one
 	}
 	else
@@ -86,6 +87,8 @@ void Store::next(clock_t game_clock, int sun_flower_amount)
 				if (table[i][j].left_time > 0)
 					table[i][j].left_time--;
 		sun += sun_flower_amount;
+		if (game_clock % 50 == 0)//每五秒產生2個陽光
+			sun += 2;
 	}
 }
 

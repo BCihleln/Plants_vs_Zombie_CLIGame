@@ -1,6 +1,6 @@
 #pragma once
 
-const char version[] = "0.3.1";
+const char version[] = "0.6.0";
 
 enum class plant_ID
 {
@@ -23,7 +23,4 @@ enum class plant_ID
 #define map_cell_length 18
 #define map_cell_width 10
 
-#define map_file "map.txt"
-#define info_file "info.txt"
-
-#define game_speed 99
+constexpr auto game_speed = 99;//這裏的game_speed是game_system的時鐘時長，而非真正的速度
